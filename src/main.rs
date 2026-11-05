@@ -1920,7 +1920,13 @@ fn run() -> Result<(), String> {
     {
         args.next();
     }
-    let subcommand = args.peek().and_then(|a| if a.starts_with("--") { None } else { Some(a.clone()) });
+    let subcommand = args.peek().and_then(|a| {
+        if a.starts_with("--") {
+            None
+        } else {
+            Some(a.clone())
+        }
+    });
     match subcommand.as_deref() {
         Some("labs") => {
             args.next();

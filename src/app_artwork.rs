@@ -146,7 +146,15 @@ fn persistent_load(source: &Source, directory: &Path) -> Option<Artwork> {
     let path = directory.join(filename);
     let cached = RawCachedTexture::load_from_disk(&path).ok()?;
     let pixels = match cached.format {
-        PixelFormat::Rgba8 => image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), cached.data).ok()?,
+        PixelFormat::Rgba8 => {
+            let pixels = image::RgbaImage::from_vec(
+                cached.width.into(),
+                cached.height.into(),
+                cached.data,
+            )
+            .ok()?;
+            pixels
+        }
         PixelFormat::Rgb565 => {
             let w = cached.width as usize;
             let h = cached.height as usize;

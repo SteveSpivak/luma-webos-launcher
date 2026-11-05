@@ -670,7 +670,9 @@ pub fn resolve_vertical_stack_target(
 
         let corridor_dist = (cand_center - corridor_screen_x).abs();
 
-        let overlap = (source_screen_right.min(cand_right) - source_screen_left.max(cand_left)).max(0.0);
+        let overlap = (source_screen_right.min(cand_right)
+            - source_screen_left.max(cand_left))
+            .max(0.0);
         let min_w = source_w.min(card.width.max(1.0));
         let overlap_ratio = overlap / min_w;
 

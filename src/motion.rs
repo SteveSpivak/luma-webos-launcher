@@ -248,7 +248,10 @@ mod spring_tests {
         // Interrupt: change target mid-flight, velocity should carry over.
         s.set_target(200.0);
         let vel_after = s.vel;
-        assert!((vel_after - vel_before).abs() < 1.0, "velocity should persist across target change, got {vel_before} -> {vel_after}");
+        assert!(
+            (vel_after - vel_before).abs() < 1.0,
+            "velocity should persist across target change, got {vel_before} -> {vel_after}"
+        );
     }
 
     #[test]
