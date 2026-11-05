@@ -1,0 +1,16 @@
+{
+  "presented": 32,
+  "warmup_frames": 10,
+  "pacing": {
+    "samples": 20,
+    "mean_ms": 16.7,
+    "p95_ms": 20,
+    "max_ms": 22
+  },
+  "cpu_submission": {
+    "samples": 20,
+    "mean_ms": 2.1,
+    "p95_ms": 3,
+    "max_ms": 4
+  }
+}

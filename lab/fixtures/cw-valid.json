@@ -1,0 +1,28 @@
+{
+  "schema": "nuvio.launcher.cw.v1",
+  "revision": 2,
+  "generated_at": "2026-11-05T12:00:00Z",
+  "profile_alias": "demo-profile-a",
+  "items": [
+    {
+      "type": "movie",
+      "source": "tmdb",
+      "source_id": "603",
+      "title": "Synthetic film A",
+      "progress_seconds": 120,
+      "duration_seconds": 3600,
+      "artwork_ref": "opaque:poster-a",
+      "updated_at": "2026-11-05T11:55:00Z"
+    },
+    {
+      "type": "series",
+      "source": "imdb",
+      "source_id": "tt0903747",
+      "title": "Synthetic series B",
+      "progress_seconds": 400,
+      "duration_seconds": 2400,
+      "artwork_ref": "opaque:poster-b",
+      "updated_at": "2026-11-05T11:56:00Z"
+    }
+  ]
+}
