@@ -174,26 +174,28 @@ impl Platform {
                     #[cfg(feature = "nuvio")]
                     Request::NuvioLaunch { content_target } => {
                         Response::Launched(match validate_nuvio_target(&content_target) {
-                            Ok(target) => if webos {
-                                let payload = nuvio_launch_params(&target);
-                                call("luna://com.webos.applicationManager/launch", payload)
-                                    .map(|_| ())
-                                    .map_err(|launch_error| {
-                                        if app_not_installed(&launch_error)
-                                            || call(
-                                                "luna://com.webos.applicationManager/getAppInfo",
-                                                json!({"id": NUVIO_APP_ID}),
-                                            )
-                                            .err()
-                                            .is_some_and(|error| app_not_installed(&error))
-                                        {
-                                            NUVIO_NOT_INSTALLED.to_owned()
-                                        } else {
-                                            launch_error
-                                        }
-                                    })
-                            } else {
-                                Ok(())
+                            Ok(target) => {
+                                if webos {
+                                    let payload = nuvio_launch_params(&target);
+                                    call("luna://com.webos.applicationManager/launch", payload)
+                                        .map(|_| ())
+                                        .map_err(|launch_error| {
+                                            if app_not_installed(&launch_error)
+                                                || call(
+                                                    "luna://com.webos.applicationManager/getAppInfo",
+                                                    json!({"id": NUVIO_APP_ID}),
+                                                )
+                                                .err()
+                                                .is_some_and(|error| app_not_installed(&error))
+                                            {
+                                                NUVIO_NOT_INSTALLED.to_owned()
+                                            } else {
+                                                launch_error
+                                            }
+                                        })
+                                } else {
+                                    Ok(())
+                                }
                             },
                             Err(error) => Err(error),
                         })
