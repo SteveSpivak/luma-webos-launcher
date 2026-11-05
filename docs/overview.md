@@ -70,4 +70,4 @@ Luma started as a fork of [ecklf/lg-luma](https://github.com/ecklf/lg-luma). Mos
 - [Sunshine](https://github.com/LizardByte/Sunshine) / [Apollo](https://github.com/ClassicOldSong/Apollo)
 - [Jellyfin](https://jellyfin.org/)
 - [Home Assistant](https://www.home-assistant.io/)
-- [Releases](../../releases/latest)
+- [Releases](https://github.com/SteveSpivak/luma-webos-launcher/releases/latest)

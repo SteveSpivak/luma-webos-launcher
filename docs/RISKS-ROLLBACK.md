@@ -10,7 +10,7 @@
 | Focus not moved on Nuvio launch may confuse users expecting navigation | Low | Low | Intentional: Back out of Nuvio returns to same focus. Users can re-navigate. Documented in USER-FLOWS.md. | Accepted |
 | Phase 1 is launch-only; no stack row or cards | N/A (by design) | N/A | Phase 2 will add stack source when Nuvio producer contract is authorized. Not a Phase 1 gap. | Accepted |
 | Default builds affected by Nuvio feature | Low | High | `nuvio` not in `default = []`; all Nuvio code `#[cfg(feature = "nuvio")]`. Default builds unchanged. | Mitigated |
-| No native build verification possible in sandbox | High (environmental) | Medium (Gate 1 unverified) | Documented as BLOCKED. Cannot claim PASS until toolchain available. | Environmental blocker |
+| No native build verification possible in sandbox | High (environmental) | Medium (Gate 1 unverified) | Sandbox lacks Rust toolchain and pnpm. CI provides Rust 1.93; results must be obtained from GitHub Actions. Cannot claim PASS without CI execution. | Environmental blocker |
 | `cargo fmt` line-length violations (>100 cols) | Low | Low | All added lines verified ≤100 chars via source inspection. | Mitigated |
 | Translation placeholder mismatch | Low | Low | `nuvioNotInstalled` has no placeholders; follows existing pattern. i18n unit test enforces placeholder consistency. | Mitigated |
 
@@ -22,11 +22,8 @@
 # On the implementation branch
 git checkout arena/5fe14abb-luma-webos-launcher
 
-# Option A: revert both commits (preserves history)
+# Revert both commits (non-destructive, preserves history)
 git revert 6dc1886 3031417
-
-# Option B: hard reset to baseline (destructive to this branch's commits)
-git reset --hard 40994fc
 
 # Push the rollback
 git push origin arena/5fe14abb-luma-webos-launcher

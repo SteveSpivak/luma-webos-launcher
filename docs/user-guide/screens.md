@@ -32,7 +32,7 @@ This page maps each screenshot in `docs/screenshots/` to the source code that pr
 
 | Screenshot | Source | Description |
 |---|---|---|
-| `smart-home.jpg` | `src/smart_home.rs`, `src/smart_home_view.rs` | Smart Home tab with cameras |
+| `smart-home.jpg` | `src/smart_home.rs` | Smart Home tab with cameras |
 | `settings-smart-home.jpg` | `src/smart_home_settings_view.rs` | Home Assistant settings |
 
 ## Widgets

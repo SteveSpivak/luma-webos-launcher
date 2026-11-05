@@ -2,7 +2,7 @@
 
 ## Current status
 
-Phase 1 source is complete and committed on `arena/5fe14abb-luma-webos-launcher` (commit `6dc1886`), with draft PR #2 open. Gate 1 (native build + test verification) is **BLOCKED** because this sandbox has no Rust toolchain and no pnpm.
+Phase 1 source is complete and committed on `arena/5fe14abb-luma-webos-launcher` (commit `6dc1886`), with draft PR #2 open. Gate 1 (native build + test verification) is **BLOCKED in this sandbox** — no Rust toolchain and no pnpm available locally. CI provides Rust 1.93 via `dtolnay/rust-toolchain@1.93.0`; results must be obtained from GitHub Actions.
 
 ## Step 1: Satisfy Gate 1 (unblock)
 
@@ -30,7 +30,7 @@ cargo build --locked --features nuvio  # nuvio feature compiles
 1. Add `"nuvio"` to `stacks.rs::SOURCES`
 2. `has_library("nuvio")` → true
 3. `collection_choices("nuvio")` returns `["continue-watching", "watchlist", "library"]`
-4. Create `src/nuvio.rs` consumer service (read-only, profile-scoped, cancellation tokens, bounded item counts)
+4. Create `src/nuvio.rs` (planned) consumer service (read-only, profile-scoped, cancellation tokens, bounded item counts)
 5. Wire `stacks_refresh()` in `main.rs` to send `Nuvio::Command::Fetch`
 6. Consumer-side tests with synthetic fixtures
 7. Producer-side implementation proposal for the Nuvio repository (separate repo)

@@ -36,7 +36,7 @@ This charter covers **Phase 1: title-to-detail launch** only. Phase 2 (Continue 
 - Keep existing advanced Luma capabilities (motion, widgets, Jellyfin/Plex/Moonlight stacks, video wallpaper) intact.
 - Experimental functionality default OFF.
 - No new general-purpose API server.
-- No native build or test execution possible in this sandbox (no Rust toolchain, no pnpm). Native validation receipts are BLOCKED until a toolchain is available.
+- No native build or test execution possible in this sandbox (no Rust toolchain, no pnpm). CI provides Rust 1.93 via `dtolnay/rust-toolchain@1.93.0`. Native validation receipts are BLOCKED in this sandbox until a toolchain is available or CI results are obtained.
 
 ## 5. Roles and ownership
 
@@ -59,7 +59,7 @@ This charter covers **Phase 1: title-to-detail launch** only. Phase 2 (Continue 
 - Draft PR #2 open against `main`.
 - All 11 Phase 1 requirements addressed in source.
 - 8 feature-gated unit tests present in `src/tests.rs`.
-- Native build and test run: **BLOCKED** — no Rust toolchain in this sandbox. Cannot claim PASS.
+- Native build and test run: **BLOCKED in sandbox** — no Rust toolchain or pnpm available locally. CI provides Rust 1.93; results must be obtained from GitHub Actions. Cannot claim PASS without CI execution.
 - Rollback instructions documented.
 
 ## 7. What this charter is NOT

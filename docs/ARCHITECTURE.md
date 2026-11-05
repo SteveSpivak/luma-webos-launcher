@@ -216,8 +216,8 @@ No changes to `stacks.rs`, `stacks_view.rs`, `media.rs`, `app_artwork.rs`, or `v
 |---|---|---|
 | Source inspection | Complete | All owner files read |
 | Dependency graph | Source-backed | Traced from actual code |
-| Native build | NOT RUN | No Rust toolchain in sandbox |
-| `cargo test` | NOT RUN | No Rust toolchain |
-| `cargo clippy -D warnings` | NOT RUN | No Rust toolchain |
-| `cargo fmt --check` | NOT RUN | No Rust toolchain |
-| Rollback | Documented | `git revert 6dc1886 3031417` or `git reset --hard 40994fc` |
+| Native build | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
+| `cargo test` | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
+| `cargo clippy -D warnings` | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
+| `cargo fmt --check` | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
+| Rollback | Documented | `git revert 6dc1886 3031417` (non-destructive, preserves history) |

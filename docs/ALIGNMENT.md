@@ -36,7 +36,7 @@ When a code change is proposed, documentation is reviewed alongside it:
 
 ## Alignment across agents
 
-All agents work on the same branch. Before making documentation changes:
+Agents work on isolated feature branches or worktrees. Before making documentation changes:
 
 1. Read `docs/README.md` for the documentation index
 2. Read `docs/AGENT-GUIDE.md` for how agents should work

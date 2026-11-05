@@ -31,7 +31,7 @@ This guide is for AI coding agents that need to make changes to Luma. It explain
 | What preferences exist? | `docs/reference/preferences.md` |
 | What app IDs are used? | `docs/reference/app-ids.md` |
 | What terms mean what? | `docs/reference/glossary.md` |
-| What is the Nivío integration? | `docs/nuvio/` (CHARTER.md, ARCHITECTURE.md, etc.) |
+| What is the Nivío integration? | `docs/CHARTER.md`, `docs/ARCHITECTURE.md`, `docs/INTEGRATION-AUDIT.md`, `docs/REUSE-MATRIX.md`, `docs/USER-STORIES.md`, `docs/USER-FLOWS.md`, `docs/COMPONENTS.md`, `docs/MEASUREMENT.md`, `docs/RISKS-ROLLBACK.md`, `docs/NEXT-STEP.md` (top-level docs) |
 | What webOS integration exists? | `docs/platform/` |
 
 ## 3. Source file ownership quick reference
@@ -213,11 +213,13 @@ When your change affects users or architecture, update:
 
 ## 10. Alignment with other agents
 
-All agents work on the same branch (`arena/5fe14abb-luma-webos-launcher`). Before starting:
+Agents work on isolated feature branches or worktrees, never sharing a single working branch. Before starting:
 
-1. Read the current branch state: `git log --oneline -5`, `git status --short`
-2. Read the open PR: `gh pr list --state open`
+1. Check the current branch state: `git log --oneline -5`, `git status --short`
+2. Read open PRs: `gh pr list --state open`
 3. Read this guide and the architecture docs
-4. Coordinate changes to avoid conflicts on shared files (`src/state.rs`, `src/main.rs`, `src/platform.rs`)
-5. Do not force-push, reset, or overwrite other agents' work
-6. Do not rename the branch
+4. Create an isolated worktree or feature branch for your change: `git worktree add` or `git checkout -b <feature-branch>`
+5. Coordinate changes to avoid conflicts on shared files (`src/state.rs`, `src/main.rs`, `src/platform.rs`)
+6. Do not force-push, reset, or overwrite another agent's history
+7. Do not rename the current session branch (`arena/5fe14abb-luma-webos-launcher`)
+8. Integrate changes through a controlled merge or fresh integration branch, never by force-push or destructive reset

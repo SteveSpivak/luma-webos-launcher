@@ -75,6 +75,25 @@ luma-webos-launcher/
 | Nuvio Continue Watching stack row (Phase 2) | Blocked — needs Nuvio producer API contract |
 | Nuvio Home row (Phase 3) | Blocked — depends on Phase 2 |
 
+## Nivío integration (feature-scoped docs)
+
+The following documents cover the Nivío title-to-detail launch integration specifically. They are **integration-scoped** (feature-specific), not whole-project documentation:
+
+| Doc | Purpose |
+|---|---|
+| [`CHARTER.md`](CHARTER.md) | Nivío project charter, scope, authorization boundaries |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Nivío architecture and component map |
+| [`INTEGRATION-AUDIT.md`](INTEGRATION-AUDIT.md) | Nivío integration audit against existing code |
+| [`REUSE-MATRIX.md`](REUSE-MATRIX.md) | What Nivío reuses vs. what it must create |
+| [`USER-STORIES.md`](USER-STORIES.md) | Nivío user stories and acceptance criteria |
+| [`USER-FLOWS.md`](USER-FLOWS.md) | Nivío user flows and sequence diagrams |
+| [`COMPONENTS.md`](COMPONENTS.md) | Nivío component definitions |
+| [`MEASUREMENT.md`](MEASUREMENT.md) | Nivío metrics and observability |
+| [`RISKS-ROLLBACK.md`](RISKS-ROLLBACK.md) | Nivío risks and rollback procedure |
+| [`NEXT-STEP.md`](NEXT-STEP.md) | Nivío next-step plan and blockers |
+
+These docs describe work on a separate feature branch (`research/arena-nuvio-integration-kit-20261105`) and are not part of the core Luma documentation set.
+
 ## Contributing
 
 See [`developer/contributing.md`](developer/contributing.md) for how to work on this codebase, run tests, and submit changes. All changes must be committed to a feature branch and submitted as a draft pull request — never merged automatically.

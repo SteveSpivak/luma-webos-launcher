@@ -2,7 +2,7 @@
 
 ## 1. Status: BLOCKED (no toolchain)
 
-This sandbox has **no Rust toolchain** (`cargo`/`rustc`/`rustfmt` absent) and **no pnpm**. The following commands cannot be executed here. They are documented as the exact commands to run when a Rust toolchain is available. No measurements are claimed.
+This sandbox has **no Rust toolchain** (`cargo`/`rustc`/`rustfmt` absent) and **no pnpm**. The following commands cannot be executed here. GitHub Actions provides Rust 1.93 via `dtolnay/rust-toolchain@1.93.0`. They are documented as the exact commands to run when a Rust toolchain is available (locally or in CI). No measurements are claimed without execution.
 
 ## 2. Gate 1 validation commands
 
@@ -111,7 +111,7 @@ These provide the historical evidence baseline. Phase 1 changes must pass all of
 
 ## 7. Rollback verification
 
-After rollback (`git revert 6dc1886 3031417` or `git reset --hard 40994fc`):
+After rollback (`git revert 6dc1886 3031417`):
 
 ```bash
 cargo build --locked        # default build unchanged
