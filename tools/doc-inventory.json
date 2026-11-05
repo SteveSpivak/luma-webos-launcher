@@ -240,8 +240,12 @@
       "diataxis": "explanation",
       "audience": "General audience",
       "scope": "nivio",
-      "source_refs": ["src/tests.rs"],
-      "source_refs_resolved": ["src/tests.rs"],
+      "source_refs": [
+        "src/tests.rs"
+      ],
+      "source_refs_resolved": [
+        "src/tests.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -368,8 +372,14 @@
       "diataxis": "explanation",
       "audience": "General audience",
       "scope": "nivio",
-      "source_refs": ["src/main.rs", "src/tests.rs"],
-      "source_refs_resolved": ["src/main.rs", "src/tests.rs"],
+      "source_refs": [
+        "src/main.rs",
+        "src/tests.rs"
+      ],
+      "source_refs_resolved": [
+        "src/main.rs",
+        "src/tests.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -379,8 +389,12 @@
       "diataxis": "explanation",
       "audience": "Developers, architects",
       "scope": "whole-project",
-      "source_refs": ["src/"],
-      "source_refs_resolved": ["src/"],
+      "source_refs": [
+        "src/"
+      ],
+      "source_refs_resolved": [
+        "src/"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -614,8 +628,18 @@
       "diataxis": "explanation",
       "audience": "Developers, architects",
       "scope": "whole-project",
-      "source_refs": ["src/main.rs", "src/state.rs", "tv/home.cjs", "tv/home.sh"],
-      "source_refs_resolved": ["src/main.rs", "src/state.rs", "tv/home.cjs", "tv/home.sh"],
+      "source_refs": [
+        "src/main.rs",
+        "src/state.rs",
+        "tv/home.cjs",
+        "tv/home.sh"
+      ],
+      "source_refs_resolved": [
+        "src/main.rs",
+        "src/state.rs",
+        "tv/home.cjs",
+        "tv/home.sh"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -625,8 +649,12 @@
       "diataxis": "explanation",
       "audience": "Developers, architects",
       "scope": "whole-project",
-      "source_refs": ["src/state.rs"],
-      "source_refs_resolved": ["src/state.rs"],
+      "source_refs": [
+        "src/state.rs"
+      ],
+      "source_refs_resolved": [
+        "src/state.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -636,8 +664,12 @@
       "diataxis": "reference",
       "audience": "Developers, contributors",
       "scope": "whole-project",
-      "source_refs": ["src/state.rs"],
-      "source_refs_resolved": ["src/state.rs"],
+      "source_refs": [
+        "src/state.rs"
+      ],
+      "source_refs_resolved": [
+        "src/state.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -669,8 +701,22 @@
       "diataxis": "reference",
       "audience": "Developers",
       "scope": "whole-project",
-      "source_refs": ["assets/", "src/", "src/state.rs", "src/tests.rs", "tools/", "tv/"],
-      "source_refs_resolved": ["assets/", "src/", "src/state.rs", "src/tests.rs", "tools/", "tv/"],
+      "source_refs": [
+        "assets/",
+        "src/",
+        "src/state.rs",
+        "src/tests.rs",
+        "tools/",
+        "tv/"
+      ],
+      "source_refs_resolved": [
+        "assets/",
+        "src/",
+        "src/state.rs",
+        "src/tests.rs",
+        "tools/",
+        "tv/"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -680,8 +726,12 @@
       "diataxis": "how-to",
       "audience": "Contributors",
       "scope": "whole-project",
-      "source_refs": ["src/state.rs"],
-      "source_refs_resolved": ["src/state.rs"],
+      "source_refs": [
+        "src/state.rs"
+      ],
+      "source_refs_resolved": [
+        "src/state.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -691,8 +741,16 @@
       "diataxis": "how-to",
       "audience": "Developers, QA",
       "scope": "whole-project",
-      "source_refs": ["src/app-artwork-tests.rs", "src/tests.rs", "src/weather-tests.rs"],
-      "source_refs_resolved": ["src/app-artwork-tests.rs", "src/tests.rs", "src/weather-tests.rs"],
+      "source_refs": [
+        "src/app-artwork-tests.rs",
+        "src/tests.rs",
+        "src/weather-tests.rs"
+      ],
+      "source_refs_resolved": [
+        "src/app-artwork-tests.rs",
+        "src/tests.rs",
+        "src/weather-tests.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -702,8 +760,12 @@
       "diataxis": "reference",
       "audience": "Developers",
       "scope": "whole-project",
-      "source_refs": ["tools/webos-runtime.mjs"],
-      "source_refs_resolved": ["tools/webos-runtime.mjs"],
+      "source_refs": [
+        "tools/webos-runtime.mjs"
+      ],
+      "source_refs_resolved": [
+        "tools/webos-runtime.mjs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -773,8 +835,12 @@
       "diataxis": "reference",
       "audience": "TV integrators",
       "scope": "whole-project",
-      "source_refs": ["src/platform.rs"],
-      "source_refs_resolved": ["src/platform.rs"],
+      "source_refs": [
+        "src/platform.rs"
+      ],
+      "source_refs_resolved": [
+        "src/platform.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -784,8 +850,14 @@
       "diataxis": "how-to",
       "audience": "TV integrators",
       "scope": "whole-project",
-      "source_refs": ["tv/home.cjs", "tv/home.sh"],
-      "source_refs_resolved": ["tv/home.cjs", "tv/home.sh"],
+      "source_refs": [
+        "tv/home.cjs",
+        "tv/home.sh"
+      ],
+      "source_refs_resolved": [
+        "tv/home.cjs",
+        "tv/home.sh"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -795,8 +867,12 @@
       "diataxis": "reference",
       "audience": "TV integrators",
       "scope": "whole-project",
-      "source_refs": ["src/platform.rs"],
-      "source_refs_resolved": ["src/platform.rs"],
+      "source_refs": [
+        "src/platform.rs"
+      ],
+      "source_refs_resolved": [
+        "src/platform.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -806,8 +882,16 @@
       "diataxis": "explanation",
       "audience": "TV integrators",
       "scope": "whole-project",
-      "source_refs": ["src/luna.rs", "src/main.rs", "src/platform.rs"],
-      "source_refs_resolved": ["src/luna.rs", "src/main.rs", "src/platform.rs"],
+      "source_refs": [
+        "src/luna.rs",
+        "src/main.rs",
+        "src/platform.rs"
+      ],
+      "source_refs_resolved": [
+        "src/luna.rs",
+        "src/main.rs",
+        "src/platform.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -828,8 +912,12 @@
       "diataxis": "reference",
       "audience": "Developers",
       "scope": "whole-project",
-      "source_refs": ["src/branding.rs"],
-      "source_refs_resolved": ["src/branding.rs"],
+      "source_refs": [
+        "src/branding.rs"
+      ],
+      "source_refs_resolved": [
+        "src/branding.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -890,8 +978,18 @@
       "diataxis": "reference",
       "audience": "Developers",
       "scope": "whole-project",
-      "source_refs": ["src/i18n.rs", "src/model.rs", "src/stacks.rs", "src/storage.rs"],
-      "source_refs_resolved": ["src/i18n.rs", "src/model.rs", "src/stacks.rs", "src/storage.rs"],
+      "source_refs": [
+        "src/i18n.rs",
+        "src/model.rs",
+        "src/stacks.rs",
+        "src/storage.rs"
+      ],
+      "source_refs_resolved": [
+        "src/i18n.rs",
+        "src/model.rs",
+        "src/stacks.rs",
+        "src/storage.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -901,8 +999,12 @@
       "diataxis": "tutorial",
       "audience": "End users, power users",
       "scope": "whole-project",
-      "source_refs": ["src/state.rs"],
-      "source_refs_resolved": ["src/state.rs"],
+      "source_refs": [
+        "src/state.rs"
+      ],
+      "source_refs_resolved": [
+        "src/state.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
@@ -912,7 +1014,12 @@
       "diataxis": "tutorial",
       "audience": "End users",
       "scope": "whole-project",
-      "source_refs": ["src/app_artwork.rs", "src/branding.rs", "src/state.rs", "src/view.rs"],
+      "source_refs": [
+        "src/app_artwork.rs",
+        "src/branding.rs",
+        "src/state.rs",
+        "src/view.rs"
+      ],
       "source_refs_resolved": [
         "src/app_artwork.rs",
         "src/branding.rs",
@@ -1024,8 +1131,12 @@
       "diataxis": "tutorial",
       "audience": "Power users",
       "scope": "whole-project",
-      "source_refs": ["src/platform.rs"],
-      "source_refs_resolved": ["src/platform.rs"],
+      "source_refs": [
+        "src/platform.rs"
+      ],
+      "source_refs_resolved": [
+        "src/platform.rs"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
