@@ -12,8 +12,10 @@ pub const APP_ID: &str = "com.denisefremov.luma";
 pub const HOME_ID: &str = "com.webos.app.home";
 /// Nuvio's application ID is fixed and validated: Luma owns the launch
 /// request, Nuvio owns the deep-link receiver, playback, accounts and profiles.
+#[cfg(feature = "nuvio")]
 pub const NUVIO_APP_ID: &str = "space.nuvio.webos";
 /// Reported when the TV replies that Nuvio is not installed.
+#[cfg(feature = "nuvio")]
 pub const NUVIO_NOT_INSTALLED: &str = "Nuvio is not installed";
 
 pub fn redirect_to_home() -> Result<bool, String> {
