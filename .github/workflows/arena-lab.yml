@@ -1,0 +1,32 @@
+name: Arena offline lab validation
+on:
+  pull_request:
+    paths:
+      - 'lab/**'
+      - 'AGENTS.md'
+      - 'ARENA-START-HERE.md'
+      - '.github/workflows/arena-lab.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Python availability
+        run: python3 --version
+      - name: Verify pinned imported source blobs
+        run: python3 lab/tools/kit_verify.py
+      - name: Run current kit and simulator tests
+        run: python3 -m unittest discover -s lab/tests -p 'test_*.py' -v
+      - name: Run copied historical analysis tests (legacy import shim)
+        env:
+          PYTHONPATH: lab/legacy-luma/compat
+        run: python3 -m unittest discover -s lab/legacy-luma/tests -p 'test_*.py' -v
+      - name: Compile all portable Python
+        run: python3 -m compileall -q lab/tools lab/tests lab/legacy-luma

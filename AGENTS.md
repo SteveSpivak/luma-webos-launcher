@@ -1,0 +1,13 @@
+# Agent contract: Luma ↔ Nuvio integration lab (2026-11-05)
+
+This fork is the **advanced Luma source**, not the old Luma fork. **Before editing**, read `lab/ARENA-ASSIGNMENT.md`, `lab/NUVIO-CONTRACT.md`, `lab/LESSONS.md`, `lab/SOURCE-LEDGER.md`, `lab/MEASUREMENT-PLAN.md`, `lab/RECOVERY.md`, `lab/OFFLINE-CHECKS.md` and `development.md`.
+
+- Inventory branch SHA, worktree dirt, actual app ID, device model/firmware if locally evidenced. Do not overwrite unrelated work; do not assume previously measured TV state.
+- Distinguish PROVEN (exact source/test), OBSERVED (record), MEASURED (repeatable device instrumented), INFERRED, PROPOSED, UNKNOWN, NOT_RUN, FAIL, BLOCKED. No synthetic desktop/TV conflation. Require exact command, exit, toolchain and hash receipts. Two repeated failures then stop.
+- **Reuse first:** `src/platform.rs` owns application launch, `src/state.rs` owns navigation/Back, current widgets/HA/player/motion/hw_wallpaper code exists. Port **only** missing behavior. No duplicate renderers, native media owners or generic app-RPC bridges.
+- Nuvio `space.nuvio.webos` title navigation: `params.contentTarget="nuvio://tmdb/movie/603"`, documented at Nuvio commit `c97c38da`. It is a **launch-to-details** contract, not playback. Tests/fixtures in `lab/` model the safe outbound subset; don't claim actual app tests.
+- Public repository: **never paste private Nuvio or LG-TV code, credentials, account history, addon URLs, device IDs, HARs, binaries or proprietary media here**. The source ledger provides pinned references; access via authorized connectors/checkout, distill non-secret contracts only.
+- New Nuvio integration must be default-OFF, fail closed for rogue app IDs/invalid titles, preserve manual stream selection, login/profile gating and proper Back/return. CW is separate, with a profile-scoped owner-approved export contract. Never infer it is already available.
+- Root/TV Home takeover, media plane, firmware, application installation, system hooks, network/DNS/router, streaming/DRM changes and HA/PETKIT controls are out of scope. No TV or service mutation without explicit per-stage human approval and independently tested rollback.
+- Verify imported source and offline unit tests with `python3 lab/tools/kit_verify.py`, `python3 -m unittest discover -s lab/tests -p 'test_*.py' -v`, and `python3 -m unittest discover -s lab/legacy-luma/tests -p 'test_*.py' -v`. Do not assert PASS before executing. Use existing native CI commands when installed; do not auto-install dependencies.
+- Present final decision, competing hypotheses, falsification, source→owner graph, risk-ranked options, exact receipts, and a single next bounded action. Work on a fresh isolated implementation branch; PR to target; don't merge automatically.
