@@ -283,6 +283,22 @@ fn effects(
                     }
                 }
             }
+            /// Launch a Nuvio title into its detail page. Default off behind
+            /// the `nuvio` feature; never autoplays and never injects input.
+            #[cfg(feature = "nuvio")]
+            Effect::NuvioLaunch { content_target } => {
+                if !state.launching {
+                    if platform.webos {
+                        state.launching = true;
+                        platform.send(Request::NuvioLaunch { content_target });
+                    } else {
+                        state.notify(state.preferences.language.format(
+                            "desktopPreview",
+                            &[("app", "Nuvio")],
+                        ));
+                    }
+                }
+            }
             Effect::Quit => return false,
             Effect::Weather(command) => weather.send(command),
             Effect::HomeAssistant(command) => home.send(command),
@@ -2798,6 +2814,8 @@ fn run() -> Result<(), String> {
                             eprintln!("{error}");
                             if error == platform::INSTALL_PLAYER_MESSAGE {
                                 state.notify(platform::INSTALL_PLAYER_MESSAGE);
+                            } else if error == platform::NUVIO_NOT_INSTALLED {
+                                state.notify(state.preferences.language.t("nuvioNotInstalled"));
                             } else {
                                 state.notify(state.preferences.language.t("appOpenError"));
                             }

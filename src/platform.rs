@@ -10,6 +10,11 @@ use std::{collections::HashSet, sync::mpsc, thread};
 
 pub const APP_ID: &str = "com.denisefremov.luma";
 pub const HOME_ID: &str = "com.webos.app.home";
+/// Nuvio's application ID is fixed and validated: Luma owns the launch
+/// request, Nuvio owns the deep-link receiver, playback, accounts and profiles.
+pub const NUVIO_APP_ID: &str = "space.nuvio.webos";
+/// Reported when the TV replies that Nuvio is not installed.
+pub const NUVIO_NOT_INSTALLED: &str = "Nuvio is not installed";
 
 pub fn redirect_to_home() -> Result<bool, String> {
     // The root-only integration mounts this marker with its native Home
@@ -37,6 +42,9 @@ pub enum Request {
     MoonlightLaunch(crate::moonlight::MoonlightLink, i64),
     /// Close another app (best effort; webOS may refuse without root).
     CloseApp(String),
+    /// Launch a Nuvio title by content target. Feature `nuvio`, default off.
+    #[cfg(feature = "nuvio")]
+    NuvioLaunch { content_target: String },
     /// Open Luma's web player app with these launch parameters. They hold
     /// signed URLs and a token, so they are never logged.
     WebPlayer(Value),
@@ -156,6 +164,38 @@ impl Platform {
                     } else {
                         Ok(())
                     }),
+                    /// Launch a Nuvio title by content target. The target is
+                    /// validated before any TV service is called; an invalid
+                    /// target fails without touching the TV. Nuvio is never
+                    /// launched automatically: every request comes from a user
+                    /// action, and no account or profile parameters are sent.
+                    #[cfg(feature = "nuvio")]
+                    Request::NuvioLaunch { content_target } => {
+                        Response::Launched(match validate_nuvio_target(&content_target) {
+                            Ok(target) => if webos {
+                                let payload = nuvio_launch_params(&target);
+                                call("luna://com.webos.applicationManager/launch", payload)
+                                    .map(|_| ())
+                                .map_err(|launch_error| {
+                                    if app_not_installed(&launch_error)
+                                        || call(
+                                            "luna://com.webos.applicationManager/getAppInfo",
+                                            json!({"id": NUVIO_APP_ID}),
+                                        )
+                                        .err()
+                                        .is_some_and(|error| app_not_installed(&error))
+                                    {
+                                        NUVIO_NOT_INSTALLED.to_owned()
+                                    } else {
+                                        launch_error
+                                    }
+                                })
+                            } else {
+                                Ok(())
+                            },
+                            Err(error) => Err(error),
+                        })
+                    }
                 };
                 if responses.send(response).is_err() {
                     break;
@@ -178,8 +218,31 @@ impl Platform {
 pub const WEB_PLAYER_ID: &str = "com.denisefremov.luma.player";
 pub const INSTALL_PLAYER_MESSAGE: &str = "Install Luma Player from Homebrew Channel";
 
-// webOS versions use slightly different texts for unknown application IDs.
-fn player_not_installed(error: &str) -> bool {
+#[cfg(feature = "nuvio")]
+/// `nuvio://tmdb/movie/<id>` or `nuvio://tmdb/tv/<id>` where the identifier
+/// is a numeric TMDB id. Everything else is rejected: Luma never constructs
+/// playback targets for another service, and a Luma request never autoplays.
+pub fn validate_nuvio_target(target: &str) -> Result<String, String> {
+    let invalid = || "Invalid Nuvio content target".to_string();
+    let rest = target.strip_prefix("nuvio://tmdb/").ok_or_else(invalid)?;
+    let (kind, id) = rest.split_once('/').ok_or_else(invalid)?;
+    if !matches!(kind, "movie" | "tv")
+        || id.is_empty()
+        || !id.bytes().all(u8::is_ascii_digit)
+    {
+        return Err(invalid());
+    }
+    Ok(target.to_owned())
+}
+
+/// Launch parameters for the Nuvio application. Nuvio owns playback; Luma
+/// only supplies the validated content target, with no account parameters.
+#[cfg(feature = "nuvio")]
+pub fn nuvio_launch_params(content_target: &str) -> Value {
+    json!({"id": NUVIO_APP_ID, "params": {"contentTarget": content_target}})
+}
+
+fn app_not_installed(error: &str) -> bool {
     let error = error.to_ascii_lowercase();
     [
         "not installed",
@@ -190,6 +253,10 @@ fn player_not_installed(error: &str) -> bool {
     ]
     .iter()
     .any(|part| error.contains(part))
+}
+
+fn player_not_installed(error: &str) -> bool {
+    app_not_installed(error)
 }
 
 fn call(uri: &str, payload: Value) -> Result<Value, String> {

@@ -5,6 +5,10 @@ use crate::{
     storage, view,
 };
 use serde_json::json;
+#[cfg(feature = "nuvio")]
+use crate::platform::{Platform, Request, Response};
+#[cfg(feature = "nuvio")]
+use std::time::Duration;
 use std::{collections::BTreeMap, path::PathBuf};
 
 fn ready() -> State {
@@ -3459,4 +3463,122 @@ fn unsupported_saved_media_source_is_ignored_without_losing_other_settings() {
     assert_eq!(prefs.stacks[0].source, "jellyfin");
     assert_eq!(prefs.stacks[0].collection, "recent");
     assert!(prefs.luma_player);
+}
+
+#[cfg(feature = "nuvio")]
+mod nuvio {
+    use super::*;
+
+    #[test]
+    fn nuvio_target_validates_movie_and_series_identifiers() {
+        assert_eq!(
+            crate::platform::validate_nuvio_target("nuvio://tmdb/movie/603"),
+            Ok("nuvio://tmdb/movie/603".to_owned())
+        );
+        assert_eq!(
+            crate::platform::validate_nuvio_target("nuvio://tmdb/tv/129973"),
+            Ok("nuvio://tmdb/tv/129973".to_owned())
+        );
+        assert_eq!(
+            crate::platform::validate_nuvio_target("nuvio://tmdb/tv/1"),
+            Ok("nuvio://tmdb/tv/1".to_owned())
+        );
+    }
+
+    #[test]
+    fn nuvio_target_rejects_malformed_targets() {
+        for target in [
+            "",
+            "nuvio://tmdb/movie/",
+            "nuvio://tmdb/movie/abc",
+            "nuvio://tmdb/movie/603/",
+            "nuvio://tmdb/movie/603/extra",
+            "nuvio://tmdb/episode/603",
+            "nuvio://tmdb/movie/603?autoplay=1",
+            "nuvio://other/movie/603",
+            "NUVIO://TMDB/MOVIE/603",
+            "nuvio://tmdb/movie/603 ",
+            "tmdb/movie/603",
+            "https://nuvio.example/movie/603",
+        ] {
+            assert!(
+                crate::platform::validate_nuvio_target(target).is_err(),
+                "unexpectedly accepted {target}"
+            );
+        }
+    }
+
+    #[test]
+    fn nuvio_app_id_is_fixed_and_valid() {
+        assert_eq!(crate::platform::NUVIO_APP_ID, "space.nuvio.webos");
+        assert!(crate::model::valid_app_id(crate::platform::NUVIO_APP_ID));
+    }
+
+    #[test]
+    fn nuvio_launch_params_match_the_contract() {
+        let expected = serde_json::json!({
+            "id": "space.nuvio.webos",
+            "params": {"contentTarget": "nuvio://tmdb/movie/603"},
+        });
+        assert_eq!(
+            crate::platform::nuvio_launch_params("nuvio://tmdb/movie/603"),
+            expected,
+        );
+    }
+
+    #[test]
+    fn nuvio_launch_routes_through_the_platform_worker() {
+        let platform = Platform::new(true);
+        platform.send(Request::NuvioLaunch {
+            content_target: "nuvio://tmdb/movie/603".to_owned(),
+        });
+        match platform.receiver.recv_timeout(Duration::from_secs(5)) {
+            Ok(Response::Launched(Err(error))) => assert!(
+                error.contains("Native Luna services are only available in an ARM webOS build"),
+                "unexpected error: {error}"
+            ),
+            response => panic!("unexpected platform response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_invalid_target_is_rejected_before_reaching_tv_services() {
+        let platform = Platform::new(true);
+        platform.send(Request::NuvioLaunch {
+            content_target: "nuvio://tmdb/movie/not-an-id".to_owned(),
+        });
+        match platform.receiver.recv_timeout(Duration::from_secs(5)) {
+            Ok(Response::Launched(Err(error))) => {
+                assert_eq!(error, "Invalid Nuvio content target")
+            }
+            response => panic!("unexpected platform response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_duplicate_launch_is_blocked_while_launching() {
+        let mut state = ready();
+        state.launching = true;
+        state.focus = Target::NuvioLaunch("nuvio://tmdb/movie/603".to_owned());
+        assert!(state.activate().is_empty());
+    }
+
+    #[test]
+    fn nuvio_launch_keeps_focus_for_back_restoration() {
+        let mut state = ready();
+        state.focus = Target::NuvioLaunch("nuvio://tmdb/movie/603".to_owned());
+        let effects = state.activate();
+        assert_eq!(
+            effects,
+            vec![Effect::NuvioLaunch {
+                content_target: "nuvio://tmdb/movie/603".to_owned()
+            }]
+        );
+        // Activation requests the launch without moving focus: Back out of
+        // Nuvio returns to Luma with the same focus.
+        assert_eq!(
+            state.focus,
+            Target::NuvioLaunch("nuvio://tmdb/movie/603".to_owned())
+        );
+    }
 }

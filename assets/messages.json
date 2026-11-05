@@ -853,6 +853,13 @@
     "zh": "无法打开此应用。",
     "pt": "Não foi possível abrir este app."
   },
+  "nuvioNotInstalled": {
+    "en": "Nuvio isn’t installed.",
+    "de": "Nuvio ist nicht installiert.",
+    "es": "Nuvio no está instalado.",
+    "zh": "未安装 Nuvio。",
+    "pt": "O Nuvio não está instalado."
+  },
   "dismissSearch": {
     "en": "Clear search",
     "de": "Suche löschen",

@@ -371,6 +371,9 @@ pub enum Effect {
     MoonlightRefilter,
     /// Look the game up on Steam for its card (id, title).
     GameInfo(i64, String),
+    /// Launch a Nuvio title by content target (feature `nuvio`, default off).
+    #[cfg(feature = "nuvio")]
+    NuvioLaunch { content_target: String },
     /// Songs and cover of a Jellyfin album card.
     AlbumDetails(i64),
     /// Play an album from this song, in order or shuffled.
@@ -4365,6 +4368,16 @@ impl State {
             Target::TvSettings => return vec![Effect::Launch("com.palm.app.settings".into())],
             Target::App(id) | Target::Input(id) if !self.launching => {
                 return vec![Effect::Launch(id)];
+            }
+            /// Launch a Nuvio title directly into its detail page. Focus is
+            /// left untouched, so Back out of Nuvio returns to Luma with the
+            /// same focus, and a repeated launch while one is in flight is
+            /// ignored by the `!self.launching` guard.
+            #[cfg(feature = "nuvio")]
+            Target::NuvioLaunch(ref content_target) if !self.launching => {
+                return vec![Effect::NuvioLaunch {
+                    content_target: content_target.clone(),
+                }];
             }
             Target::Filter(index) => {
                 // "All" (0) is a tab like the others: OK selects, never toggles off.
