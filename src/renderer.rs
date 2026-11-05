@@ -414,6 +414,9 @@ pub struct Renderer {
     /// When each title-card picture finished decoding: it fades in instead
     /// of popping onto the screen.
     appeared: HashMap<String, std::time::Instant>,
+    /// Time-budgeted GPU texture upload queue: prevents `glTexImage2D` bursts
+    /// from stalling the GLES2 command stream during scrolling.
+    upload_scheduler: TextureUploadScheduler,
 }
 
 impl Renderer {
@@ -556,6 +559,7 @@ impl Renderer {
             cameras: HashMap::new(),
             fresh: false,
             appeared: HashMap::new(),
+            upload_scheduler: TextureUploadScheduler::new(),
         })
     }
 
@@ -1298,24 +1302,35 @@ impl Renderer {
         self.quad(rect, uv, radius, 0., tint, id);
     }
 
+    /// Drain decoded poster uploads within a per-frame time budget so a burst
+    /// of Jellyfin/Plex/Nivío artwork never stalls a VSync frame.
     fn upload_posters(&mut self) {
         while let Ok((path, decoded)) = self.posters.replies.try_recv() {
             self.posters.pending.remove(&path);
-            let uploaded = decoded.map(|pixels| {
-                let mut t = texture(pixels.width(), pixels.height(), pixels.as_raw());
-                t.frame = self.frame;
-                t
-            });
-            if uploaded.is_none() {
+            let Some(pixels) = decoded else {
                 eprintln!("Artwork {path}: cannot decode");
-            }
-            if uploaded.is_some() && is_poster_cache(&path) {
+                continue;
+            };
+            let width = pixels.width();
+            let height = pixels.height();
+            let rgba = pixels.as_raw().clone();
+            self.upload_scheduler.enqueue(PendingTextureUpload {
+                cache_key: path.clone(),
+                width,
+                height,
+                rgba_bytes: rgba,
+            });
+        }
+        self.upload_scheduler.drain_within_budget(|item| {
+            let mut t = texture(item.width, item.height, &item.rgba_bytes);
+            t.frame = self.frame;
+            if is_poster_cache(&item.cache_key) {
                 self.appeared
-                    .insert(path.clone(), std::time::Instant::now());
+                    .insert(item.cache_key.clone(), std::time::Instant::now());
                 self.fresh = true;
             }
-            self.textures.insert(path, uploaded);
-        }
+            self.textures.insert(item.cache_key, Some(t));
+        });
     }
 
     /// Keep these clip stills decoded and resident: the current clip and the
@@ -1340,41 +1355,78 @@ impl Renderer {
     /// Upload stills the loader has finished; with `wait_for`, block until
     /// that one is in (it is already decoding, so this beats decoding again).
     fn upload_stills(&mut self, wait_for: Option<&str>) {
-        loop {
-            let reply = match wait_for {
-                Some(path) if self.stills.pending.contains(path) => self.stills.replies.recv().ok(),
-                _ => self.stills.replies.try_recv().ok(),
-            };
-            let Some((path, decoded)) = reply else {
-                break;
-            };
+        if let Some(path) = wait_for {
+            if self.stills.pending.contains(path) {
+                if let Ok(Some((path, decoded))) = self.stills.replies.recv() {
+                    self.stills.pending.remove(&path);
+                    if let Some((full, frost)) = decoded {
+                        self.apply_still_side_effects(&path, &full, frost.as_ref());
+                        let mut uploaded = texture(full.width(), full.height(), full.as_raw());
+                        uploaded.frame = self.frame;
+                        self.textures.insert(path, Some(uploaded));
+                        if let Some(frost_img) = frost {
+                            let mut frost_uploaded =
+                                texture(frost_img.width(), frost_img.height(), frost_img.as_raw());
+                            frost_uploaded.frame = self.frame;
+                            self.textures
+                                .insert(format!("{path}#frost"), Some(frost_uploaded));
+                        }
+                    }
+                }
+            }
+            return;
+        }
+        let mut drained = false;
+        while let Ok((path, decoded)) = self.stills.replies.try_recv() {
+            drained = true;
             self.stills.pending.remove(&path);
             let Some((full, frost)) = decoded else {
                 continue;
             };
-            if let Some(camera) = camera_key(&path) {
-                // A newer snapshot replaces the camera's previous one.
-                if let Some(old) = self.cameras.insert(camera.to_owned(), path.clone())
-                    && old != path
-                {
-                    self.textures.remove(&old);
-                }
-                self.fresh = true;
+            self.apply_still_side_effects(path.clone(), &full, frost.as_ref());
+            self.upload_scheduler.enqueue(PendingTextureUpload {
+                cache_key: path.clone(),
+                width: full.width(),
+                height: full.height(),
+                rgba_bytes: full.as_raw().clone(),
+            });
+            if let Some(frost_img) = frost {
+                self.upload_scheduler.enqueue(PendingTextureUpload {
+                    cache_key: format!("{path}#frost"),
+                    width: frost_img.width(),
+                    height: frost_img.height(),
+                    rgba_bytes: frost_img.as_raw().clone(),
+                });
             }
-            if is_poster_cache(&path) {
-                self.fresh = true;
+        }
+        if drained {
+            self.upload_scheduler.drain_within_budget(|item| {
+                let mut t = texture(item.width, item.height, &item.rgba_bytes);
+                t.frame = self.frame;
+                self.textures.insert(item.cache_key, Some(t));
+            });
+        }
+    }
+
+    /// Apply non-upload side effects of a decoded still (camera tracking,
+    /// frost pixel storage, freshness flag).
+    fn apply_still_side_effects(
+        &mut self,
+        path: String,
+        full: &image::RgbaImage,
+        frost: Option<&image::RgbaImage>,
+    ) {
+        if let Some(camera) = camera_key(&path) {
+            if let Some(old) = self.cameras.insert(camera, path.clone()) && old != path {
+                self.textures.remove(&old);
             }
-            if let Some(frost) = frost {
-                self.frost_pixels
-                    .insert(path.clone(), frost.as_raw().clone());
-                let mut uploaded = texture(frost.width(), frost.height(), frost.as_raw());
-                uploaded.frame = self.frame;
-                self.textures
-                    .insert(format!("{path}#frost"), Some(uploaded));
-            }
-            let mut uploaded = texture(full.width(), full.height(), full.as_raw());
-            uploaded.frame = self.frame;
-            self.textures.insert(path, Some(uploaded));
+            self.fresh = true;
+        }
+        if is_poster_cache(&path) {
+            self.fresh = true;
+        }
+        if let Some(frost_img) = frost {
+            self.frost_pixels.insert(path, frost_img.as_raw().clone());
         }
     }
 
@@ -2897,4 +2949,85 @@ pub(crate) fn open_image(path: impl AsRef<Path>) -> image::ImageResult<image::Dy
     image::ImageReader::open(path)?
         .with_guessed_format()?
         .decode()
+}
+
+/// One texture upload waiting in the scheduler queue.
+pub struct PendingTextureUpload {
+    pub cache_key: String,
+    pub width: u32,
+    pub height: u32,
+    pub rgba_bytes: Vec<u8>,
+}
+
+/// Time-budgeted GPU texture upload queue: prevents `glTexImage2D` bursts
+/// from stalling the GLES2 command stream during scrolling. Uploads 1-2
+/// textures per VSync frame (within a ~1.8ms budget) while keeping spring
+/// animations at locked 60 FPS.
+pub struct TextureUploadScheduler {
+    queue: std::collections::VecDeque<PendingTextureUpload>,
+    uploads_since_trim: usize,
+}
+
+impl TextureUploadScheduler {
+    /// Maximum time spent in `glTexImage2D` / `glTexSubImage2D` per 16.6ms
+    /// VSync frame (~1.8ms leaves headroom for draw calls and SDL present).
+    const FRAME_UPLOAD_BUDGET_US: u64 = 1800;
+
+    pub fn new() -> Self {
+        Self {
+            queue: std::collections::VecDeque::with_capacity(32),
+            uploads_since_trim: 0,
+        }
+    }
+
+    #[inline]
+    pub fn enqueue(&mut self, item: PendingTextureUpload) {
+        // Deduplicate if the same key is already queued.
+        self.queue.retain(|existing| existing.cache_key != item.cache_key);
+        self.queue.push_back(item);
+    }
+
+    #[inline]
+    pub fn has_pending(&self) -> bool {
+        !self.queue.is_empty()
+    }
+
+    /// Upload as many queued textures as fit in the per-frame budget.
+    /// Call once per frame before issuing draw calls.
+    pub fn drain_within_budget<F>(&mut self, mut upload_fn: F)
+    where
+        F: FnMut(PendingTextureUpload),
+    {
+        if self.queue.is_empty() {
+            return;
+        }
+        let start = std::time::Instant::now();
+        while let Some(item) = self.queue.pop_front() {
+            upload_fn(item);
+            self.uploads_since_trim += 1;
+            if start.elapsed().as_micros() >= Self::FRAME_UPLOAD_BUDGET_US as u128 {
+                break;
+            }
+        }
+        // Return freed glibc heap arenas to the webOS Linux kernel after a
+        // burst, keeping RSS invisible to memchute.
+        if self.queue.is_empty() && self.uploads_since_trim >= 6 {
+            self.uploads_since_trim = 0;
+            trim_native_heap();
+        }
+    }
+}
+
+/// Forces glibc ptmalloc to immediately `madvise(MADV_DONTNEED)` unused
+/// pages back to the webOS Linux kernel. Call after bulk artwork decode
+/// bursts and on background suspension so `memchute` never sees bloated RSS.
+#[inline]
+pub fn trim_native_heap() {
+    #[cfg(target_os = "linux")]
+    unsafe {
+        unsafe extern "C" {
+            fn malloc_trim(pad: usize) -> i32;
+        }
+        let _ = malloc_trim(0);
+    }
 }

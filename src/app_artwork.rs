@@ -1,7 +1,7 @@
 //! Installed-app artwork is discovered and decoded on its own worker. The UI
 //! requests visible cards only; it uploads finished pixels on the SDL thread.
 use crate::model::valid_app_id;
-use image::{DynamicImage, ImageFormat, ImageReader, Limits, RgbaImage};
+use image::{ImageReader, Limits, RgbaImage};
 use serde::Serialize;
 use serde_json::Value;
 use std::{
@@ -26,16 +26,147 @@ const CACHE_BYTES: usize = 48 * 1024 * 1024;
 const CACHE_ENTRIES: usize = 256;
 // Cache app-specific artwork between app launches, not just within a process.
 const DISK_ARTWORK_MAX: usize = 768 * 1024;
+
+// Zero-decode binary texture cache (.ltex): 12-byte header + raw RGBA8 or
+// RGB565 pixels. Skips PNG/JPEG decompression entirely on cache hits.
+const LTEX_MAGIC: [u8; 4] = *b"LTEX";
+const LTEX_VERSION: u8 = 1;
+
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PixelFormat {
+    Rgba8 = 1,
+    Rgb565 = 2,
+}
+
+pub struct RawCachedTexture {
+    pub width: u16,
+    pub height: u16,
+    pub format: PixelFormat,
+    pub data: Vec<u8>,
+}
+
+impl RawCachedTexture {
+    pub fn from_rgba8(width: u16, height: u16, rgba: &[u8]) -> Self {
+        Self {
+            width,
+            height,
+            format: PixelFormat::Rgba8,
+            data: rgba.to_vec(),
+        }
+    }
+
+    /// Converts RGBA8 to RGB565 (cuts VRAM and disk footprint in half for
+    /// opaque Jellyfin/Plex/Nivío posters and backdrops).
+    pub fn from_rgba8_as_rgb565(width: u16, height: u16, rgba: &[u8]) -> Self {
+        let w = width as usize;
+        let h = height as usize;
+        let mut out = Vec::with_capacity(w * h * 2);
+        const BAYER_2X2: [[i16; 2]; 2] = [[-2, 1], [2, -1]];
+        for y in 0..h {
+            let row_dither = BAYER_2X2[y & 1];
+            for x in 0..w {
+                let idx = (y * w + x) * 4;
+                let d = row_dither[x & 1];
+                let r = ((rgba[idx] as i16 + d).clamp(0, 255) as u16) >> 3;
+                let g = ((rgba[idx + 1] as i16 + (d >> 1)).clamp(0, 255) as u16) >> 2;
+                let b = ((rgba[idx + 2] as i16 + d).clamp(0, 255) as u16) >> 3;
+                let packed: u16 = (r << 11) | (g << 5) | b;
+                out.extend_from_slice(&packed.to_le_bytes());
+            }
+        }
+        Self {
+            width,
+            height,
+            format: PixelFormat::Rgb565,
+            data: out,
+        }
+    }
+
+    pub fn save_to_disk(&self, path: &Path) -> std::io::Result<()> {
+        let mut f = File::create(path)?;
+        let mut header = [0u8; 12];
+        header[0..4].copy_from_slice(&LTEX_MAGIC);
+        header[4] = LTEX_VERSION;
+        header[5] = self.format as u8;
+        header[6..8].copy_from_slice(&self.width.to_le_bytes());
+        header[8..10].copy_from_slice(&self.height.to_le_bytes());
+        f.write_all(&header)?;
+        f.write_all(&self.data)?;
+        Ok(())
+    }
+
+    pub fn load_from_disk(path: &Path) -> std::io::Result<Self> {
+        let mut f = File::open(path)?;
+        let mut header = [0u8; 12];
+        f.read_exact(&mut header)?;
+        if header[0..4] != LTEX_MAGIC || header[4] != LTEX_VERSION {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid LTEX header",
+            ));
+        }
+        let format = match header[5] {
+            1 => PixelFormat::Rgba8,
+            2 => PixelFormat::Rgb565,
+            _ => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "Unknown PixelFormat",
+                ))
+            }
+        };
+        let width = u16::from_le_bytes([header[6], header[7]]);
+        let height = u16::from_le_bytes([header[8], header[9]]);
+        let bpp = match format {
+            PixelFormat::Rgba8 => 4usize,
+            PixelFormat::Rgb565 => 2usize,
+        };
+        let expected_len = (width as usize) * (height as usize) * bpp;
+        let mut data = vec![0u8; expected_len];
+        f.read_exact(&mut data)?;
+        Ok(Self {
+            width,
+            height,
+            format,
+            data,
+        })
+    }
+}
+
 fn disk_key(source: &Source) -> Option<String> {
     let bytes = serde_json::to_vec(source).ok()?;
     let hash = bytes.iter().fold(0xcbf29ce484222325u64, |h, byte| {
         (h ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
     });
-    Some(format!("{hash:016x}.png"))
+    Some(format!("{hash:016x}.ltex"))
 }
 fn persistent_load(source: &Source, directory: &Path) -> Option<Artwork> {
     let filename = disk_key(source)?;
-    read_bounded(&directory.join(filename), DISK_ARTWORK_MAX).and_then(|data| decode(&data))
+    let path = directory.join(filename);
+    let cached = RawCachedTexture::load_from_disk(&path).ok()?;
+    let pixels = match cached.format {
+        PixelFormat::Rgba8 => image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), cached.data).ok()?,
+        PixelFormat::Rgb565 => {
+            let w = cached.width as usize;
+            let h = cached.height as usize;
+            let mut rgba = Vec::with_capacity(w * h * 4);
+            for i in 0..(w * h) {
+                let packed = u16::from_le_bytes([cached.data[i * 2], cached.data[i * 2 + 1]]);
+                let r = ((packed >> 11) & 0x1F) as u8 * 255 / 31;
+                let g = ((packed >> 5) & 0x3F) as u8 * 255 / 63;
+                let b = (packed & 0x1F) as u8 * 255 / 31;
+                rgba.extend_from_slice(&[r, g, b, 255]);
+            }
+            image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), rgba).ok()?
+        }
+    };
+    let color = background(&pixels);
+    Some(Artwork {
+        key: String::new(),
+        pixels,
+        color,
+    })
 }
 fn persistent_write(source: &Source, directory: &Path, image: &Artwork) {
     let Some(key) = disk_key(source) else {
@@ -44,17 +175,14 @@ fn persistent_write(source: &Source, directory: &Path, image: &Artwork) {
     if std::fs::create_dir_all(directory).is_err() {
         return;
     }
-    let mut data = Cursor::new(Vec::new());
-    if DynamicImage::ImageRgba8(image.pixels.clone())
-        .write_to(&mut data, ImageFormat::Png)
-        .is_err()
-        || data.get_ref().len() > DISK_ARTWORK_MAX
-    {
+    let (width, height) = (image.pixels.width() as u16, image.pixels.height() as u16);
+    let raw = RawCachedTexture::from_rgba8_as_rgb565(width, height, &image.pixels);
+    if raw.data.len() > DISK_ARTWORK_MAX {
         return;
     }
     let final_path = directory.join(&key);
     let temporary = directory.join(format!(".{}.{}.tmp", key, std::process::id()));
-    if std::fs::write(&temporary, data.into_inner()).is_ok() {
+    if raw.save_to_disk(&temporary).is_ok() {
         let _ = std::fs::rename(&temporary, &final_path);
     }
     let _ = std::fs::remove_file(temporary);

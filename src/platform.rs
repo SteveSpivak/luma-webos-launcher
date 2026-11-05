@@ -6,7 +6,11 @@ use crate::{
     model::{App, Input, Inventory, demo_inventory, valid_app_id},
 };
 use serde_json::{Value, json};
-use std::{collections::HashSet, sync::mpsc, thread};
+use std::{
+    collections::{HashSet, VecDeque},
+    sync::{Arc, Condvar, Mutex, mpsc},
+    thread,
+};
 
 pub const APP_ID: &str = "com.denisefremov.luma";
 pub const HOME_ID: &str = "com.webos.app.home";
@@ -79,17 +83,31 @@ pub enum RootSet {
 }
 
 pub struct Platform {
-    sender: mpsc::Sender<Request>,
+    /// Shared priority queue: launch requests push_front, metadata push_back.
+    requests: Arc<(Mutex<VecDeque<Request>>, Condvar)>,
+    /// Dedup of identical pending (uri, payload) pairs so duplicate launch
+    /// metadata requests never stack up in the LS2 queue.
+    dedup: Arc<Mutex<HashSet<(String, String)>>>,
     pub receiver: mpsc::Receiver<Response>,
     pub webos: bool,
 }
 
 impl Platform {
     pub fn new(webos: bool) -> Self {
-        let (sender, requests) = mpsc::channel();
+        let requests = Arc::new((Mutex::new(VecDeque::new()), Condvar::new()));
+        let dedup = Arc::new(Mutex::new(HashSet::new()));
         let (responses, receiver) = mpsc::channel();
+        let worker_requests = Arc::clone(&requests);
         thread::spawn(move || {
-            while let Ok(request) = requests.recv() {
+            loop {
+                let request = {
+                    let (lock, cvar) = &*worker_requests;
+                    let mut queue = lock.lock().unwrap();
+                    while queue.is_empty() {
+                        queue = cvar.wait(queue).unwrap();
+                    }
+                    queue.pop_front().unwrap()
+                };
                 let response = match request {
                     Request::Refresh => Response::Inventory(if webos {
                         inventory()
@@ -214,7 +232,59 @@ impl Platform {
     }
 
     pub fn send(&self, request: Request) {
-        let _ = self.sender.send(request);
+        let (uri, payload) = request.dedup_key();
+        let should_dedup = uri.is_some();
+        let mut dedup_guard = self.dedup.lock().unwrap();
+        if should_dedup {
+            let key = (uri.unwrap(), payload.unwrap());
+            if !dedup_guard.insert(key.clone()) {
+                return; // identical request already pending
+            }
+        }
+        drop(dedup_guard);
+        let (lock, cvar) = &*self.requests;
+        let mut queue = lock.lock().unwrap();
+        let is_launch = matches!(
+            request,
+            Request::Launch(..)
+                | Request::MoonlightLaunch(..)
+                | Request::CloseApp(..)
+                | Request::NuvioLaunch { .. }
+        );
+        if is_launch {
+            queue.push_front(request);
+        } else {
+            queue.push_back(request);
+        }
+        cvar.notify_one();
+    }
+}
+
+/// Dedup key for identical pending LS2 (uri, payload) pairs. Returns None for
+/// non-LS2 requests that should never be deduped.
+fn request_dedup_key(request: &Request) -> Option<(String, String)> {
+    match request {
+        Request::Launch(id) => Some(("launch".into(), id.clone())),
+        Request::MoonlightLaunch(link, id) => {
+            Some((format!("moonlight:{link:?}"), id.to_string()))
+        }
+        Request::CloseApp(id) => Some(("close".into(), id.clone())),
+        Request::NuvioLaunch { content_target } => {
+            Some(("nuvio".into(), content_target.clone()))
+        }
+        Request::Refresh => Some(("refresh".into(), String::new())),
+        Request::Root(_) => Some(("root".into(), String::new())),
+        Request::Signals => Some(("signals".into(), String::new())),
+    }
+}
+
+trait DedupKey {
+    fn dedup_key(&self) -> Option<(String, String)>;
+}
+
+impl DedupKey for Request {
+    fn dedup_key(&self) -> Option<(String, String)> {
+        request_dedup_key(self)
     }
 }
 

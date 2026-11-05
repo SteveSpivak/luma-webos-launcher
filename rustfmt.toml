@@ -1,0 +1,5 @@
+# Pin rustfmt to Edition 2021 style to avoid Edition 2024 / style_edition = "2024"
+# RFC 3407 version-sorted import churn that breaks `cargo fmt --all -- --check`
+# on CI with dtolnay/rust-toolchain@1.93.0.
+style_edition = "2021"
+max_width = 100
