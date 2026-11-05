@@ -1,0 +1,75 @@
+{
+  "schema": "luma-nuvio-reference-import/1",
+  "target_repo": "SteveSpivak/luma-webos-launcher",
+  "target_base": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+  "source_repo": "SteveSpivak/lg-luma",
+  "source_commit": "1bef79683968841426d89f066bd5bf1c0e3bbe31",
+  "disclaimer": "Reference copy only; scripts under lab/legacy-luma are offline analysis utilities, not the current launcher runtime. Metrics are not measured on this TV.",
+  "files": [
+    {
+      "source_path": "research/scripts/analyze_native_diagnostics.py",
+      "target_path": "lab/legacy-luma/scripts/analyze_native_diagnostics.py",
+      "source_blob_sha": "97b62a0b2d565dbd87e4bf4f576ee1c1514c22ac"
+    },
+    {
+      "source_path": "research/scripts/native_metrics.py",
+      "target_path": "lab/legacy-luma/scripts/native_metrics.py",
+      "source_blob_sha": "2fbbe7e1a6237a513bfef9f3264ae63cd5b47435"
+    },
+    {
+      "source_path": "research/scripts/receipt.py",
+      "target_path": "lab/legacy-luma/scripts/receipt.py",
+      "source_blob_sha": "07edb80c788407c2858e968a7f75226e247c9df7"
+    },
+    {
+      "source_path": "research/tests/test_native_diagnostics_analysis.py",
+      "target_path": "lab/legacy-luma/tests/test_native_diagnostics_analysis.py",
+      "source_blob_sha": "ca34c3c146be9023a5d442f5d94917494b986119"
+    },
+    {
+      "source_path": "research/tests/test_native_metrics.py",
+      "target_path": "lab/legacy-luma/tests/test_native_metrics.py",
+      "source_blob_sha": "cd0a5c2ea98c949275c8100fbac1f1968ca4dadc"
+    },
+    {
+      "source_path": "research/luma-audit/REFERENCE-LAUNCHER-COMPARISON.md",
+      "target_path": "lab/references/lg-luma/research/luma-audit/REFERENCE-LAUNCHER-COMPARISON.md",
+      "source_blob_sha": "ac3185e3c5012a96cfe5be1fc15c3a69478ef6e9"
+    },
+    {
+      "source_path": "research/luma-audit/architecture.md",
+      "target_path": "lab/references/lg-luma/research/luma-audit/architecture.md",
+      "source_blob_sha": "912f515781cea7c445b01a1e9bca4039f4e92f45"
+    },
+    {
+      "source_path": "research/luma-audit/video-feasibility.md",
+      "target_path": "lab/references/lg-luma/research/luma-audit/video-feasibility.md",
+      "source_blob_sha": "ff8c7f2205cc987f4d3030233709701639d16332"
+    },
+    {
+      "source_path": "research/luma-audit/device-validation-plan.md",
+      "target_path": "lab/references/lg-luma/research/luma-audit/device-validation-plan.md",
+      "source_blob_sha": "14b8c2d6c83818f9c49035d7f79b8bad36fc2baa"
+    },
+    {
+      "source_path": "research/luma-audit/ux-settings.md",
+      "target_path": "lab/references/lg-luma/research/luma-audit/ux-settings.md",
+      "source_blob_sha": "2b66e19e039e1460ab87d369a275805cf36e6d62"
+    },
+    {
+      "source_path": "delivery/PERFORMANCE-PROPOSALS.md",
+      "target_path": "lab/references/lg-luma/delivery/PERFORMANCE-PROPOSALS.md",
+      "source_blob_sha": "699a6150e97f4dc761ca01111da1372561138adf"
+    },
+    {
+      "source_path": "delivery/NATIVE-VALIDATION.md",
+      "target_path": "lab/references/lg-luma/delivery/NATIVE-VALIDATION.md",
+      "source_blob_sha": "586a371888e900d675abd532ee41ebf73d9972f4"
+    },
+    {
+      "source_path": "delivery/BLOCKERS.json",
+      "target_path": "lab/references/lg-luma/delivery/BLOCKERS.json",
+      "source_blob_sha": "6dd1d4eb97d63c6515c11543f7b7a081fe22666c"
+    }
+  ]
+}
