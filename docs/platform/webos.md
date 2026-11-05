@@ -2,11 +2,11 @@
 
 ## App identity
 
-| Property | Value |
-|---|---|
-| App ID | `com.denisefremov.luma` |
-| Home ID | `com.webos.app.home` |
-| Player ID | `com.denisefremov.luma.player` |
+| Property     | Value                               |
+| ------------ | ----------------------------------- |
+| App ID       | `com.denisefremov.luma`             |
+| Home ID      | `com.webos.app.home`                |
+| Player ID    | `com.denisefremov.luma.player`      |
 | Nivío app ID | `space.nuvio.webos` (feature-gated) |
 
 ## Launch integration
@@ -18,6 +18,7 @@ luna://com.webos.applicationManager/launch {"id": <app-id>, "params": <optional>
 ```
 
 **Supported launch targets:**
+
 - `com.webos.app.home` — LG Home (redirect when Home mount active)
 - `com.webos.app.livetv` — Live TV
 - `com.webos.app.browser` — Web Browser
@@ -52,11 +53,11 @@ Root-first fallback: elevated Homebrew `exec` service, then Luma's own call.
 
 ## Root features (root only)
 
-| Feature | Command |
-|---|---|
-| Wake at boot | Write `/var/lib/webosbrew/init.d/71-luma-wake` |
+| Feature          | Command                                              |
+| ---------------- | ---------------------------------------------------- |
+| Wake at boot     | Write `/var/lib/webosbrew/init.d/71-luma-wake`       |
 | Home Auto Launch | `luna://com.webos.settingsservice/setSystemSettings` |
-| Pad watch | Gamepad watcher (Start+Select ×2) |
+| Pad watch        | Gamepad watcher (Start+Select ×2)                    |
 
 **Source owner:** `src/platform.rs::root_features()`
 

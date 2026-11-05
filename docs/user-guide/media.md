@@ -3,6 +3,7 @@
 ## Sign-in flow
 
 ### Jellyfin (Quick Connect)
+
 ```
 [Settings › Stacks › Add Jellyfin]
         |
@@ -38,6 +39,7 @@ Preferences saved, stacks created, stacks_refresh()
 ```
 
 ### Plex (plex.tv PIN)
+
 ```
 [Settings › Stacks › Add Plex]
         |
@@ -86,20 +88,20 @@ state.media_detail() → state.movie_details()  [src/state.rs]
 
 ## Detail page elements
 
-| Element | Source |
-|---|---|
-| Backdrop | `src/media.rs::poster_backdrop()` (16:9 blurred crop) |
-| Poster | Cached poster file path |
-| Title, year, minutes, genres, countries | `media::Detail` |
-| Plot, director, cast | `media::Detail` |
-| Tags (4K, 5.1, etc.) | `media::Detail.tags` |
-| IMDB / Kinopoisk ratings | `media::Detail.imdb`, `media::Detail.kinopoisk` |
-| Audio tracks | `media::Detail.audio` |
-| Subtitles | `media::Detail.subtitles` |
-| Qualities | `media::Detail.qualities` |
-| Trailer | `media::Detail.trailer` |
-| Seasons / episodes | `media::Detail.seasons`, `media::Detail.episodes` |
-| Next unwatched | `media::Detail.next` |
+| Element                                 | Source                                                |
+| --------------------------------------- | ----------------------------------------------------- |
+| Backdrop                                | `src/media.rs::poster_backdrop()` (16:9 blurred crop) |
+| Poster                                  | Cached poster file path                               |
+| Title, year, minutes, genres, countries | `media::Detail`                                       |
+| Plot, director, cast                    | `media::Detail`                                       |
+| Tags (4K, 5.1, etc.)                    | `media::Detail.tags`                                  |
+| IMDB / Kinopoisk ratings                | `media::Detail.imdb`, `media::Detail.kinopoisk`       |
+| Audio tracks                            | `media::Detail.audio`                                 |
+| Subtitles                               | `media::Detail.subtitles`                             |
+| Qualities                               | `media::Detail.qualities`                             |
+| Trailer                                 | `media::Detail.trailer`                               |
+| Seasons / episodes                      | `media::Detail.seasons`, `media::Detail.episodes`     |
+| Next unwatched                          | `media::Detail.next`                                  |
 
 ## Playback flow
 
@@ -151,9 +153,9 @@ Plex support is newer and less tested than Jellyfin.
 
 ## Visual reference
 
-| Screenshot | Shows |
-|---|---|
-| `docs/screenshots/movie.jpg` | Movie page |
+| Screenshot                    | Shows                     |
+| ----------------------------- | ------------------------- |
+| `docs/screenshots/movie.jpg`  | Movie page                |
 | `docs/screenshots/series.jpg` | Series page with episodes |
-| `docs/screenshots/music.jpg` | Now playing |
-| `docs/screenshots/album.jpg` | Album |
+| `docs/screenshots/music.jpg`  | Now playing               |
+| `docs/screenshots/album.jpg`  | Album                     |

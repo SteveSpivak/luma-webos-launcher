@@ -2,12 +2,12 @@
 
 ## Luma app IDs
 
-| ID | Purpose |
-|---|---|
-| `com.denisefremov.luma` | Luma launcher (main app) |
-| `com.denisefremov.luma.player` | Luma's HTML5 web player |
-| `com.webos.app.home` | LG Home |
-| `space.nuvio.webos` | Nivío app (feature-gated launch target) |
+| ID                             | Purpose                                 |
+| ------------------------------ | --------------------------------------- |
+| `com.denisefremov.luma`        | Luma launcher (main app)                |
+| `com.denisefremov.luma.player` | Luma's HTML5 web player                 |
+| `com.webos.app.home`           | LG Home                                 |
+| `space.nuvio.webos`            | Nivío app (feature-gated launch target) |
 
 ## Excluded from app inventory
 
@@ -34,20 +34,20 @@ dot/underscore/dash-separated alphanumeric parts
 
 38 brands have curated vector logos in `src/branding.rs`. Examples:
 
-| Brand | App ID pattern |
-|---|---|
-| Netflix | `netflix` |
-| YouTube | `youtube.leanback.v4` |
-| Apple TV | `com.apple.appletv` |
-| Disney+ | `com.disney.disneyplus-prod` |
-| Prime Video | `amazon` |
-| Spotify | `spotify-beehive` |
-| Jellyfin | `org.jellyfin.webos` |
-| Plex | `plex` |
-| Kodi | `org.xbmc.kodi` |
-| Moonlight | `com.limelight.webos` |
-| Homebrew Channel | `org.webosbrew.hbchannel` |
-| Web Browser | `com.webos.app.browser` |
+| Brand            | App ID pattern               |
+| ---------------- | ---------------------------- |
+| Netflix          | `netflix`                    |
+| YouTube          | `youtube.leanback.v4`        |
+| Apple TV         | `com.apple.appletv`          |
+| Disney+          | `com.disney.disneyplus-prod` |
+| Prime Video      | `amazon`                     |
+| Spotify          | `spotify-beehive`            |
+| Jellyfin         | `org.jellyfin.webos`         |
+| Plex             | `plex`                       |
+| Kodi             | `org.xbmc.kodi`              |
+| Moonlight        | `com.limelight.webos`        |
+| Homebrew Channel | `org.webosbrew.hbchannel`    |
+| Web Browser      | `com.webos.app.browser`      |
 
 **Note:** Titles and partial ID matches do not select vector overrides. Amazon Alexa retains its own installed icon rather than Prime Video branding.
 

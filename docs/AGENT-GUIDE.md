@@ -17,41 +17,41 @@ This guide is for AI coding agents that need to make changes to Luma. It explain
 
 ## 2. Repository map for agents
 
-| Question | Where to look |
-|---|---|
-| What does the project do? | `docs/overview.md`, `README.md` |
-| How is the system architected? | `docs/architecture/system-overview.md` |
-| What components exist and who owns them? | `docs/architecture/component-map.md` |
-| How does data flow through key scenarios? | `docs/architecture/data-flows.md` |
-| What is the app lifecycle? | `docs/architecture/lifecycle.md` |
-| How do users interact with each screen? | `docs/user-guide/` |
-| How do I build and test? | `docs/developer/build.md`, `docs/developer/testing.md` |
-| How do I contribute? | `docs/developer/contributing.md` |
-| What are the coding conventions? | `docs/developer/code-conventions.md` |
-| What preferences exist? | `docs/reference/preferences.md` |
-| What app IDs are used? | `docs/reference/app-ids.md` |
-| What terms mean what? | `docs/reference/glossary.md` |
-| What is the Nivío integration? | `docs/CHARTER.md`, `docs/ARCHITECTURE.md`, `docs/INTEGRATION-AUDIT.md`, `docs/REUSE-MATRIX.md`, `docs/USER-STORIES.md`, `docs/USER-FLOWS.md`, `docs/COMPONENTS.md`, `docs/MEASUREMENT.md`, `docs/RISKS-ROLLBACK.md`, `docs/NEXT-STEP.md` (top-level docs) |
-| What webOS integration exists? | `docs/platform/` |
+| Question                                  | Where to look                                                                                                                                                                                                                                             |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What does the project do?                 | `docs/overview.md`, `README.md`                                                                                                                                                                                                                           |
+| How is the system architected?            | `docs/architecture/system-overview.md`                                                                                                                                                                                                                    |
+| What components exist and who owns them?  | `docs/architecture/component-map.md`                                                                                                                                                                                                                      |
+| How does data flow through key scenarios? | `docs/architecture/data-flows.md`                                                                                                                                                                                                                         |
+| What is the app lifecycle?                | `docs/architecture/lifecycle.md`                                                                                                                                                                                                                          |
+| How do users interact with each screen?   | `docs/user-guide/`                                                                                                                                                                                                                                        |
+| How do I build and test?                  | `docs/developer/build.md`, `docs/developer/testing.md`                                                                                                                                                                                                    |
+| How do I contribute?                      | `docs/developer/contributing.md`                                                                                                                                                                                                                          |
+| What are the coding conventions?          | `docs/developer/code-conventions.md`                                                                                                                                                                                                                      |
+| What preferences exist?                   | `docs/reference/preferences.md`                                                                                                                                                                                                                           |
+| What app IDs are used?                    | `docs/reference/app-ids.md`                                                                                                                                                                                                                               |
+| What terms mean what?                     | `docs/reference/glossary.md`                                                                                                                                                                                                                              |
+| What is the Nivío integration?            | `docs/CHARTER.md`, `docs/ARCHITECTURE.md`, `docs/INTEGRATION-AUDIT.md`, `docs/REUSE-MATRIX.md`, `docs/USER-STORIES.md`, `docs/USER-FLOWS.md`, `docs/COMPONENTS.md`, `docs/MEASUREMENT.md`, `docs/RISKS-ROLLBACK.md`, `docs/NEXT-STEP.md` (top-level docs) |
+| What webOS integration exists?            | `docs/platform/`                                                                                                                                                                                                                                          |
 
 ## 3. Source file ownership quick reference
 
-| Concern | Primary owner file | Secondary files |
-|---|---|---|
-| App launch to TV | `src/platform.rs` | `src/luna.rs` |
-| UI state & navigation | `src/state.rs` | `src/main.rs` |
-| Rendering scene | `src/view.rs` | `src/renderer.rs` |
-| Stack rows (Home content) | `src/stacks_view.rs` | `src/stacks.rs` |
-| App tiles (Apps grid) | `src/view.rs::tile()` | `src/branding.rs`, `src/app_artwork.rs` |
-| Jellyfin media | `src/jellyfin.rs` | `src/media.rs` |
-| Plex media | `src/plex.rs` | `src/media.rs` |
-| Moonlight games | `src/moonlight.rs` | `src/stacks.rs` |
-| Smart Home | `src/smart_home.rs` | `src/smart_home_ws.rs` |
-| Widgets | `src/widgets.rs` | `src/widgets_state.rs`, `src/widgets_view.rs` |
-| Video wallpaper | `src/hw_wallpaper.rs` | `src/aerial_video.rs` |
-| Preferences | `src/model.rs::Preferences` | `src/storage.rs` |
-| Translations | `src/i18n.rs` | `assets/messages.json` |
-| Tests | `src/tests.rs` | `src/app-artwork-tests.rs`, `src/weather-tests.rs` |
+| Concern                   | Primary owner file          | Secondary files                                    |
+| ------------------------- | --------------------------- | -------------------------------------------------- |
+| App launch to TV          | `src/platform.rs`           | `src/luna.rs`                                      |
+| UI state & navigation     | `src/state.rs`              | `src/main.rs`                                      |
+| Rendering scene           | `src/view.rs`               | `src/renderer.rs`                                  |
+| Stack rows (Home content) | `src/stacks_view.rs`        | `src/stacks.rs`                                    |
+| App tiles (Apps grid)     | `src/view.rs::tile()`       | `src/branding.rs`, `src/app_artwork.rs`            |
+| Jellyfin media            | `src/jellyfin.rs`           | `src/media.rs`                                     |
+| Plex media                | `src/plex.rs`               | `src/media.rs`                                     |
+| Moonlight games           | `src/moonlight.rs`          | `src/stacks.rs`                                    |
+| Smart Home                | `src/smart_home.rs`         | `src/smart_home_ws.rs`                             |
+| Widgets                   | `src/widgets.rs`            | `src/widgets_state.rs`, `src/widgets_view.rs`      |
+| Video wallpaper           | `src/hw_wallpaper.rs`       | `src/aerial_video.rs`                              |
+| Preferences               | `src/model.rs::Preferences` | `src/storage.rs`                                   |
+| Translations              | `src/i18n.rs`               | `assets/messages.json`                             |
+| Tests                     | `src/tests.rs`              | `src/app-artwork-tests.rs`, `src/weather-tests.rs` |
 
 ## 4. How to add a new feature (agent workflow)
 
@@ -94,6 +94,7 @@ cargo test --locked --workspace --all-features
 ```
 
 Add tests for:
+
 - Happy path (positive)
 - Invalid inputs (negative)
 - Missing service / absent app
@@ -114,16 +115,16 @@ Add tests for:
 
 ## 5. Anti-patterns (do not do these)
 
-| Anti-pattern | Why | Correct approach |
-|---|---|---|
-| Creating a new state machine | `src/state.rs` is the single owner | Add to existing `Effect`/`Target` enums |
-| Blocking SDL thread with HTTP/Luna | Freezes the UI | Use platform worker or existing service worker |
-| Adding a new dependency when one exists | Increases build size, maintenance | Check `Cargo.toml` first |
-| Hard-coding TV behavior | Not portable, breaks desktop | Use `webos` feature flag and desktop fallbacks |
-| Claiming untested behavior as verified | False confidence | Run tests or mark as BLOCKED |
-| Modifying root/system without authorization | Violates project policy | Document as BLOCKED, request authorization |
-| Merging PR automatically | Bypasses review | Use draft PR, manual merge |
-| Creating independent UI framework | Duplicates `stacks_view.rs`, `view.rs` | Reuse existing card rendering |
+| Anti-pattern                                | Why                                    | Correct approach                               |
+| ------------------------------------------- | -------------------------------------- | ---------------------------------------------- |
+| Creating a new state machine                | `src/state.rs` is the single owner     | Add to existing `Effect`/`Target` enums        |
+| Blocking SDL thread with HTTP/Luna          | Freezes the UI                         | Use platform worker or existing service worker |
+| Adding a new dependency when one exists     | Increases build size, maintenance      | Check `Cargo.toml` first                       |
+| Hard-coding TV behavior                     | Not portable, breaks desktop           | Use `webos` feature flag and desktop fallbacks |
+| Claiming untested behavior as verified      | False confidence                       | Run tests or mark as BLOCKED                   |
+| Modifying root/system without authorization | Violates project policy                | Document as BLOCKED, request authorization     |
+| Merging PR automatically                    | Bypasses review                        | Use draft PR, manual merge                     |
+| Creating independent UI framework           | Duplicates `stacks_view.rs`, `view.rs` | Reuse existing card rendering                  |
 
 ## 6. Writing tests
 
@@ -171,16 +172,16 @@ assert!(state.activate().is_empty());
 
 When your change affects users or architecture, update:
 
-| Change type | Docs to update |
-|---|---|
-| New user-facing feature | `docs/user-guide/` + `docs/overview.md` |
-| New component or architecture change | `docs/architecture/` |
-| New build/test procedure | `docs/developer/` |
-| New TV integration | `docs/platform/` |
-| New preference or setting | `docs/reference/preferences.md` |
-| New app ID | `docs/reference/app-ids.md` |
-| New term | `docs/reference/glossary.md` |
-| Contribution process change | `docs/developer/contributing.md`, this guide |
+| Change type                          | Docs to update                               |
+| ------------------------------------ | -------------------------------------------- |
+| New user-facing feature              | `docs/user-guide/` + `docs/overview.md`      |
+| New component or architecture change | `docs/architecture/`                         |
+| New build/test procedure             | `docs/developer/`                            |
+| New TV integration                   | `docs/platform/`                             |
+| New preference or setting            | `docs/reference/preferences.md`              |
+| New app ID                           | `docs/reference/app-ids.md`                  |
+| New term                             | `docs/reference/glossary.md`                 |
+| Contribution process change          | `docs/developer/contributing.md`, this guide |
 
 ## 8. Review checklist (self-review before PR)
 

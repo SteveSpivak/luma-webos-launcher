@@ -2,14 +2,14 @@
 
 ## Test types
 
-| Type | Location | Runs on |
-|---|---|---|
-| Rust unit tests | `src/tests.rs` | Desktop (no TV) |
-| App artwork tests | `src/app-artwork-tests.rs` | Desktop |
-| Weather tests | `src/weather-tests.rs` | Desktop |
-| Desktop smoke | `tests/*.mjs` | Desktop + xvfb |
-| Icon smoke | `tests/*.mjs` | Desktop |
-| Brand smoke | `tests/brands-smoke.mjs` | Desktop renderer |
+| Type              | Location                   | Runs on          |
+| ----------------- | -------------------------- | ---------------- |
+| Rust unit tests   | `src/tests.rs`             | Desktop (no TV)  |
+| App artwork tests | `src/app-artwork-tests.rs` | Desktop          |
+| Weather tests     | `src/weather-tests.rs`     | Desktop          |
+| Desktop smoke     | `tests/*.mjs`              | Desktop + xvfb   |
+| Icon smoke        | `tests/*.mjs`              | Desktop          |
+| Brand smoke       | `tests/brands-smoke.mjs`   | Desktop renderer |
 
 ## Rust tests
 

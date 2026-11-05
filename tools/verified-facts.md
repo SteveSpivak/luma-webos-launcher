@@ -13,25 +13,25 @@ were verified against the actual repository state on branch
 
 ## Verified: Documentation Structure
 
-| Check | Result |
-|---|---|
-| Every doc subdirectory has a `README.md` index | Pass |
-| `docs/README.md` is the index for all docs | Pass |
-| All 46 markdown files committed and pushed | Pass |
-| Draft PR #2 open against `main` | Pass |
+| Check                                          | Result |
+| ---------------------------------------------- | ------ |
+| Every doc subdirectory has a `README.md` index | Pass   |
+| `docs/README.md` is the index for all docs     | Pass   |
+| All 46 markdown files committed and pushed     | Pass   |
+| Draft PR #2 open against `main`                | Pass   |
 
 ## Verified: Links and References
 
-| Check | Result |
-|---|---|
-| All relative Markdown links resolve | Pass (0 broken) |
-| All source-file references (`src/*.rs`) resolve | Pass (0 broken) |
+| Check                                                        | Result          |
+| ------------------------------------------------------------ | --------------- |
+| All relative Markdown links resolve                          | Pass (0 broken) |
+| All source-file references (`src/*.rs`) resolve              | Pass (0 broken) |
 | All screenshot references (`docs/screenshots/*.jpg`) resolve | Pass (0 broken) |
-| No references to non-existent CI workflows | Pass |
-| No destructive `git reset --hard` in rollback guidance | Pass |
-| `docs/nuvio/` reference replaced with top-level Nivío docs | Pass |
-| `../../releases/latest` link fixed to full GitHub URL | Pass |
-| `.tsx` references corrected to `.rs` where applicable | Pass |
+| No references to non-existent CI workflows                   | Pass            |
+| No destructive `git reset --hard` in rollback guidance       | Pass            |
+| `docs/nuvio/` reference replaced with top-level Nivío docs   | Pass            |
+| `../../releases/latest` link fixed to full GitHub URL        | Pass            |
+| `.tsx` references corrected to `.rs` where applicable        | Pass            |
 
 ## Verified: Source Files Referenced in Docs
 
@@ -48,46 +48,46 @@ The following source files are referenced in documentation and exist in the repo
 
 ## Verified: Not Found (Expected — on Nivío branch or TV-only)
 
-| Item | Why not in repo | Where it lives |
-|---|---|---|
-| `src/nuvio.rs` | Nivío consumer service not yet implemented on main | Nivío branch `research/arena-nuvio-integration-kit-20261105` |
-| `tv/64-luma-home` | TV-side systemd boot hook (not a repo file) | TV filesystem `/etc/init.d/` |
-| `tv/65-luma` | TV-side systemd boot hook (not a repo file) | TV filesystem `/etc/init.d/` |
+| Item              | Why not in repo                                    | Where it lives                                               |
+| ----------------- | -------------------------------------------------- | ------------------------------------------------------------ |
+| `src/nuvio.rs`    | Nivío consumer service not yet implemented on main | Nivío branch `research/arena-nuvio-integration-kit-20261105` |
+| `tv/64-luma-home` | TV-side systemd boot hook (not a repo file)        | TV filesystem `/etc/init.d/`                                 |
+| `tv/65-luma`      | TV-side systemd boot hook (not a repo file)        | TV filesystem `/etc/init.d/`                                 |
 
 ## Verified: CI and Toolchain
 
-| Check | Result |
-|---|---|
-| Single CI workflow: `.github/workflows/ci.yml` | Confirmed |
-| No `release-pr.yml` or `changeset-status.yml` workflows | Confirmed (removed from docs) |
-| Rust toolchain: CI uses `dtolnay/rust-toolchain@1.93.0` | Confirmed in ci.yml |
-| Sandbox: no Rust toolchain, no pnpm | Confirmed — CI formatting (rustfmt/cargo fmt) cannot run locally |
-| Release flow: `v*` tag push or manual dispatch from main | Confirmed in ci.yml |
+| Check                                                    | Result                                                           |
+| -------------------------------------------------------- | ---------------------------------------------------------------- |
+| Single CI workflow: `.github/workflows/ci.yml`           | Confirmed                                                        |
+| No `release-pr.yml` or `changeset-status.yml` workflows  | Confirmed (removed from docs)                                    |
+| Rust toolchain: CI uses `dtolnay/rust-toolchain@1.93.0`  | Confirmed in ci.yml                                              |
+| Sandbox: no Rust toolchain, no pnpm                      | Confirmed — CI formatting (rustfmt/cargo fmt) cannot run locally |
+| Release flow: `v*` tag push or manual dispatch from main | Confirmed in ci.yml                                              |
 
 ## Verified: Rollback Guidance
 
-| File | Change |
-|---|---|
-| `docs/ARCHITECTURE.md` | `git reset --hard 40994fc` removed; `git revert` only |
-| `docs/MEASUREMENT.md` | `git reset --hard 40994fc` removed; `git revert` only |
+| File                     | Change                                                |
+| ------------------------ | ----------------------------------------------------- |
+| `docs/ARCHITECTURE.md`   | `git reset --hard 40994fc` removed; `git revert` only |
+| `docs/MEASUREMENT.md`    | `git reset --hard 40994fc` removed; `git revert` only |
 | `docs/RISKS-ROLLBACK.md` | `git reset --hard 40994fc` removed; `git revert` only |
 
 ## Verified: Agent/Branch Ownership
 
-| File | Change |
-|---|---|
-| `docs/AGENT-GUIDE.md` | "All agents work on same branch" → isolated worktree/branch ownership |
-| `docs/ALIGNMENT.md` | "All agents work on same branch" → isolated feature branches/worktrees |
+| File                  | Change                                                                 |
+| --------------------- | ---------------------------------------------------------------------- |
+| `docs/AGENT-GUIDE.md` | "All agents work on same branch" → isolated worktree/branch ownership  |
+| `docs/ALIGNMENT.md`   | "All agents work on same branch" → isolated feature branches/worktrees |
 
 ## Tools Created
 
-| Tool | Purpose |
-|---|---|
-| `tools/validate_docs.py` | Stdlib-only documentation validator (links, source refs, screenshots, rollback, workflows) |
-| `tools/test_validate_docs.py` | Negative test suite (9 tests, all passing) |
-| `tools/generate_doc_inventory.py` | Generates `doc-inventory.json` and `doc-ownership.csv` |
-| `tools/doc-inventory.json` | Machine-readable documentation inventory (46 docs) |
-| `tools/doc-ownership.csv` | Doc-to-source ownership matrix (339 mappings) |
+| Tool                              | Purpose                                                                                    |
+| --------------------------------- | ------------------------------------------------------------------------------------------ |
+| `tools/validate_docs.py`          | Stdlib-only documentation validator (links, source refs, screenshots, rollback, workflows) |
+| `tools/test_validate_docs.py`     | Negative test suite (9 tests, all passing)                                                 |
+| `tools/generate_doc_inventory.py` | Generates `doc-inventory.json` and `doc-ownership.csv`                                     |
+| `tools/doc-inventory.json`        | Machine-readable documentation inventory (46 docs)                                         |
+| `tools/doc-ownership.csv`         | Doc-to-source ownership matrix (339 mappings)                                              |
 
 ## Limitations
 

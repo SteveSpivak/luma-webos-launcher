@@ -6,12 +6,12 @@
 
 ## Scripts
 
-| Script | Purpose |
-|---|---|
-| `tv/home.sh` | Shell entry point for enable/disable/restore/apply |
-| `tv/home.cjs` | Node script for mount operations |
-| `/etc/init.d/64-luma-home` | TV-side boot hook that reapplies the mount (not a repo file) |
-| `/etc/init.d/65-luma` | TV-side cold-boot hook (disable before enabling Home integration; not a repo file) |
+| Script                     | Purpose                                                                            |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `tv/home.sh`               | Shell entry point for enable/disable/restore/apply                                 |
+| `tv/home.cjs`              | Node script for mount operations                                                   |
+| `/etc/init.d/64-luma-home` | TV-side boot hook that reapplies the mount (not a repo file)                       |
+| `/etc/init.d/65-luma`      | TV-side cold-boot hook (disable before enabling Home integration; not a repo file) |
 
 ## Enable flow
 

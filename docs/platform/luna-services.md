@@ -27,26 +27,28 @@ LSCallOneReply(handle, uri, payload, callback, userdata, &token, &error)
 
 ## Calls made by Luma
 
-| URI | Purpose | Owner |
-|---|---|---|
-| `com.webos.applicationManager/launch` | Launch an app | `src/platform.rs` |
-| `com.webos.applicationManager/listApps` | App inventory | `src/platform.rs` |
-| `com.webos.applicationManager/getAppInfo` | App info preflight | `src/platform.rs` |
-| `com.webos.service.applicationmanager/closeByAppId` | Close an app | `src/platform.rs` |
-| `com.webos.service.eim/getAllInputStatus` | Input device status | `src/platform.rs` |
-| `com.webos.service.eim/getHDMISignalInfo` | HDMI signal detection | `src/platform.rs` |
-| `com.webos.settingsservice/setSystemSettings` | System settings (root) | `src/platform.rs` |
-| `com.webos.settingsservice/getSystemSettings` | Read system settings (root) | `src/platform.rs` |
-| `org.webosbrew.hbchannel.service/exec` | Elevated commands (root) | `src/platform.rs` |
+| URI                                                 | Purpose                     | Owner             |
+| --------------------------------------------------- | --------------------------- | ----------------- |
+| `com.webos.applicationManager/launch`               | Launch an app               | `src/platform.rs` |
+| `com.webos.applicationManager/listApps`             | App inventory               | `src/platform.rs` |
+| `com.webos.applicationManager/getAppInfo`           | App info preflight          | `src/platform.rs` |
+| `com.webos.service.applicationmanager/closeByAppId` | Close an app                | `src/platform.rs` |
+| `com.webos.service.eim/getAllInputStatus`           | Input device status         | `src/platform.rs` |
+| `com.webos.service.eim/getHDMISignalInfo`           | HDMI signal detection       | `src/platform.rs` |
+| `com.webos.settingsservice/setSystemSettings`       | System settings (root)      | `src/platform.rs` |
+| `com.webos.settingsservice/getSystemSettings`       | Read system settings (root) | `src/platform.rs` |
+| `org.webosbrew.hbchannel.service/exec`              | Elevated commands (root)    | `src/platform.rs` |
 
 ## Elevated commands (root only)
 
 Run via Homebrew Channel `exec` service:
+
 ```
 luna://org.webosbrew.hbchannel.service/exec {"command": "<shell command>"}
 ```
 
 Used for:
+
 - Root inventory reads (`luna-send` as root)
 - Wake script management
 - Home Auto Launch changes
@@ -56,11 +58,11 @@ Used for:
 
 ## Error handling
 
-| Error | Handling |
-|---|---|
-| `returnValue != true` | Extract `errorText`, truncate to 240 chars |
-| Timeout | Cancel token, return "The TV service timed out" |
-| Missing service | Return "Native Luna services are only available in an ARM webOS build" (desktop) |
-| App not installed | Classify via `player_not_installed()` / `app_not_installed()` |
+| Error                 | Handling                                                                         |
+| --------------------- | -------------------------------------------------------------------------------- |
+| `returnValue != true` | Extract `errorText`, truncate to 240 chars                                       |
+| Timeout               | Cancel token, return "The TV service timed out"                                  |
+| Missing service       | Return "Native Luna services are only available in an ARM webOS build" (desktop) |
+| App not installed     | Classify via `player_not_installed()` / `app_not_installed()`                    |
 
 **Source owner:** `src/platform.rs::checked_response()`, `call()`

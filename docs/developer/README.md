@@ -25,13 +25,13 @@ pnpm dev                    # Desktop preview (no TV needed)
 
 ## Where to start
 
-| If you want to... | Read first |
-|---|---|
-| Understand the codebase | [`architecture/system-overview.md`](../architecture/system-overview.md) |
-| Make a code change | [`contributing.md`](contributing.md) |
-| Run tests | [`testing.md`](testing.md) |
-| Build for TV | [`build.md`](build.md) |
-| Add a new feature | [`contributing.md`](contributing.md) + [`architecture/component-map.md`](../architecture/component-map.md) |
+| If you want to...       | Read first                                                                                                 |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Understand the codebase | [`architecture/system-overview.md`](../architecture/system-overview.md)                                    |
+| Make a code change      | [`contributing.md`](contributing.md)                                                                       |
+| Run tests               | [`testing.md`](testing.md)                                                                                 |
+| Build for TV            | [`build.md`](build.md)                                                                                     |
+| Add a new feature       | [`contributing.md`](contributing.md) + [`architecture/component-map.md`](../architecture/component-map.md) |
 
 ## Constraints for all changes
 

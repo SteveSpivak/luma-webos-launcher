@@ -6,12 +6,12 @@ This document describes how documentation in this repository is written, reviewe
 
 ## Documentation model (Diátaxis)
 
-| Category | Purpose | Location | Audience |
-|---|---|---|---|
-| Tutorial | Learning-oriented, step-by-step | `docs/user-guide/` | New users, contributors |
-| How-to guide | Problem-oriented, task-specific | `docs/developer/` | Developers, agents |
-| Explanation | Understanding-oriented, concepts | `docs/architecture/`, `docs/platform/` | Architects, agents |
-| Reference | Information-oriented, exhaustive | `docs/reference/` | Everyone |
+| Category     | Purpose                          | Location                               | Audience                |
+| ------------ | -------------------------------- | -------------------------------------- | ----------------------- |
+| Tutorial     | Learning-oriented, step-by-step  | `docs/user-guide/`                     | New users, contributors |
+| How-to guide | Problem-oriented, task-specific  | `docs/developer/`                      | Developers, agents      |
+| Explanation  | Understanding-oriented, concepts | `docs/architecture/`, `docs/platform/` | Architects, agents      |
+| Reference    | Information-oriented, exhaustive | `docs/reference/`                      | Everyone                |
 
 ## Writing standards
 
@@ -25,14 +25,14 @@ This document describes how documentation in this repository is written, reviewe
 
 When a code change is proposed, documentation is reviewed alongside it:
 
-| Review question | Pass criteria |
-|---|---|
-| Does the PR update docs for user-facing changes? | `docs/user-guide/` or `docs/overview.md` updated if behavior changes |
-| Does the PR update docs for architectural changes? | `docs/architecture/` updated if components/flows change |
-| Does the PR update docs for build/test changes? | `docs/developer/` updated if procedures change |
-| Are negative test scenarios documented? | `docs/developer/testing.md` or test comments cover failure modes |
-| Is the rollback documented? | Rollback instructions present for reversible changes |
-| Is the feature flag documented? | New features are default-off and documented as such |
+| Review question                                    | Pass criteria                                                        |
+| -------------------------------------------------- | -------------------------------------------------------------------- |
+| Does the PR update docs for user-facing changes?   | `docs/user-guide/` or `docs/overview.md` updated if behavior changes |
+| Does the PR update docs for architectural changes? | `docs/architecture/` updated if components/flows change              |
+| Does the PR update docs for build/test changes?    | `docs/developer/` updated if procedures change                       |
+| Are negative test scenarios documented?            | `docs/developer/testing.md` or test comments cover failure modes     |
+| Is the rollback documented?                        | Rollback instructions present for reversible changes                 |
+| Is the feature flag documented?                    | New features are default-off and documented as such                  |
 
 ## Alignment across agents
 
@@ -47,6 +47,7 @@ Agents work on isolated feature branches or worktrees. Before making documentati
 ## Versioning
 
 Documentation is versioned with the code. When a release is cut:
+
 - `docs/` changes are included in the release PR
 - `CHANGELOG.md` documents user-facing doc changes
 - Outdated docs are removed or marked as superseded

@@ -8,12 +8,13 @@ The repository has a single CI workflow: `.github/workflows/ci.yml`. There is no
 
 **Jobs:**
 
-| Job | Purpose |
-|---|---|
-| `build` | Rust checks, rendering, native package |
+| Job       | Purpose                                                                      |
+| --------- | ---------------------------------------------------------------------------- |
+| `build`   | Rust checks, rendering, native package                                       |
 | `release` | Publish release and Homebrew feed (tags `v*` or manual dispatch from `main`) |
 
 **Build job steps:**
+
 1. Checkout, setup Node/pnpm
 2. Install dependencies (`libsdl2-dev`, `pkg-config`, `woff2`, `python3-fonttools`, `libgl1-mesa-dri`, `xvfb`, `xauth`)
 3. Check formatting (`pnpm format:check` → `cargo fmt --all -- --check` and `oxfmt --check .`)
@@ -40,6 +41,7 @@ pnpm changeset
 - Commit generated file under `.changeset/` with the PR
 
 **Bump rules:**
+
 - `patch` — backward-compatible fixes
 - `minor` — backward-compatible features
 - `major` — breaking changes

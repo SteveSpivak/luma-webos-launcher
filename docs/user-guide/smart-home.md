@@ -26,14 +26,14 @@ Luma pairs with Home Assistant via QR code. Your token never has to be typed on 
 
 ## Entities
 
-| Domain | Behavior |
-|---|---|
-| `light` | turn_on / turn_off |
-| `cover` | open_cover / close_cover |
-| `climate` | Status chip |
-| `alarm_control_panel` | Status chip |
-| `switch` | turn_on / turn_off |
-| `camera` | Live camera view |
+| Domain                | Behavior                 |
+| --------------------- | ------------------------ |
+| `light`               | turn_on / turn_off       |
+| `cover`               | open_cover / close_cover |
+| `climate`             | Status chip              |
+| `alarm_control_panel` | Status chip              |
+| `switch`              | turn_on / turn_off       |
+| `camera`              | Live camera view         |
 
 ## Camera flow
 
@@ -51,20 +51,20 @@ Luma pairs with Home Assistant via QR code. Your token never has to be typed on 
 
 ## Settings
 
-| Setting | Description |
-|---|---|
-| Show tab | Toggle Smart Home tab visibility |
-| Selected entities | Entities shown on Home |
-| Selected cameras | Cameras shown |
-| Selected scenes | Scenes shown |
-| Hidden cameras | Blurred-only tiles |
+| Setting           | Description                         |
+| ----------------- | ----------------------------------- |
+| Show tab          | Toggle Smart Home tab visibility    |
+| Selected entities | Entities shown on Home              |
+| Selected cameras  | Cameras shown                       |
+| Selected scenes   | Scenes shown                        |
+| Hidden cameras    | Blurred-only tiles                  |
 | Selection version | Empty selection means "recommended" |
 
 **Source owner:** `src/smart_home_settings_view.rs`
 
 ## Visual reference
 
-| Screenshot | Shows |
-|---|---|
-| `docs/screenshots/smart-home.jpg` | Smart Home tab with cameras |
-| `docs/screenshots/settings-smart-home.jpg` | Home Assistant settings |
+| Screenshot                                 | Shows                       |
+| ------------------------------------------ | --------------------------- |
+| `docs/screenshots/smart-home.jpg`          | Smart Home tab with cameras |
+| `docs/screenshots/settings-smart-home.jpg` | Home Assistant settings     |

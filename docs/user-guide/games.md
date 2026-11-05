@@ -6,22 +6,22 @@ Moonlight streams your Steam library from a PC running Sunshine or Apollo. Games
 
 ## Architecture
 
-| Component | Source files | Responsibility |
-|---|---|---|
-| Discovery | `src/moonlight.rs` | UDP broadcast, TCP pairing, RSA authentication |
-| Game cache | `src/moonlight.rs::GameLibrary` | played (newest first, max 50), first_seen, favorites |
-| Stack integration | `src/stacks.rs` | `"moonlight"` source, game collections |
-| Play launch | `src/platform.rs::Request::MoonlightLaunch` | Launch `com.limelight.webos` |
-| Game card | `src/game.rs`, `src/game_view.rs` | Game UI |
+| Component         | Source files                                | Responsibility                                       |
+| ----------------- | ------------------------------------------- | ---------------------------------------------------- |
+| Discovery         | `src/moonlight.rs`                          | UDP broadcast, TCP pairing, RSA authentication       |
+| Game cache        | `src/moonlight.rs::GameLibrary`             | played (newest first, max 50), first_seen, favorites |
+| Stack integration | `src/stacks.rs`                             | `"moonlight"` source, game collections               |
+| Play launch       | `src/platform.rs::Request::MoonlightLaunch` | Launch `com.limelight.webos`                         |
+| Game card         | `src/game.rs`, `src/game_view.rs`           | Game UI                                              |
 
 ## Game collections
 
-| Collection | Label |
-|---|---|
-| `recent` | Recently played |
-| `added` | Recently added games |
-| `all` | All games |
-| `favorites` | Favorite games |
+| Collection  | Label                |
+| ----------- | -------------------- |
+| `recent`    | Recently played      |
+| `added`     | Recently added games |
+| `all`       | All games            |
+| `favorites` | Favorite games       |
 
 ## Play flow
 
@@ -58,17 +58,17 @@ Effect::MoonlightQuit
 
 ## GameLibrary
 
-| Field | Type | Description |
-|---|---|---|
-| `played` | `Vec<(i64, u64)>` | Newest first: (app id, unix seconds), max 50 |
-| `first_seen` | `BTreeMap<i64, u64>` | When Luma first saw each game |
-| `favorites` | `Vec<i64>` | Favorite game IDs |
+| Field        | Type                 | Description                                  |
+| ------------ | -------------------- | -------------------------------------------- |
+| `played`     | `Vec<(i64, u64)>`    | Newest first: (app id, unix seconds), max 50 |
+| `first_seen` | `BTreeMap<i64, u64>` | When Luma first saw each game                |
+| `favorites`  | `Vec<i64>`           | Favorite game IDs                            |
 
 **Source owner:** `src/moonlight.rs`
 
 ## Visual reference
 
-| Screenshot | Shows |
-|---|---|
-| `docs/screenshots/game.jpg` | 007 First Light |
-| `docs/screenshots/game-2.jpg` | Cyberpunk 2077 |
+| Screenshot                    | Shows           |
+| ----------------------------- | --------------- |
+| `docs/screenshots/game.jpg`   | 007 First Light |
+| `docs/screenshots/game-2.jpg` | Cyberpunk 2077  |

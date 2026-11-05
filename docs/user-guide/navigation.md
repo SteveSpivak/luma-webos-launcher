@@ -2,22 +2,23 @@
 
 ## Input mapping
 
-| Input | Action |
-|---|---|
-| Arrows | Move focus, revealing remote-focused content |
-| OK / Enter | Activate on release |
-| Hold OK 600 ms | Reorder Home favorite or open app options |
-| OK or Back in move mode | Finish reordering without launching |
+| Input                     | Action                                                  |
+| ------------------------- | ------------------------------------------------------- |
+| Arrows                    | Move focus, revealing remote-focused content            |
+| OK / Enter                | Activate on release                                     |
+| Hold OK 600 ms            | Reorder Home favorite or open app options               |
+| OK or Back in move mode   | Finish reordering without launching                     |
 | Escape / Back / Backspace | Parent navigation, overlay dismissal, or quit from Home |
-| Menu / M / right-click | App options |
-| Pointer / wheel | Hover, click, hold, scrolling |
-| F5 | Refresh inventory (desktop) |
+| Menu / M / right-click    | App options                                             |
+| Pointer / wheel           | Hover, click, hold, scrolling                           |
+| F5                        | Refresh inventory (desktop)                             |
 
 Backspace deletes while editing.
 
 ## Native Back (webOS)
 
 Native Back uses SDL's webOS-specific keycode:
+
 - `SDL_SCANCODE_WEBOS_BACK` → Keycode `(1 << 30) | 482` (scancode outside rust-sdl2 standard)
 - TV network-input `sendSpecialKey("BACK")` → keycode `2_097_155`, scancode=None
 
@@ -30,6 +31,7 @@ state.direction(direction, controls)          [src/state.rs]
 ```
 
 Focus navigation rules:
+
 - **Apps grid:** Up/Down follows six-column grid order, including offscreen rows. Only first row's Up reaches category toolbar.
 - **Home favorites:** Left/Right follows saved order (including reorder mode). Up returns to Home navigation. Down enters nearest input in first row.
 - **Stack cards:** Left/Right within row, Up/Down between rows.
@@ -52,6 +54,7 @@ state.back()                                  [src/state.rs]
 ```
 
 Order of precedence:
+
 1. Ambient mode → leave ambient
 2. Moving selection → cancel move
 3. Game shot → clear shot
@@ -67,15 +70,15 @@ Order of precedence:
 
 ## Back from specific screens
 
-| From | Back goes to |
-|---|---|
-| Keyboard | Dismiss keyboard, restore focus |
-| Weather Location | Parent Location row |
-| HDMI choices | HDMI row |
-| Background gallery | Background sidebar |
-| Settings sidebar | Settings tab |
-| Settings tab | Home |
-| Movie | Previous position (progress saved) |
-| Playback | Previous position (progress saved) |
-| Game | Close game |
-| Album | Close album |
+| From               | Back goes to                       |
+| ------------------ | ---------------------------------- |
+| Keyboard           | Dismiss keyboard, restore focus    |
+| Weather Location   | Parent Location row                |
+| HDMI choices       | HDMI row                           |
+| Background gallery | Background sidebar                 |
+| Settings sidebar   | Settings tab                       |
+| Settings tab       | Home                               |
+| Movie              | Previous position (progress saved) |
+| Playback           | Previous position (progress saved) |
+| Game               | Close game                         |
+| Album              | Close album                        |

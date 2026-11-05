@@ -14,24 +14,24 @@
 
 ## Components
 
-| Element | Source owner | Description |
-|---|---|---|
-| Category tabs | `src/view.rs` | Filter tabs (All + source-specific) |
-| App tile | `src/view.rs::tile()` | Poster, caption, focus ring, zoom |
-| Brand logo | `src/branding.rs` | 38 curated brand allowlist |
-| App artwork | `src/app_artwork.rs` | Installed app icon discovery and cache |
-| Search | `src/state.rs` | Query filtering |
+| Element       | Source owner          | Description                            |
+| ------------- | --------------------- | -------------------------------------- |
+| Category tabs | `src/view.rs`         | Filter tabs (All + source-specific)    |
+| App tile      | `src/view.rs::tile()` | Poster, caption, focus ring, zoom      |
+| Brand logo    | `src/branding.rs`     | 38 curated brand allowlist             |
+| App artwork   | `src/app_artwork.rs`  | Installed app icon discovery and cache |
+| Search        | `src/state.rs`        | Query filtering                        |
 
 ## App tile details
 
-| Property | Description |
-|---|---|
-| Size | 270×270 (Poster/Square), 566×318 (Wide) |
-| Pitch | 296.4 (Poster/Square), 592.8 (Wide) |
-| Radius | 26.0 |
-| Focus zoom | 1 + 0.07 * pop |
-| Entrance | Cascade progress per card on tab entry |
-| Reduced motion | Instant focus, no animation |
+| Property       | Description                             |
+| -------------- | --------------------------------------- |
+| Size           | 270×270 (Poster/Square), 566×318 (Wide) |
+| Pitch          | 296.4 (Poster/Square), 592.8 (Wide)     |
+| Radius         | 26.0                                    |
+| Focus zoom     | 1 + 0.07 * pop                          |
+| Entrance       | Cascade progress per card on tab entry  |
+| Reduced motion | Instant focus, no animation             |
 
 ## Artwork resolution
 
@@ -50,6 +50,6 @@
 
 ## Visual reference
 
-| Screenshot | Shows |
-|---|---|
+| Screenshot                  | Shows         |
+| --------------------------- | ------------- |
 | `docs/screenshots/apps.jpg` | All apps grid |

@@ -26,7 +26,7 @@
 2. **Run negative tests before claiming success:** Test invalid inputs, missing services, duplicate requests.
 3. **Reuse existing dependencies:** Prefer existing crates and patterns over new ones.
 4. **Preserve existing capabilities:** Do not rewrite working code just because a new architecture is available.
-7. **Document as you go:** Update `docs/` for any user-facing or architectural change.
+5. **Document as you go:** Update `docs/` for any user-facing or architectural change.
 
 ### Before submitting
 
@@ -81,13 +81,13 @@ Brief description of the change.
 
 ## Review criteria
 
-| Criterion | Question |
-|---|---|
-| Reuse | Does this reuse an existing owner before creating new code? |
+| Criterion    | Question                                                      |
+| ------------ | ------------------------------------------------------------- |
+| Reuse        | Does this reuse an existing owner before creating new code?   |
 | Single owner | Does `src/state.rs` remain the single state/navigation owner? |
-| Non-blocking | Does any blocking work run on the SDL thread? |
-| Feature flag | Is experimental functionality default-off? |
-| Fail closed | Does the integration fail safely when the service is absent? |
-| Tests | Are there positive and negative tests? |
-| Docs | Is documentation updated? |
-| Rollback | Can the change be cleanly reverted? |
+| Non-blocking | Does any blocking work run on the SDL thread?                 |
+| Feature flag | Is experimental functionality default-off?                    |
+| Fail closed  | Does the integration fail safely when the service is absent?  |
+| Tests        | Are there positive and negative tests?                        |
+| Docs         | Is documentation updated?                                     |
+| Rollback     | Can the change be cleanly reverted?                           |

@@ -12,6 +12,7 @@ This section covers Luma's integration with LG webOS TVs: Luna services, root fe
 ## Authorization boundary
 
 **Never alter without separate authorization:**
+
 - LG Home or boot behavior
 - Firmware
 - Root services

@@ -40,18 +40,18 @@ This charter covers **Phase 1: title-to-detail launch** only. Phase 2 (Continue 
 
 ## 5. Roles and ownership
 
-| Concern | Owner | Source files |
-|---|---|---|
-| Application launch to TV services | Platform | `src/platform.rs` |
-| Home state, navigation, effects, focus | State | `src/state.rs` |
-| Effect dispatch, response handling | Main | `src/main.rs` |
-| Stack source registry, card items | Stacks | `src/stacks.rs` |
-| Stack card rendering | Stacks view | `src/stacks_view.rs` |
-| App tiles and focus rendering | View | `src/view.rs` |
-| Shared media types, poster cache | Media | `src/media.rs` |
-| Installed app artwork | App artwork | `src/app_artwork.rs` |
-| Translations | i18n | `src/i18n.rs`, `assets/messages.json` |
-| Tests | Tests | `src/tests.rs` |
+| Concern                                | Owner       | Source files                          |
+| -------------------------------------- | ----------- | ------------------------------------- |
+| Application launch to TV services      | Platform    | `src/platform.rs`                     |
+| Home state, navigation, effects, focus | State       | `src/state.rs`                        |
+| Effect dispatch, response handling     | Main        | `src/main.rs`                         |
+| Stack source registry, card items      | Stacks      | `src/stacks.rs`                       |
+| Stack card rendering                   | Stacks view | `src/stacks_view.rs`                  |
+| App tiles and focus rendering          | View        | `src/view.rs`                         |
+| Shared media types, poster cache       | Media       | `src/media.rs`                        |
+| Installed app artwork                  | App artwork | `src/app_artwork.rs`                  |
+| Translations                           | i18n        | `src/i18n.rs`, `assets/messages.json` |
+| Tests                                  | Tests       | `src/tests.rs`                        |
 
 ## 6. Success criteria (Gate 1)
 

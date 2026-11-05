@@ -33,25 +33,25 @@ Luma is a single-process native application with a clear separation between the 
 
 ## Thread model
 
-| Thread | Responsibility |
-|---|---|
-| SDL/UI thread | Event loop, rendering, state mutations |
-| Platform worker | Blocking Luna service calls (never on UI thread) |
-| Jellyfin worker | HTTP requests to Jellyfin server |
-| Plex worker | HTTP requests to Plex server |
-| Moonlight worker | TCP/UDP discovery, pairing, game stream |
-| Artwork worker | Image decode and upload |
-| Weather worker | Forecast fetching with generation IDs |
-| Thumb service | Episode still downloading |
-| Smart Home WS | Home Assistant WebSocket connection |
+| Thread           | Responsibility                                   |
+| ---------------- | ------------------------------------------------ |
+| SDL/UI thread    | Event loop, rendering, state mutations           |
+| Platform worker  | Blocking Luna service calls (never on UI thread) |
+| Jellyfin worker  | HTTP requests to Jellyfin server                 |
+| Plex worker      | HTTP requests to Plex server                     |
+| Moonlight worker | TCP/UDP discovery, pairing, game stream          |
+| Artwork worker   | Image decode and upload                          |
+| Weather worker   | Forecast fetching with generation IDs            |
+| Thumb service    | Episode still downloading                        |
+| Smart Home WS    | Home Assistant WebSocket connection              |
 
 ## Feature gating
 
-| Feature | Cargo feature | Default |
-|---|---|---|
-| TV platform (Luna, arm only) | `webos` | Off (desktop builds) |
-| Nivío title launch | `nuvio` | Off |
-| Video wallpaper | Compile-time constant `VIDEO_WALLPAPER_SUPPORTED = true` | gated by runtime verification |
+| Feature                      | Cargo feature                                            | Default                       |
+| ---------------------------- | -------------------------------------------------------- | ----------------------------- |
+| TV platform (Luna, arm only) | `webos`                                                  | Off (desktop builds)          |
+| Nivío title launch           | `nuvio`                                                  | Off                           |
+| Video wallpaper              | Compile-time constant `VIDEO_WALLPAPER_SUPPORTED = true` | gated by runtime verification |
 
 ## Key design principles
 

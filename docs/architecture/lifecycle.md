@@ -65,13 +65,13 @@ main.rs effects() → return false              [src/main.rs]
 
 ## Foreground / Background
 
-| Event | Behavior |
-|---|---|
-| Window becomes visible | Inventory refresh, artwork reload |
-| Window hidden | Idle behavior, VSync paces animation |
-| TV standby wake | Luma may open at boot (root feature: `wake`) |
-| Home Auto Launch | LG setting, preserved by Luma (not changed) |
-| Relaunch | Normal tile launch redirects to Home instance if Home mount active |
+| Event                  | Behavior                                                           |
+| ---------------------- | ------------------------------------------------------------------ |
+| Window becomes visible | Inventory refresh, artwork reload                                  |
+| Window hidden          | Idle behavior, VSync paces animation                               |
+| TV standby wake        | Luma may open at boot (root feature: `wake`)                       |
+| Home Auto Launch       | LG setting, preserved by Luma (not changed)                        |
+| Relaunch               | Normal tile launch redirects to Home instance if Home mount active |
 
 ## webOS launch integration
 
@@ -84,6 +84,7 @@ main.rs effects() → return false              [src/main.rs]
 ## Native Home integration (root-only, optional)
 
 `tv/home.sh` / `tv/home.cjs` stage a native manifest with ID `com.webos.app.home` and bind-mount over LG Home. Scripts:
+
 - `enable` — requires `y`/`n` confirmation, creates state dir, acquires lock, invokes installer
 - `disable` / `restore` — removes mount, refreshes manifest, stops Home instance
 - `64-luma-home` — boot hook that reapplies mount

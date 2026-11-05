@@ -13,36 +13,36 @@ Luma is a native Rust application drawn with OpenGL ES 2. It runs as a normal ap
 
 ## Core capabilities
 
-| Capability | Description | Source owner |
-|---|---|---|
-| Home screen | Favorite apps strip, stacks (content rows), widgets, wallpaper, headline, clock, date | `src/state.rs`, `src/view.rs`, `src/stacks_view.rs` |
-| Apps grid | All installed apps, search, categories, favorites toggle | `src/view.rs`, `src/state.rs` |
-| Stacks | Rows of content from linked sources (Jellyfin, Plex, Moonlight) with "View Library" | `src/stacks.rs`, `src/stacks_view.rs` |
-| Video wallpapers | Live aerials and video collections, hardware playback | `src/aerial_video.rs`, `src/hw_wallpaper.rs` |
-| Widgets | Weather, crypto, HDMI input preview, Home Assistant status | `src/widgets.rs`, `src/widgets_state.rs`, `src/widgets_view.rs` |
-| Jellyfin | Sign in via Quick Connect, browse libraries, play media | `src/jellyfin.rs` |
-| Plex | Sign in via plex.tv PIN, browse libraries, play media | `src/plex.rs` |
-| Moonlight | Steam games from PC via Sunshine/Apollo, play stream | `src/moonlight.rs` |
-| Smart Home | Home Assistant pairing, entities, scenes, cameras | `src/smart_home.rs`, `src/smart_home_ws.rs` |
-| Media player | Built-in HTML5 web player for Jellyfin/Plex playback | `src/player.rs`, `native/cinema/` |
-| Platform launch | App launch to other TV apps via Luna service bus | `src/platform.rs` |
-| Nuvio launch | Launch Nuvio titles by contentTarget (default-off feature) | `src/platform.rs`, `src/state.rs` |
+| Capability       | Description                                                                           | Source owner                                                    |
+| ---------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Home screen      | Favorite apps strip, stacks (content rows), widgets, wallpaper, headline, clock, date | `src/state.rs`, `src/view.rs`, `src/stacks_view.rs`             |
+| Apps grid        | All installed apps, search, categories, favorites toggle                              | `src/view.rs`, `src/state.rs`                                   |
+| Stacks           | Rows of content from linked sources (Jellyfin, Plex, Moonlight) with "View Library"   | `src/stacks.rs`, `src/stacks_view.rs`                           |
+| Video wallpapers | Live aerials and video collections, hardware playback                                 | `src/aerial_video.rs`, `src/hw_wallpaper.rs`                    |
+| Widgets          | Weather, crypto, HDMI input preview, Home Assistant status                            | `src/widgets.rs`, `src/widgets_state.rs`, `src/widgets_view.rs` |
+| Jellyfin         | Sign in via Quick Connect, browse libraries, play media                               | `src/jellyfin.rs`                                               |
+| Plex             | Sign in via plex.tv PIN, browse libraries, play media                                 | `src/plex.rs`                                                   |
+| Moonlight        | Steam games from PC via Sunshine/Apollo, play stream                                  | `src/moonlight.rs`                                              |
+| Smart Home       | Home Assistant pairing, entities, scenes, cameras                                     | `src/smart_home.rs`, `src/smart_home_ws.rs`                     |
+| Media player     | Built-in HTML5 web player for Jellyfin/Plex playback                                  | `src/player.rs`, `native/cinema/`                               |
+| Platform launch  | App launch to other TV apps via Luna service bus                                      | `src/platform.rs`                                               |
+| Nuvio launch     | Launch Nuvio titles by contentTarget (default-off feature)                            | `src/platform.rs`, `src/state.rs`                               |
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Language | Rust 2024 edition, MSRV 1.88 |
-| UI | SDL2, OpenGL ES 2, custom GLSL shaders |
-| Text | `owned_ttf_parser`, custom SVG→triangle compiler (lyon tessellation), signed-distance edges |
-| Images | `image` crate (PNG, JPEG, WebP), decoded off render thread |
-| Networking | `ureq` + `rustls`, `tungstenite` WebSocket (Home Assistant), `mdns-sd` and UDP discovery |
-| Moonlight pairing | `rcgen`, `rsa`, `x509-parser`, AES (GameStream / Sunshine protocol) |
-| QR codes | `qrcode` |
-| Video wallpapers | webOS hardware media pipeline (C helpers in `native/`) |
-| Player | Separate web app: HTML5 video, HLS, vanilla JS |
-| TV integration | Luna service bus (LS2), Homebrew Channel elevated service |
-| Build tooling | pnpm, Node, `sharp`, `@webos-tools/cli`, Nix flake, oxlint / oxfmt, Changesets |
+| Layer             | Technology                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| Language          | Rust 2024 edition, MSRV 1.88                                                                |
+| UI                | SDL2, OpenGL ES 2, custom GLSL shaders                                                      |
+| Text              | `owned_ttf_parser`, custom SVG→triangle compiler (lyon tessellation), signed-distance edges |
+| Images            | `image` crate (PNG, JPEG, WebP), decoded off render thread                                  |
+| Networking        | `ureq` + `rustls`, `tungstenite` WebSocket (Home Assistant), `mdns-sd` and UDP discovery    |
+| Moonlight pairing | `rcgen`, `rsa`, `x509-parser`, AES (GameStream / Sunshine protocol)                         |
+| QR codes          | `qrcode`                                                                                    |
+| Video wallpapers  | webOS hardware media pipeline (C helpers in `native/`)                                      |
+| Player            | Separate web app: HTML5 video, HLS, vanilla JS                                              |
+| TV integration    | Luna service bus (LS2), Homebrew Channel elevated service                                   |
+| Build tooling     | pnpm, Node, `sharp`, `@webos-tools/cli`, Nix flake, oxlint / oxfmt, Changesets              |
 
 ## Privacy
 

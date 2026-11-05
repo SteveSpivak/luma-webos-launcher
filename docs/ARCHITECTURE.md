@@ -34,24 +34,24 @@ Renderer.draw()                           [src/renderer.rs]
 
 ## 2. Source ownership map
 
-| Component | Owner file(s) | Responsibility |
-|---|---|---|
-| Platform launch worker | `src/platform.rs` | One blocking worker thread, never in SDL/UI thread. LS2 calls to `applicationManager/launch`, `getAppInfo`, inventory services. |
-| App launch (generic) | `src/platform.rs` `Request::Launch` | `luna://com.webos.applicationManager/launch {"id": id}` with `valid_app_id()` validation. |
-| Web player launch | `src/platform.rs` `Request::WebPlayer` | Launch `com.denisefremov.luma.player` with signed URLs/tokens. Never logged. |
-| Moonlight launch | `src/platform.rs` `Request::MoonlightLaunch` | Launch `com.limelight.webos` with moonlight link params. |
-| Nuvio launch (NEW) | `src/platform.rs` `Request::NuvioLaunch` | `luna://com.webos.applicationManager/launch {"id": "space.nuvio.webos", "params": {"contentTarget": ...}}`. Feature-gated. |
-| Home state & navigation | `src/state.rs` | Single owner of `State`, `launching` flag, focus, `movie_cache`, `stack_items`, `activate()`, `direction()`, `back()`. |
-| Effects | `src/state.rs` `enum Effect` | `Launch`, `Refresh`, `Reload`, `Quit`, `MoonlightPlay`, `MediaPlay`, `MediaDetails`, `NuvioLaunch` (NEW), etc. |
-| Effect dispatch | `src/main.rs` `effects()` | Matches `Effect` variants, sends `Platform.Request`, handles responses. |
-| Launch response handling | `src/main.rs` `run()` | `Response::Launched` → `state.launching = false`, error notice or success. |
-| Stack source registry | `src/stacks.rs` | `StackConfig`, `StackItem`, `SOURCES` list, `has_library()`, `collection_choices()`, `row_shown()`, `row_pitch()`. |
-| Stack card rendering | `src/stacks_view.rs` | `home_stacks()` draws poster cards + library card, focus rings, sheen, zoom. |
-| App tile rendering | `src/view.rs` `tile()` | App icons, captions, focus level, zoom, entrance animation. |
-| Shared media types | `src/media.rs` | `Detail`, `PlayRequest`, `Episode`, `LibraryPage`, `download_as()`, `poster_backdrop()`, `ThumbService`. |
-| Installed app artwork | `src/app_artwork.rs` | `Source`, disk/memory cache, decode worker, `MAX_FILE=512KB`, `CACHE_BYTES=48MB`. |
-| Translations | `src/i18n.rs`, `assets/messages.json` | 5 languages (en/de/es/zh/pt), `t()` lookup, `format()` placeholder replacement. |
-| Tests | `src/tests.rs` | Unit tests for model, platform, state, i18n, artwork. |
+| Component                | Owner file(s)                                | Responsibility                                                                                                                  |
+| ------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Platform launch worker   | `src/platform.rs`                            | One blocking worker thread, never in SDL/UI thread. LS2 calls to `applicationManager/launch`, `getAppInfo`, inventory services. |
+| App launch (generic)     | `src/platform.rs` `Request::Launch`          | `luna://com.webos.applicationManager/launch {"id": id}` with `valid_app_id()` validation.                                       |
+| Web player launch        | `src/platform.rs` `Request::WebPlayer`       | Launch `com.denisefremov.luma.player` with signed URLs/tokens. Never logged.                                                    |
+| Moonlight launch         | `src/platform.rs` `Request::MoonlightLaunch` | Launch `com.limelight.webos` with moonlight link params.                                                                        |
+| Nuvio launch (NEW)       | `src/platform.rs` `Request::NuvioLaunch`     | `luna://com.webos.applicationManager/launch {"id": "space.nuvio.webos", "params": {"contentTarget": ...}}`. Feature-gated.      |
+| Home state & navigation  | `src/state.rs`                               | Single owner of `State`, `launching` flag, focus, `movie_cache`, `stack_items`, `activate()`, `direction()`, `back()`.          |
+| Effects                  | `src/state.rs` `enum Effect`                 | `Launch`, `Refresh`, `Reload`, `Quit`, `MoonlightPlay`, `MediaPlay`, `MediaDetails`, `NuvioLaunch` (NEW), etc.                  |
+| Effect dispatch          | `src/main.rs` `effects()`                    | Matches `Effect` variants, sends `Platform.Request`, handles responses.                                                         |
+| Launch response handling | `src/main.rs` `run()`                        | `Response::Launched` → `state.launching = false`, error notice or success.                                                      |
+| Stack source registry    | `src/stacks.rs`                              | `StackConfig`, `StackItem`, `SOURCES` list, `has_library()`, `collection_choices()`, `row_shown()`, `row_pitch()`.              |
+| Stack card rendering     | `src/stacks_view.rs`                         | `home_stacks()` draws poster cards + library card, focus rings, sheen, zoom.                                                    |
+| App tile rendering       | `src/view.rs` `tile()`                       | App icons, captions, focus level, zoom, entrance animation.                                                                     |
+| Shared media types       | `src/media.rs`                               | `Detail`, `PlayRequest`, `Episode`, `LibraryPage`, `download_as()`, `poster_backdrop()`, `ThumbService`.                        |
+| Installed app artwork    | `src/app_artwork.rs`                         | `Source`, disk/memory cache, decode worker, `MAX_FILE=512KB`, `CACHE_BYTES=48MB`.                                               |
+| Translations             | `src/i18n.rs`, `assets/messages.json`        | 5 languages (en/de/es/zh/pt), `t()` lookup, `format()` placeholder replacement.                                                 |
+| Tests                    | `src/tests.rs`                               | Unit tests for model, platform, state, i18n, artwork.                                                                           |
 
 ## 3. Existing integration dependency graphs
 
@@ -123,6 +123,7 @@ Identical architecture to Jellyfin, with `PlexLink`, `plex::Service`, `plex_tick
 ### Moonlight (reference integration)
 
 Different payload: games, not media titles.
+
 ```
 MoonlightLink → moonlight::Service → Command::Fetch → Apollo game list
     → StackItem (id = game id, poster cached)
@@ -212,12 +213,12 @@ No changes to `stacks.rs`, `stacks_view.rs`, `media.rs`, `app_artwork.rs`, or `v
 
 ## 7. Verification status
 
-| Artifact | Status | Reason |
-|---|---|---|
-| Source inspection | Complete | All owner files read |
-| Dependency graph | Source-backed | Traced from actual code |
-| Native build | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
-| `cargo test` | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
-| `cargo clippy -D warnings` | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
-| `cargo fmt --check` | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0` |
-| Rollback | Documented | `git revert 6dc1886 3031417` (non-destructive, preserves history) |
+| Artifact                   | Status             | Reason                                                            |
+| -------------------------- | ------------------ | ----------------------------------------------------------------- |
+| Source inspection          | Complete           | All owner files read                                              |
+| Dependency graph           | Source-backed      | Traced from actual code                                           |
+| Native build               | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0`     |
+| `cargo test`               | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0`     |
+| `cargo clippy -D warnings` | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0`     |
+| `cargo fmt --check`        | NOT RUN in sandbox | Rust 1.93 available in CI via `dtolnay/rust-toolchain@1.93.0`     |
+| Rollback                   | Documented         | `git revert 6dc1886 3031417` (non-destructive, preserves history) |

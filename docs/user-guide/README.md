@@ -33,6 +33,7 @@ Focus is a single owner in `src/state.rs`. Focus level is tweened (0 to 1) for a
 ## Back precedence
 
 Back is handled by `state.back()` with this order:
+
 1. Ambient mode → leave ambient
 2. Moving selection → cancel move
 3. Game shot → clear shot

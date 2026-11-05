@@ -6,13 +6,13 @@ Root features are only available on rooted TVs (Homebrew Channel with elevated a
 
 ## Root capabilities
 
-| Capability | Implementation | Source |
-|---|---|---|
-| Boot autostart | Wake script at `/var/lib/webosbrew/init.d/71-luma-wake` | `src/platform.rs` |
-| Home Auto Launch | `luna://com.webos.settingsservice/setSystemSettings` | `src/platform.rs` |
-| Pad watch | Gamepad watcher (Start+Select ×2) | `src/platform.rs` |
-| Elevated inventory | Homebrew `exec` service as root | `src/platform.rs` |
-| HDMI signal | `getHDMISignalInfo` as root first | `src/platform.rs` |
+| Capability         | Implementation                                          | Source            |
+| ------------------ | ------------------------------------------------------- | ----------------- |
+| Boot autostart     | Wake script at `/var/lib/webosbrew/init.d/71-luma-wake` | `src/platform.rs` |
+| Home Auto Launch   | `luna://com.webos.settingsservice/setSystemSettings`    | `src/platform.rs` |
+| Pad watch          | Gamepad watcher (Start+Select ×2)                       | `src/platform.rs` |
+| Elevated inventory | Homebrew `exec` service as root                         | `src/platform.rs` |
+| HDMI signal        | `getHDMISignalInfo` as root first                       | `src/platform.rs` |
 
 ## Wake script
 
@@ -33,6 +33,7 @@ Restarted when the Luma binary is updated (binary newer than PID file).
 ## Authorization boundary
 
 **Never alter without separate authorization:**
+
 - LG Home or boot behavior
 - Firmware
 - Root services

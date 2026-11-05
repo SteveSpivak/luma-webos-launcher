@@ -33,6 +33,7 @@ Body with motivation and context.
 **Types:** feat, fix, docs, refactor, test, chore, perf, ci, build, revert
 
 **Example:**
+
 ```
 feat(nuvio): add title-to-detail launch integration
 

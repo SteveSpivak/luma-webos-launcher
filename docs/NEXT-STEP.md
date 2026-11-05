@@ -9,6 +9,7 @@ Phase 1 source is complete and committed on `arena/5fe14abb-luma-webos-launcher`
 **Owner:** Anyone with a Rust toolchain (rust 1.93.0 per CI)
 
 **Commands:**
+
 ```bash
 cargo fmt --all -- --check
 cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
@@ -36,6 +37,7 @@ cargo build --locked --features nuvio  # nuvio feature compiles
 7. Producer-side implementation proposal for the Nuvio repository (separate repo)
 
 **Constraints:**
+
 - No unauthenticated LAN endpoint
 - No Nuvio account/profile storage in Luma
 - No Nuvio playback engine in Luma
