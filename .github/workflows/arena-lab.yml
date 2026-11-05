@@ -23,7 +23,9 @@ jobs:
         run: python3 lab/tools/kit_verify.py
       - name: Run current kit and simulator tests
         run: python3 -m unittest discover -s lab/tests -p 'test_*.py' -v
-      - name: Run copied historical analysis tests
+      - name: Run copied historical analysis tests (legacy import shim)
+        env:
+          PYTHONPATH: lab/legacy-luma/compat
         run: python3 -m unittest discover -s lab/legacy-luma/tests -p 'test_*.py' -v
       - name: Compile all portable Python
         run: python3 -m compileall -q lab/tools lab/tests lab/legacy-luma
