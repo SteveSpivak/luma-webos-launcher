@@ -1,0 +1,38 @@
+{
+  "schema": "luma-legacy-cli-import/1",
+  "source_repo": "SteveSpivak/lg-luma",
+  "source_commit": "cef5c1e76ad8db29ef0f21c2ecb3dfb15b98c205",
+  "status": "HISTORICAL_REFERENCE_ONLY",
+  "files": [
+    {
+      "source_path": "research/scripts/luma_cli.py",
+      "target_path": "lab/legacy-luma/20261105-cli/research/scripts/luma_cli.py",
+      "source_blob_sha": "84b366ba5668a0e0af6afcb5f9b9d91886e81f75"
+    },
+    {
+      "source_path": "research/scripts/protected_paths.py",
+      "target_path": "lab/legacy-luma/20261105-cli/research/scripts/protected_paths.py",
+      "source_blob_sha": "c4fb5ca526eabd04b69cd6ce6ebc128845e43599"
+    },
+    {
+      "source_path": "research/scripts/reference_launcher.py",
+      "target_path": "lab/legacy-luma/20261105-cli/research/scripts/reference_launcher.py",
+      "source_blob_sha": "e0d87334aa59f4a941d95dc1ba4cb1b45f7d4f44"
+    },
+    {
+      "source_path": "research/scripts/compare_reference_launcher.py",
+      "target_path": "lab/legacy-luma/20261105-cli/research/scripts/compare_reference_launcher.py",
+      "source_blob_sha": "dfae23eb91cd820017c612cfae76cd764a595bd9"
+    },
+    {
+      "source_path": "research/tests/test_luma_cli.py",
+      "target_path": "lab/legacy-luma/20261105-cli/research/tests/test_luma_cli.py",
+      "source_blob_sha": "d616a4ac4e3af036de3e26b9731b8212a890228f"
+    },
+    {
+      "source_path": "delivery/NEXT-AGENT-PACKET.md",
+      "target_path": "lab/legacy-luma/20261105-cli/delivery/NEXT-AGENT-PACKET.md",
+      "source_blob_sha": "97b0216dad3f2adcad1e77fcf79949d08adf277f"
+    }
+  ]
+}
