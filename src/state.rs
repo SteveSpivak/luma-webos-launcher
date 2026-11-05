@@ -68,6 +68,10 @@ pub enum Page {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub enum Target {
     Nav(usize),
+    // No Home tile creates this yet (Phase 1 wires launch only); tests drive it.
+    #[cfg(feature = "nuvio")]
+    #[allow(dead_code)]
+    NuvioLaunch(String),
     TvSettings,
     App(String),
     Input(String),
@@ -373,7 +377,9 @@ pub enum Effect {
     GameInfo(i64, String),
     /// Launch a Nuvio title by content target (feature `nuvio`, default off).
     #[cfg(feature = "nuvio")]
-    NuvioLaunch { content_target: String },
+    NuvioLaunch {
+        content_target: String,
+    },
     /// Songs and cover of a Jellyfin album card.
     AlbumDetails(i64),
     /// Play an album from this song, in order or shuffled.
@@ -4369,10 +4375,10 @@ impl State {
             Target::App(id) | Target::Input(id) if !self.launching => {
                 return vec![Effect::Launch(id)];
             }
-            /// Launch a Nuvio title directly into its detail page. Focus is
-            /// left untouched, so Back out of Nuvio returns to Luma with the
-            /// same focus, and a repeated launch while one is in flight is
-            /// ignored by the `!self.launching` guard.
+            // Launch a Nuvio title directly into its detail page. Focus is
+            // left untouched, so Back out of Nuvio returns to Luma with the
+            // same focus, and a repeated launch while one is in flight is
+            // ignored by the `!self.launching` guard.
             #[cfg(feature = "nuvio")]
             Target::NuvioLaunch(ref content_target) if !self.launching => {
                 return vec![Effect::NuvioLaunch {

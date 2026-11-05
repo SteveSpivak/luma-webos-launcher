@@ -1,15 +1,15 @@
+#[cfg(feature = "nuvio")]
+use crate::platform::{Platform, Request, Response};
 use crate::{
     model::{App, Input, InputMode, Preferences, demo_inventory},
     platform::{normalize_apps, normalize_inputs},
     state::{Direction, Effect, Overlay, Page, State, Target},
     storage, view,
 };
-#[cfg(feature = "nuvio")]
-use crate::platform::{Platform, Request, Response};
 use serde_json::json;
-use std::{collections::BTreeMap, path::PathBuf};
 #[cfg(feature = "nuvio")]
 use std::time::Duration;
+use std::{collections::BTreeMap, path::PathBuf};
 
 fn ready() -> State {
     let mut state = State::new(Preferences::default());

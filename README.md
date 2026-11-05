@@ -167,7 +167,7 @@ Then install **Luma** and **Luma Player** from the list. The companion player is
 
 ### Manual (IPK)
 
-Download `com.denisefremov.luma_2.2.160_arm.ipk` from [Releases](../../releases/latest) and install it with
+Download `com.denisefremov.luma_2.2.161_arm.ipk` from [Releases](../../releases/latest) and install it with
 [webOS Dev Manager](https://github.com/webosbrew/dev-manager-desktop) or `ares-install`.
 To play Jellyfin and Plex videos, also install `com.denisefremov.luma.player_0.0.11_all.ipk` from the same release.
 

@@ -283,8 +283,8 @@ fn effects(
                     }
                 }
             }
-            /// Launch a Nuvio title into its detail page. Default off behind
-            /// the `nuvio` feature; never autoplays and never injects input.
+            // Launch a Nuvio title into its detail page. Default off behind
+            // the `nuvio` feature; never autoplays and never injects input.
             #[cfg(feature = "nuvio")]
             Effect::NuvioLaunch { content_target } => {
                 if !state.launching {
@@ -292,10 +292,12 @@ fn effects(
                         state.launching = true;
                         platform.send(Request::NuvioLaunch { content_target });
                     } else {
-                        state.notify(state.preferences.language.format(
-                            "desktopPreview",
-                            &[("app", "Nuvio")],
-                        ));
+                        state.notify(
+                            state
+                                .preferences
+                                .language
+                                .format("desktopPreview", &[("app", "Nuvio")]),
+                        );
                     }
                 }
             }
