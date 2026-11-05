@@ -1352,6 +1352,15 @@ impl Renderer {
         }
     }
 
+    /// Returns true if the TextureUploadScheduler still has queued texture
+    /// uploads waiting to be drained. The main loop should keep the VSync
+    /// pump active (redraw/frame-dirty) until this returns false so that
+    /// queued posters/stills finish uploading over the next 2-3 frames even
+    /// when user input is idle.
+    pub fn has_pending_uploads(&self) -> bool {
+        self.upload_scheduler.has_pending()
+    }
+
     /// Upload stills the loader has finished; with `wait_for`, block until
     /// that one is in (it is already decoding, so this beats decoding again).
     fn upload_stills(&mut self, wait_for: Option<&str>) {

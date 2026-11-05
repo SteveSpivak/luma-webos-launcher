@@ -268,9 +268,7 @@ fn effects(
                     }
                 }
             }
-            /// Launch a Nuvio title into its detail page. Default off behind
-            /// the `nuvio` feature; never autoplays and never injects input.
-            #[cfg(feature = "nuvio")]
+            /// Launch a Nuvio title into its detail page. Never autoplays and never injects input.
             Effect::NuvioLaunch { content_target } => {
                 if !state.launching {
                     if platform.webos {

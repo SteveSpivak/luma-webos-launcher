@@ -2192,15 +2192,23 @@ impl State {
 
 /// Record the current card's center as the vertical focus corridor so Up/Down
 /// moves land on the best overlapping card in the target row.
+///
+/// The corridor is stored in estimated screen-space pixels ([72..960+]) so
+/// that pressing Down from a deeply scrolled row lands on the visually
+/// aligned card in an unscrolled target row, regardless of scroll depth.
 fn update_corridor(&mut self, row: usize, index: usize) {
     if let Some(stack) = crate::stacks::row_stack(self, row) {
         let shape = stack.shape;
         let (card_w, _) = shape.size();
         let pitch = shape.pitch();
-        let card_left = crate::state::HOME_STRIP_LEFT
+        // Card center in unscrolled row-local coordinates.
+        let local_center = crate::state::HOME_STRIP_LEFT
             + index as f32 * pitch
-            - self.stack_scroll.1;
-        self.focus_corridor_x = card_left + card_w * 0.5;
+            + card_w * 0.5;
+        // Estimate row camera scroll: camera keeps focus within viewport,
+        // centered at 960.0 (half of 1920p width).
+        let est_scroll_x = (local_center - 960.0).max(0.0);
+        self.focus_corridor_x = local_center - est_scroll_x;
     }
 }
 

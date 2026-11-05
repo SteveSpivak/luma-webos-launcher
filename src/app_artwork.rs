@@ -32,6 +32,7 @@ const DISK_ARTWORK_MAX: usize = 768 * 1024;
 const LTEX_MAGIC: [u8; 4] = *b"LTEX";
 const LTEX_VERSION: u8 = 1;
 
+#[allow(dead_code)]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PixelFormat {
@@ -58,6 +59,7 @@ impl RawCachedTexture {
 
     /// Converts RGBA8 to RGB565 (cuts VRAM and disk footprint in half for
     /// opaque Jellyfin/Plex/Nivío posters and backdrops).
+    #[allow(dead_code)]
     pub fn from_rgba8_as_rgb565(width: u16, height: u16, rgba: &[u8]) -> Self {
         let w = width as usize;
         let h = height as usize;

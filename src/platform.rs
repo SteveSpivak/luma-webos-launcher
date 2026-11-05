@@ -16,10 +16,8 @@ pub const APP_ID: &str = "com.denisefremov.luma";
 pub const HOME_ID: &str = "com.webos.app.home";
 /// Nuvio's application ID is fixed and validated: Luma owns the launch
 /// request, Nuvio owns the deep-link receiver, playback, accounts and profiles.
-#[cfg(feature = "nuvio")]
 pub const NUVIO_APP_ID: &str = "space.nuvio.webos";
 /// Reported when the TV replies that Nuvio is not installed.
-#[cfg(feature = "nuvio")]
 pub const NUVIO_NOT_INSTALLED: &str = "Nuvio is not installed";
 
 pub fn redirect_to_home() -> Result<bool, String> {
@@ -48,8 +46,7 @@ pub enum Request {
     MoonlightLaunch(crate::moonlight::MoonlightLink, i64),
     /// Close another app (best effort; webOS may refuse without root).
     CloseApp(String),
-    /// Launch a Nuvio title by content target. Feature `nuvio`, default off.
-    #[cfg(feature = "nuvio")]
+    /// Launch a Nuvio title by content target. Never autoplays and never injects input.
     NuvioLaunch { content_target: String },
     /// Open Luma's web player app with these launch parameters. They hold
     /// signed URLs and a token, so they are never logged.
@@ -245,7 +242,6 @@ impl Platform {
             Request::Launch(..)
                 | Request::MoonlightLaunch(..)
                 | Request::CloseApp(..)
-                #[cfg(feature = "nuvio")]
                 | Request::NuvioLaunch { .. }
         );
         let (lock, cvar) = &*self.requests;
@@ -274,7 +270,6 @@ impl Platform {
 pub const WEB_PLAYER_ID: &str = "com.denisefremov.luma.player";
 pub const INSTALL_PLAYER_MESSAGE: &str = "Install Luma Player from Homebrew Channel";
 
-#[cfg(feature = "nuvio")]
 /// `nuvio://tmdb/movie/<id>` or `nuvio://tmdb/tv/<id>` where the identifier
 /// is a numeric TMDB id. Everything else is rejected: Luma never constructs
 /// playback targets for another service, and a Luma request never autoplays.
@@ -293,7 +288,6 @@ pub fn validate_nuvio_target(target: &str) -> Result<String, String> {
 
 /// Launch parameters for the Nuvio application. Nuvio owns playback; Luma
 /// only supplies the validated content target, with no account parameters.
-#[cfg(feature = "nuvio")]
 pub fn nuvio_launch_params(content_target: &str) -> Value {
     json!({"id": NUVIO_APP_ID, "params": {"contentTarget": content_target}})
 }

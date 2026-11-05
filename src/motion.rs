@@ -154,6 +154,17 @@ impl Spring1D {
         self.target = target;
     }
 
+    /// Injects an instantaneous velocity impulse (e.g., ±240.0 px/s) for Apple
+    /// tvOS rubber-band boundary feedback when pressing D-Pad against the
+    /// start/end of a stack row. The spring already integrates `vel` even when
+    /// `pos == target`, so this produces a smooth elastic overshoot-and-rebound
+    /// without any extra state machines or timers.
+    #[inline]
+    #[allow(dead_code)]
+    pub fn impulse(&mut self, dv: f32) {
+        self.vel += dv;
+    }
+
     /// Exact closed-form integration of a critically damped harmonic oscillator.
     /// Returns `true` if the spring is still in motion (requires redraw).
     #[inline]
@@ -180,6 +191,7 @@ impl Spring1D {
 /// Four animated dimensions for a focus rect: x, y, width, height, plus a
 /// velocity-driven scale pulse that gives tactile "squish/lift" during fast
 /// scroll across asymmetric card sizes (Nivío 16:9 vs Jellyfin/Plex 2:3).
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub struct FocusRectSpring {
     pub x: Spring1D,
