@@ -15,8 +15,60 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  checks:
+    name: Rust checks and desktop rendering
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@1.93.0
+        with:
+          components: rustfmt, clippy
+          targets: armv7-unknown-linux-gnueabi
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: checks-${{ hashFiles('tools/build-webos.sh', 'tools/setup-webos-sdk.mjs', 'tools/webos-runtime.mjs') }}
+      - name: Install desktop and asset dependencies
+        run: |
+          apt_options=(-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30)
+          sudo apt-get "${apt_options[@]}" update
+          # FontTools recommends large optional scientific Python packages. xauth is needed by xvfb-run.
+          sudo apt-get "${apt_options[@]}" install -y --no-install-recommends \
+            libsdl2-dev pkg-config woff2 python3-fonttools libgl1-mesa-dri xvfb xauth
+      - name: Check formatting
+        run: pnpm format:check
+      - name: Lint Rust and packaging tools
+        run: pnpm check
+      - name: Run unit tests
+        run: pnpm test
+      - name: Generate native assets
+        run: pnpm assets
+      - name: Exercise desktop rendering and mocked weather
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: xvfb-run -a -s '-screen 0 1920x1080x24' pnpm test:smoke
+      - name: Upload native rendering diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-rendering
+          if-no-files-found: ignore
+          retention-days: 7
+          include-hidden-files: true
+          path: |
+            .build/*.png
+            .build/*-render.json
+
   build:
-    name: Rust checks, rendering, and native package
+    name: Native webOS package
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     outputs:
@@ -45,18 +97,15 @@ jobs:
           # FontTools recommends large optional scientific Python packages. xauth is needed by xvfb-run.
           sudo apt-get "${apt_options[@]}" install -y --no-install-recommends \
             libsdl2-dev pkg-config woff2 python3-fonttools libgl1-mesa-dri xvfb xauth
-      - name: Check formatting
-        run: pnpm format:check
-      - name: Lint Rust and packaging tools
-        run: pnpm check
-      - name: Run unit tests
-        run: pnpm test
+      - name: Cache webOS SDK and SDL
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build/toolchain/arm-webos-linux-gnueabi_sdk-buildroot
+            .build/sdl-webos
+          key: webos-sdk-${{ runner.os }}-${{ hashFiles('tools/setup-webos-sdk.mjs', 'tools/webos-runtime.mjs') }}
       - name: Generate native assets
         run: pnpm assets
-      - name: Exercise desktop rendering and mocked weather
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-        run: xvfb-run -a -s '-screen 0 1920x1080x24' pnpm test:smoke
       - name: Set up the webOS SDK
         run: pnpm sdk
       - name: Cross-build and verify the native IPK and Homebrew feed
@@ -79,17 +128,6 @@ jobs:
             dist/description.html
             dist/player-description.html
             dist/app-icon-large.png
-      - name: Upload native rendering diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: native-rendering
-          if-no-files-found: ignore
-          retention-days: 7
-          include-hidden-files: true
-          path: |
-            .build/*.png
-            .build/*-render.json
 
   docs:
     name: Documentation validation
@@ -118,7 +156,7 @@ jobs:
     if: >-
       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
-    needs: [build]
+    needs: [checks, build]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
