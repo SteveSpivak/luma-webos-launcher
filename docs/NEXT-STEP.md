@@ -30,7 +30,7 @@ cargo build --locked --features nuvio  # nuvio feature compiles
 1. Add `"nuvio"` to `stacks.rs::SOURCES`
 2. `has_library("nuvio")` → true
 3. `collection_choices("nuvio")` returns `["continue-watching", "watchlist", "library"]`
-4. Create `src/nuvio.rs` (planned) consumer service (read-only, profile-scoped, cancellation tokens, bounded item counts)
+4. Create `src/nuvio.rs` <!-- docs-validate:planned --> consumer service (read-only, profile-scoped, cancellation tokens, bounded item counts)
 5. Wire `stacks_refresh()` in `main.rs` to send `Nuvio::Command::Fetch`
 6. Consumer-side tests with synthetic fixtures
 7. Producer-side implementation proposal for the Nuvio repository (separate repo)

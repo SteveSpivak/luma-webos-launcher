@@ -4,12 +4,12 @@ use crate::{
     state::{Direction, Effect, Overlay, Page, State, Target},
     storage, view,
 };
-use serde_json::json;
 #[cfg(feature = "nuvio")]
 use crate::platform::{Platform, Request, Response};
+use serde_json::json;
+use std::{collections::BTreeMap, path::PathBuf};
 #[cfg(feature = "nuvio")]
 use std::time::Duration;
-use std::{collections::BTreeMap, path::PathBuf};
 
 fn ready() -> State {
     let mut state = State::new(Preferences::default());

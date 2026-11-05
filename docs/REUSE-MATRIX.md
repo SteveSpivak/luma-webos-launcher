@@ -43,13 +43,13 @@ Classification: REUSE / ADAPT / CREATE / REJECT. Existing components are priorit
 
 | Nuvio capability | Classification | Existing owner | Files to change | Rationale |
 |---|---|---|---|---|
-| Continue Watching feed | CREATE (consumer only) | `stacks.rs` source registry | `src/stacks.rs`, `src/main.rs`, `src/nuvio.rs` (new) | No Nuvio producer API exists. Consumer interface follows Jellyfin/Plex `Service` pattern (worker thread, Command/Response, `Response::Items`). |
+| Continue Watching feed | CREATE (consumer only) | `stacks.rs` source registry | `src/stacks.rs`, `src/main.rs`, `src/nuvio.rs` <!-- docs-validate:planned --> (new) | No Nuvio producer API exists. Consumer interface follows Jellyfin/Plex `Service` pattern (worker thread, Command/Response, `Response::Items`). |
 | Stack source `"nuvio"` | ADAPT | `stacks.rs::SOURCES` | `src/stacks.rs` | Add `"nuvio"` to `SOURCES` array; `has_library("nuvio")` → true; `collection_choices("nuvio")` returns future collections. |
 | Stack card rendering | REUSE | `stacks_view.rs` | None | Existing `StackItem` poster rendering is source-agnostic. |
 | Continue Watching → detail launch | REUSE | `Effect::NuvioLaunch` (Phase 1) | None | Phase 1 launch path already handles `contentTarget`; stack cards just need to produce the target. |
 | Poster/backdrop caching | REUSE | `media::download_as()`, `app_artwork.rs` | None | Existing bounded download and cache patterns apply. |
-| Profile isolation | CREATE | None | `src/nuvio.rs` (new) | No existing component handles profile-scoped Nuvio data. Must be designed when producer contract is authorized. |
-| Async cancellation | CREATE | None | `src/nuvio.rs` (new) | Cancellation token pattern needed; no existing Nuvio-specific cancellation. |
+| Profile isolation | CREATE | None | `src/nuvio.rs` <!-- docs-validate:planned --> (new) | No existing component handles profile-scoped Nuvio data. Must be designed when producer contract is authorized. |
+| Async cancellation | CREATE | None | `src/nuvio.rs` <!-- docs-validate:planned --> (new) | Cancellation token pattern needed; no existing Nuvio-specific cancellation. |
 | Loading/empty states | REUSE | `stacks_view.rs` (empty rows skipped) | None | `visible_rows()` in `stacks.rs` already skips empty rows; loading state exists via `state.loading`. |
 
 **Blocked:** No Nuvio producer API exists in this repository. Consumer-side interface can be designed and tested with synthetic fixtures, but no producer integration can be implemented without authorization.
