@@ -12,6 +12,7 @@ mod library;
 mod luna;
 mod media;
 mod model;
+mod fast_kv;
 mod moonlight;
 mod nuvio;
 mod motion;

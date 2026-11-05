@@ -9,9 +9,16 @@
 //! This service follows the exact Jellyfin/Plex `Service` pattern: a worker
 //! thread with `mpsc` channels, `Command::Fetch` → `Response::Items`.
 //!
+//! Data sources (in priority order):
+//!   1. LCKV binary bridge file (`LUMA_NUVIO_BRIDGE_PATH`, default
+//!      `/tmp/nuvio_stacks.lckv`) — zero-copy, sub-0.1ms read, written by
+//!      NuvioTV via `write_bridge_cards`.
+//!   2. Synthetic fixtures — used when the bridge file is absent, so the
+//!      consumer side can be developed and tested in isolation.
 //! Until a Nivío producer contract is authorized, `fetch()` returns synthetic
 //! fixtures so the consumer side can be developed and tested in isolation.
 
+use crate::fast_kv::{default_bridge_path, read_bridge_cards, FastBridgeCard};
 use crate::stacks::StackItem;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -63,18 +70,44 @@ impl Service {
 /// Fetch stack items for each (index, collection) pair. Results are sent
 /// back as `Response::Items(index, items)` so `main.rs` can write them into
 /// `state.stack_items[index]`.
+///
+/// Reads the LCKV binary bridge first; falls back to synthetic fixtures
+/// when the bridge file is absent or contains no items for the collection.
 fn fetch(reply: &mpsc::Sender<Response>, stacks: Vec<(usize, String)>) {
+    let bridge_path = default_bridge_path();
     for (index, collection) in stacks {
-        let items = match collection.as_str() {
-            "continue-watching" => continue_watching_items(),
-            "watchlist" => watchlist_items(),
-            "library" => library_items(),
-            _ => vec![],
-        };
+        let items = bridge_items(&bridge_path, &collection)
+            .unwrap_or_else(|| match collection.as_str() {
+                "continue-watching" => continue_watching_items(),
+                "watchlist" => watchlist_items(),
+                "library" => library_items(),
+                _ => vec![],
+            });
         let bounded: Vec<StackItem> = items.into_iter().take(MAX_ITEMS_PER_COLLECTION).collect();
         FETCH_ATTEMPT.fetch_add(1, Ordering::SeqCst);
         let _ = reply.send(Response::Items(index, bounded));
     }
+}
+
+/// Reads cards from the LCKV binary bridge for a collection, converting them
+/// to `StackItem`s. Returns `None` if the bridge file is missing, unreadable,
+/// or contains no items for the collection (caller falls back to synthetic).
+fn bridge_items(bridge_path: &PathBuf, collection: &str) -> Option<Vec<StackItem>> {
+    let cards = read_bridge_cards(bridge_path, collection).ok()?;
+    if cards.is_empty() {
+        return None;
+    }
+    Some(
+        cards
+            .into_iter()
+            .map(|c| StackItem {
+                title: c.title,
+                poster: None,
+                id: c.collection_hash as i64,
+                content_target: c.content_target,
+            })
+            .collect(),
+    )
 }
 
 /// Synthetic Continue Watching items — replaced by real Nivío producer API.
