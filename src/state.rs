@@ -2209,7 +2209,11 @@ fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
     let shape = stack.shape;
     let (card_w, _) = shape.size();
     let pitch = shape.pitch();
-    let scroll_x = self.stack_scroll.1;
+    // Target rows start at scroll 0 (we don't track per-row scroll). The
+    // corridor holds absolute screen-space X from update_corridor(), so
+    // comparing against target-row cards at their natural screen position
+    // keeps vertical focus on the same visual column.
+    let target_scroll_x = 0.;
     let shown = crate::stacks::row_shown(self, target_row);
     let mut cards: Vec<CardLayoutMetric> = Vec::new();
     for i in 0..shown {
@@ -2226,7 +2230,7 @@ fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
         self.focus_corridor_x,
         self.focus_corridor_x - card_w * 0.5,
         self.focus_corridor_x + card_w * 0.5,
-        scroll_x,
+        target_scroll_x,
         &cards,
     )
 }

@@ -13,7 +13,6 @@ mod luna;
 mod media;
 mod model;
 mod moonlight;
-#[cfg(feature = "nuvio")]
 mod nuvio;
 mod motion;
 mod music;

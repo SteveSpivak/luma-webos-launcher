@@ -176,7 +176,10 @@ fn persistent_write(source: &Source, directory: &Path, image: &Artwork) {
         return;
     }
     let (width, height) = (image.pixels.width() as u16, image.pixels.height() as u16);
-    let raw = RawCachedTexture::from_rgba8_as_rgb565(width, height, &image.pixels);
+    // Always store Rgba8: the renderer uploads GL_RGBA/GL_UNSIGNED_BYTE
+    // (4 bytes/px), and app icons need their alpha channel for transparency.
+    // Rgb565 is reserved for opaque posters/stills only.
+    let raw = RawCachedTexture::from_rgba8(width, height, &image.pixels);
     if raw.data.len() > DISK_ARTWORK_MAX {
         return;
     }
