@@ -283,6 +283,37 @@ fn effects(
                     }
                 }
             }
+            /// NivíoTV producer hook `lumaStacksExport`: write stack cards to
+            /// the LCKV binary bridge for Luma's consumer service.
+            #[cfg(feature = "nuvio")]
+            Effect::NuvioStacksExport { seq, cards } => {
+                if platform.webos {
+                    let cards_value: serde_json::Value =
+                        serde_json::from_str(&cards).unwrap_or(serde_json::Value::Null);
+                    platform.send(Request::NuvioStacksExport { seq, cards: cards_value });
+                } else {
+                    state.notify("Nuvio bridge export: desktop preview only");
+                }
+            }
+            /// NivíoTV deep-link consumer hook `lumaDeepLinkLaunch`: NuvioTV
+            /// asks Luma to launch a title by content target.
+            #[cfg(feature = "nuvio")]
+            Effect::NuvioDeepLinkLaunch { content_target } => {
+                if !state.launching {
+                    state.launching = true;
+                    if platform.webos {
+                        platform.send(Request::NuvioDeepLinkLaunch {
+                            content_target: content_target.clone(),
+                        });
+                    } else {
+                        state.notify(state.preferences.language.format(
+                            "desktopPreview",
+                            &[("app", "Nuvio")],
+                        ));
+                        state.launching = false;
+                    }
+                }
+            }
             Effect::Quit => return false,
             Effect::Weather(command) => weather.send(command),
             Effect::HomeAssistant(command) => home.send(command),
@@ -2090,18 +2121,35 @@ fn run() -> Result<(), String> {
                 title: "Cyberpunk 2077".into(),
                 id: 1,
                 poster: None,
+                ..Default::default()
             },
             stacks::StackItem {
                 title: "Hogwarts Legacy".into(),
                 id: 2,
                 poster: None,
+                ..Default::default()
             },
             stacks::StackItem {
                 title: "Resident Evil".into(),
                 id: 3,
                 poster: None,
+                ..Default::default()
             },
         ]);
+    }
+    // Zero-config Nuvio: default Continue Watching row on first boot when no
+    // stacks are configured. Nuvio needs no server URL or token — the LCKV
+    // binary bridge is read directly by the consumer service.
+    if state.preferences.stacks.is_empty() {
+        let mut stack = stacks::StackConfig {
+            name: "Continue Watching".into(),
+            source: "nuvio".into(),
+            collection: "continue-watching".into(),
+            ..Default::default()
+        };
+        stack.name = stacks::row_title(&stack);
+        state.preferences.stacks.push(stack);
+        state.stack_items.push(vec![]);
     }
     // Desktop QA of the Plex sign-in: LUMA_PLEX_PREVIEW=code|error.
     #[cfg(debug_assertions)]
@@ -2167,6 +2215,7 @@ fn run() -> Result<(), String> {
             id: 7,
             title: "Claro".into(),
             poster: Some(cover.to_owned()),
+            ..Default::default()
         };
         state.open_album(item, Target::Nav(0));
         let mut album = state::album::Album {
@@ -2331,6 +2380,7 @@ fn run() -> Result<(), String> {
                     title: format!("Title {i}"),
                     poster: poster(i),
                     id: i as i64 + 1,
+                    ..Default::default()
                 })
                 .collect(),
         ];
@@ -2386,6 +2436,7 @@ fn run() -> Result<(), String> {
                                 .into_owned(),
                         ),
                         id: (row * 100 + i) as i64,
+                        ..Default::default()
                     })
                     .collect()
             })

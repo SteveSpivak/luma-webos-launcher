@@ -3192,6 +3192,7 @@ fn stack_card_opens_title_card_and_back_returns_to_the_card() {
                 title: format!("Film {id}"),
                 poster: None,
                 id,
+                ..Default::default()
             })
             .collect(),
     ];
@@ -3250,6 +3251,7 @@ fn title_card_waits_for_details_then_comes_in_without_the_stand_in_title() {
         title: "Фильм / Film".into(),
         poster: None,
         id: 7,
+        ..Default::default()
     }]];
     state.focus = Target::StackCard(0, 0);
     state.activate();
@@ -3642,6 +3644,7 @@ mod nuvio {
             poster: None,
             id: 42,
             content_target: "nuvio://tmdb/movie/603".into(),
+            ..Default::default()
         };
         assert_eq!(item.content_target, "nuvio://tmdb/movie/603");
         assert_eq!(item.id, 42);

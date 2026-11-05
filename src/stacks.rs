@@ -281,4 +281,10 @@ pub struct StackItem {
     /// non-Nivío sources; set by the Nivío consumer service so cards can
     /// launch via Effect::NuvioLaunch (Phase 1).
     pub content_target: String,
+    /// Watch progress in permille (0..1000; 645 = 64.5% watched). Forwarded
+    /// from the LCKV binary bridge via `nuvio::bridge_items()`.
+    pub progress_permille: u16,
+    /// Metahub CDN artwork URL, derived from a "tt" (IMDb) id in
+    /// `nuvio::bridge_items()`. Empty when no artwork URL is available.
+    pub poster_url: Option<String>,
 }

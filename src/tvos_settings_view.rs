@@ -2253,24 +2253,41 @@ fn stack_config(out: &mut Scene, state: &State, assets: &Assets, i: usize) {
         return;
     }
     let collection = crate::stacks::collection_label(stack);
-    let rows: [(&str, Option<&str>, bool); 7] = [
-        ("Collection", Some(&collection), true),
-        ("Card shape", Some(stack.shape.label()), true),
-        ("Card shape", Some(stack.shape.label()), true),
+    let nuvio_connected = stack.source == "nuvio"
+        && crate::fast_kv::default_bridge_path().exists();
+    let rows: [(&str, Option<&str>, bool, Option<&str>); 7] = [
+        (
+            "Collection",
+            Some(&collection),
+            true,
+            if stack.source == "nuvio" {
+                if nuvio_connected {
+                    Some("Nuvio connected · bridge data live")
+                } else {
+                    Some("Nuvio zero-config · no bridge data yet")
+                }
+            } else {
+                None
+            },
+        ),
+        ("Card shape", Some(stack.shape.label()), true, None),
+        ("Card shape", Some(stack.shape.label()), true, None),
         (
             "Show on Home",
             Some(if stack.show { "On" } else { "Off" }),
             false,
+            None,
         ),
-        ("Move up", if i == 0 { Some("Top") } else { None }, false),
+        ("Move up", if i == 0 { Some("Top") } else { None }, false, None),
         (
             "Move down",
             if i + 1 == n { Some("Bottom") } else { None },
             false,
+            None,
         ),
-        ("Remove", None, false),
+        ("Remove", None, false, None),
     ];
-    for (k, (name, value, chevron)) in rows.into_iter().enumerate() {
+    for (k, (name, value, chevron, desc)) in rows.into_iter().enumerate() {
         cell(
             out,
             state,
@@ -2280,7 +2297,7 @@ fn stack_config(out: &mut Scene, state: &State, assets: &Assets, i: usize) {
             CellContent {
                 name,
                 value,
-                desc: None,
+                desc,
                 chevron,
                 checked: false,
                 partial: false,

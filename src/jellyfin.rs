@@ -601,6 +601,7 @@ fn fetch(
                         .exists()
                         .then(|| cached.to_string_lossy().into_owned()),
                     id,
+                    ..Default::default()
                 }
             })
             .collect();

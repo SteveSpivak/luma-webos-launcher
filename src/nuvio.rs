@@ -89,6 +89,17 @@ fn fetch(reply: &mpsc::Sender<Response>, stacks: Vec<(usize, String)>) {
     }
 }
 
+/// Derives a Metahub CDN artwork URL from a "tt" (IMDb) id.
+/// Returns `None` when the id is not a "tt" prefixed identifier.
+fn metahub_artwork_url(id: &str) -> Option<String> {
+    if let Some(tt_id) = id.strip_prefix("tt") {
+        if tt_id.bytes().all(u8::is_ascii_digit) && !tt_id.is_empty() {
+            return Some(format!("https://artwork.metahub.tv/{id}.jpg"));
+        }
+    }
+    None
+}
+
 /// Reads cards from the LCKV binary bridge for a collection, converting them
 /// to `StackItem`s. Returns `None` if the bridge file is missing, unreadable,
 /// or contains no items for the collection (caller falls back to synthetic).
@@ -105,6 +116,8 @@ fn bridge_items(bridge_path: &PathBuf, collection: &str) -> Option<Vec<StackItem
                 poster: None,
                 id: c.collection_hash as i64,
                 content_target: c.content_target,
+                progress_permille: c.progress_permille,
+                poster_url: metahub_artwork_url(&c.id),
             })
             .collect(),
     )
@@ -117,6 +130,9 @@ fn continue_watching_items() -> Vec<StackItem> {
         title: "Example Movie".into(),
         poster: None,
         id: 1,
+        content_target: String::new(),
+        progress_permille: 0,
+        poster_url: None,
     }]
 }
 
