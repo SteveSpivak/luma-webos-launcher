@@ -21,15 +21,16 @@ pub type Color = [f32; 4];
 
 type DecodedStill = Option<(image::RgbaImage, Option<image::RgbaImage>)>;
 
-/// Converts a linear RGBA [f32; 4] color to pre-multiplied RGBA8 [u8; 4] for
-/// QuadVertex::color (attr 3, uploaded as GL_UNSIGNED_BYTE normalized).
+/// Converts a linear RGBA [f32; 4] color to pre-multiplied RGBA [f32; 4] for
+/// QuadVertex::color (attr 3, `a_color: vec4` in paint.vert).
 #[inline]
-fn premultiply_color(color: Color) -> [u8; 4] {
-    let r = (color[0] * color[3] * 255.0).clamp(0.0, 255.0) as u8;
-    let g = (color[1] * color[3] * 255.0).clamp(0.0, 255.0) as u8;
-    let b = (color[2] * color[3] * 255.0).clamp(0.0, 255.0) as u8;
-    let a = (color[3] * 255.0).clamp(0.0, 255.0) as u8;
-    [r, g, b, a]
+fn premultiply_color(color: Color) -> [f32; 4] {
+    [
+        (color[0] * color[3]).clamp(0.0, 1.0),
+        (color[1] * color[3]).clamp(0.0, 1.0),
+        (color[2] * color[3]).clamp(0.0, 1.0),
+        color[3].clamp(0.0, 1.0),
+    ]
 }
 
 /// Decodes wallpaper-clip stills and camera snapshots off the GL thread, so a
@@ -1401,12 +1402,13 @@ impl Renderer {
                 vertices.as_ptr().cast(),
                 gl::DYNAMIC_DRAW,
             );
-            // QuadVertex layout: pos(2), uv(2), rect_size(2), color(4 u8),
-            // radius_border(2) = 12 * 4 = 48 bytes stride
+            // QuadVertex layout: pos(2f32), uv(2f32), color(4f32), shape(4f32),
+            // params(2f32) = 14 f32 = 56 bytes stride, matching paint.vert's
+            // [a_position(2), a_uv(2), a_color(4), a_shape(4), a_params(2)].
             let stride = std::mem::size_of::<QuadVertex>() as i32;
-            gl::EnableVertexAttribArray(0);
+            gl::EnableVertexAttribArray(0); // a_position
             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, stride, 0 as *const _);
-            gl::EnableVertexAttribArray(1);
+            gl::EnableVertexAttribArray(1); // a_uv
             gl::VertexAttribPointer(
                 1,
                 2,
@@ -1415,25 +1417,25 @@ impl Renderer {
                 stride,
                 (2 * 4) as *const _,
             );
-            gl::EnableVertexAttribArray(2);
+            gl::EnableVertexAttribArray(2); // a_color
             gl::VertexAttribPointer(
                 2,
-                2,
+                4,
                 gl::FLOAT,
                 gl::FALSE,
                 stride,
                 (4 * 4) as *const _,
             );
-            gl::EnableVertexAttribArray(3);
+            gl::EnableVertexAttribArray(3); // a_shape
             gl::VertexAttribPointer(
                 3,
                 4,
-                gl::UNSIGNED_BYTE,
-                gl::TRUE,
+                gl::FLOAT,
+                gl::FALSE,
                 stride,
                 (8 * 4) as *const _,
             );
-            gl::EnableVertexAttribArray(4);
+            gl::EnableVertexAttribArray(4); // a_params
             gl::VertexAttribPointer(
                 4,
                 2,
@@ -1911,7 +1913,6 @@ impl Renderer {
         self.fade = None;
         self.round = None;
         self.quad_batcher.clear();
-        self.quad_batcher.set_viewport(width as f32, height as f32);
         // Composited before every UI draw: video can no longer disappear behind
         // an unrelated window/plane, and is clipped by the exact same framebuffer.
         if video
@@ -2115,6 +2116,13 @@ impl Renderer {
                     *color,
                     self.white.id,
                 ),
+                // P0 fix: flush all buffered Shape quads BEFORE any Text/Image
+                // draw so cards/backgrounds paint BEHIND text/icons, not on top.
+                // Clear so they aren't re-drawn by the end-of-render flush
+                // (late Shapes after Text/Image still get flushed at the end,
+                // painting on top — correct Z-order per command sequence).
+                self.flush_quad_batcher();
+                self.quad_batcher.clear();
                 Draw::Text(text, rect, size, color, centered) => {
                     self.text(text, *rect, *size, *color, *centered)
                 }
@@ -3138,21 +3146,23 @@ pub fn trim_native_heap() {
 
 /// Single vertex for a UI quad rendered by `QuadBatcher`.
 ///
-/// Layout is `#[repr(C)]` so the GLES2 vertex attrib pointers can be set up
-/// with a fixed stride and offsets:
-///   - attr 0: pos (2 f32)        — screen-space X, Y
-///   - attr 1: uv (2 f32)         — local normalized quad UV [0..1, 0..1]
-///   - attr 2: rect_size (2 f32)  — width, height in pixels (SDF corner/border math)
-///   - attr 3: color (4 u8)       — pre-multiplied RGBA8
-///   - attr 4: radius_border (2 f32) — [corner_radius_px, border_thickness_px]
+/// Layout matches `paint.vert`'s attribute contract exactly:
+///   - attr 0: `a_position` (2 f32) — screen-space X, Y (shader converts to NDC)
+///   - attr 1: `a_uv` (2 f32)       — local normalized quad UV [0..1, 0..1]
+///   - attr 2: `a_color` (4 f32)    — pre-multiplied RGBA
+///   - attr 3: `a_shape` (4 f32)    — [rect_w, rect_h, 0.0, 0.0] for SDF math
+///   - attr 4: `a_params` (2 f32)   — [corner_radius_px, border_thickness_px]
+///
+/// Total: 14 f32 = 56 bytes stride, matching `self.program`'s
+/// `[2, 2, 4, 4, 2]` attribute setup.
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct QuadVertex {
     pub pos: [f32; 2],
     pub uv: [f32; 2],
-    pub rect_size: [f32; 2],
-    pub color: [u8; 4],
-    pub radius_border: [f32; 2],
+    pub color: [f32; 4],
+    pub shape: [f32; 4],
+    pub params: [f32; 2],
 }
 
 /// Single-draw-call UI quad batcher (Zed GPUI / Makepad pattern).
@@ -3163,25 +3173,13 @@ pub struct QuadVertex {
 /// overhead by ~80% on older LG webOS SoCs.
 pub struct QuadBatcher {
     vertices: Vec<QuadVertex>,
-    viewport_w: f32,
-    viewport_h: f32,
 }
 
 impl QuadBatcher {
     pub fn with_capacity(max_quads: usize) -> Self {
         Self {
             vertices: Vec::with_capacity(max_quads * 6),
-            viewport_w: 1920.0,
-            viewport_h: 1080.0,
         }
-    }
-
-    /// Updates the viewport dimensions so `push_rounded_quad` can normalize
-    /// screen-space pixel coordinates to NDC `[-1.0 .. +1.0]`.
-    #[inline]
-    pub fn set_viewport(&mut self, w: f32, h: f32) {
-        self.viewport_w = w.max(1.0);
-        self.viewport_h = h.max(1.0);
     }
 
     #[inline]
@@ -3196,46 +3194,47 @@ impl QuadBatcher {
         y: f32,
         w: f32,
         h: f32,
-        color: [u8; 4],
+        color: [f32; 4],
         radius_px: f32,
         border_px: f32,
     ) {
-        // Normalize screen-space pixel coords to NDC [-1.0 .. +1.0]
-        // so the same vertex data works with any viewport size.
-        let x0 = 2.0 * x / self.viewport_w - 1.0;
-        let y0 = 1.0 - 2.0 * y / self.viewport_h;
-        let x1 = 2.0 * (x + w) / self.viewport_w - 1.0;
-        let y1 = 1.0 - 2.0 * (y + h) / self.viewport_h;
-        let rect_size = [w, h];
-        let radius_border = [radius_px, border_px];
+        // Screen-space pixel coordinates — `paint.vert` converts to NDC
+        // internally (gl_Position = pos / viewport - 1.0).  Do NOT pre-normalize
+        // here or coordinates get double-transformed.
+        let x0 = x;
+        let y0 = y;
+        let x1 = x + w;
+        let y1 = y + h;
+        let shape = [w, h, 0.0, 0.0];
+        let params = [radius_px, border_px];
         // Two triangles per quad: (0,1,2) and (0,2,3)
         let v0 = QuadVertex {
             pos: [x0, y0],
             uv: [0.0, 0.0],
-            rect_size,
             color,
-            radius_border,
+            shape,
+            params,
         };
         let v1 = QuadVertex {
             pos: [x1, y0],
             uv: [1.0, 0.0],
-            rect_size,
             color,
-            radius_border,
+            shape,
+            params,
         };
         let v2 = QuadVertex {
             pos: [x1, y1],
             uv: [1.0, 1.0],
-            rect_size,
             color,
-            radius_border,
+            shape,
+            params,
         };
         let v3 = QuadVertex {
             pos: [x0, y1],
             uv: [0.0, 1.0],
-            rect_size,
             color,
-            radius_border,
+            shape,
+            params,
         };
         // Triangle 1: v0, v1, v2
         self.vertices.extend_from_slice(&[v0, v1, v2]);
