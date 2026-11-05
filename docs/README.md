@@ -94,6 +94,15 @@ The following documents cover the Nivío title-to-detail launch integration spec
 
 These docs describe work on a separate feature branch (`research/arena-nuvio-integration-kit-20261105`) and are not part of the core Luma documentation set.
 
+## Active pull requests
+
+| PR | Branch | Purpose | Status |
+|---|---|---|---|
+| [#1](https://github.com/SteveSpivak/luma-webos-launcher/pull/1) | `research/arena-nuvio-integration-kit-20261105` | Lab: Nivio integration kit preparation (research, audit, charter) | Open, draft |
+| [#2](https://github.com/SteveSpivak/luma-webos-launcher/pull/2) | `arena/5fe14abb-luma-webos-launcher` | Implementation: Nivio Phase 1 launch + whole-project documentation | Open, draft |
+
+PR #1 is the prepared lab branch with integration-scoped documentation. PR #2 is the current working branch containing the Nivío Phase 1 implementation (default-off feature flag) and the whole-project documentation set. Both target `main` and must be reviewed before merge.
+
 ## Contributing
 
 See [`developer/contributing.md`](developer/contributing.md) for how to work on this codebase, run tests, and submit changes. All changes must be committed to a feature branch and submitted as a draft pull request — never merged automatically.
