@@ -21,6 +21,8 @@ const MAX_SLOT_STR: usize = 96;
 const LCKV_SIZE: usize = 16384;
 /// Header size: magic(4) + version(1) + padding(3) + count(2) + seq(8) + crc(4) + reserved(12) = 32
 const HEADER_SIZE: usize = 32;
+/// Trailer size: seq(8) — written at EOF for torn-read detection.
+const TRAILER_SIZE: usize = 8;
 /// Record size: collection_hash(8) + progress_permille(2) + ambient_rgb565(2) + 4 string slots(96*4) = 396
 const RECORD_SIZE: usize = 396;
 
@@ -84,12 +86,23 @@ pub fn read_bridge_cards(
         ));
     }
 
-    let seq = u64::from_le_bytes(buf[8..16].try_into().unwrap());
-    // Seqlock invariant: odd sequence number means writer was mid-update.
-    if (seq & 1) == 1 {
+    // Seqlock invariant: header + trailer must match and be even.
+    // A torn write (partial write, crash mid-update) will produce mismatched
+    // head/tail seq numbers or an odd seq number.
+    if buf.len() < HEADER_SIZE + TRAILER_SIZE {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "LCKV file too short for header + trailer",
+        ));
+    }
+    let seq_head = u64::from_le_bytes(buf[8..16].try_into().unwrap());
+    let seq_tail = u64::from_le_bytes(
+        buf[buf.len() - TRAILER_SIZE..].try_into().unwrap(),
+    );
+    if (seq_head & 1) == 1 || seq_head != seq_tail {
         return Err(io::Error::new(
             io::ErrorKind::WouldBlock,
-            "Bridge write in progress",
+            "Bridge write in progress or torn read",
         ));
     }
 
@@ -144,9 +157,14 @@ pub fn read_bridge_cards(
 
 /// Atomically writes cards to the binary bridge file.
 /// Writes to a temp file then renames for POSIX atomicity.
+///
+/// The committed sequence number is written both at the header (buf[8..16])
+/// and as a trailer (last 8 bytes) so readers can detect torn writes:
+/// a reader must see matching head/tail seq numbers that are both even.
 pub fn write_bridge_cards(path: &Path, seq: u64, cards: &[FastBridgeCard]) -> io::Result<()> {
     let count = cards.len().min(u16::MAX as usize) as u16;
-    let mut buf = vec![0u8; HEADER_SIZE + count as usize * RECORD_SIZE];
+    let payload_size = HEADER_SIZE + count as usize * RECORD_SIZE;
+    let mut buf = vec![0u8; payload_size + TRAILER_SIZE];
 
     buf[0..4].copy_from_slice(&LCKV_MAGIC);
     buf[4] = LCKV_VERSION;
@@ -183,6 +201,10 @@ pub fn write_bridge_cards(path: &Path, seq: u64, cards: &[FastBridgeCard]) -> io
 
         offset += RECORD_SIZE;
     }
+
+    // Trailer: repeat committed_seq for torn-read detection.
+    buf[payload_size..payload_size + TRAILER_SIZE]
+        .copy_from_slice(&committed_seq.to_le_bytes());
 
     let tmp_path = path.with_extension("lckv.tmp");
     {

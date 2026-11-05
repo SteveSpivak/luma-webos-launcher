@@ -21,6 +21,17 @@ pub type Color = [f32; 4];
 
 type DecodedStill = Option<(image::RgbaImage, Option<image::RgbaImage>)>;
 
+/// Converts a linear RGBA [f32; 4] color to pre-multiplied RGBA8 [u8; 4] for
+/// QuadVertex::color (attr 3, uploaded as GL_UNSIGNED_BYTE normalized).
+#[inline]
+fn premultiply_color(color: Color) -> [u8; 4] {
+    let r = (color[0] * color[3] * 255.0).clamp(0.0, 255.0) as u8;
+    let g = (color[1] * color[3] * 255.0).clamp(0.0, 255.0) as u8;
+    let b = (color[2] * color[3] * 255.0).clamp(0.0, 255.0) as u8;
+    let a = (color[3] * 255.0).clamp(0.0, 255.0) as u8;
+    [r, g, b, a]
+}
+
 /// Decodes wallpaper-clip stills and camera snapshots off the GL thread, so a
 /// clip swap or a fresh snapshot never stalls a frame on a large JPEG; the GL
 /// thread only uploads the pixels.
@@ -1381,6 +1392,8 @@ impl Renderer {
         }
         let vertices = self.quad_batcher.triangle_vertices();
         unsafe {
+            // Use the main program so QuadVertex attribs match the shader layout.
+            gl::UseProgram(self.program);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.buffer);
             gl::BufferData(
                 gl::ARRAY_BUFFER,
@@ -1898,6 +1911,7 @@ impl Renderer {
         self.fade = None;
         self.round = None;
         self.quad_batcher.clear();
+        self.quad_batcher.set_viewport(width as f32, height as f32);
         // Composited before every UI draw: video can no longer disappear behind
         // an unrelated window/plane, and is clipped by the exact same framebuffer.
         if video
@@ -2046,14 +2060,17 @@ impl Renderer {
                 _ => {}
             }
             match command {
-                Draw::Shape(rect, radius, border, color) => self.quad(
-                    *rect,
-                    [0., 0., 1., 1.],
-                    *radius,
-                    *border,
-                    *color,
-                    self.white.id,
-                ),
+                Draw::Shape(rect, radius, border, color) => {
+                    self.quad_batcher.push_rounded_quad(
+                        rect.x,
+                        rect.y,
+                        rect.w,
+                        rect.h,
+                        premultiply_color(*color),
+                        *radius,
+                        *border,
+                    );
+                }
                 Draw::RoundedGradient(rect, radius, top, bottom) => self.gradient_quad(
                     *rect,
                     [0., 0., 1., 1.],
@@ -3146,13 +3163,25 @@ pub struct QuadVertex {
 /// overhead by ~80% on older LG webOS SoCs.
 pub struct QuadBatcher {
     vertices: Vec<QuadVertex>,
+    viewport_w: f32,
+    viewport_h: f32,
 }
 
 impl QuadBatcher {
     pub fn with_capacity(max_quads: usize) -> Self {
         Self {
             vertices: Vec::with_capacity(max_quads * 6),
+            viewport_w: 1920.0,
+            viewport_h: 1080.0,
         }
+    }
+
+    /// Updates the viewport dimensions so `push_rounded_quad` can normalize
+    /// screen-space pixel coordinates to NDC `[-1.0 .. +1.0]`.
+    #[inline]
+    pub fn set_viewport(&mut self, w: f32, h: f32) {
+        self.viewport_w = w.max(1.0);
+        self.viewport_h = h.max(1.0);
     }
 
     #[inline]
@@ -3171,32 +3200,38 @@ impl QuadBatcher {
         radius_px: f32,
         border_px: f32,
     ) {
+        // Normalize screen-space pixel coords to NDC [-1.0 .. +1.0]
+        // so the same vertex data works with any viewport size.
+        let x0 = 2.0 * x / self.viewport_w - 1.0;
+        let y0 = 1.0 - 2.0 * y / self.viewport_h;
+        let x1 = 2.0 * (x + w) / self.viewport_w - 1.0;
+        let y1 = 1.0 - 2.0 * (y + h) / self.viewport_h;
         let rect_size = [w, h];
         let radius_border = [radius_px, border_px];
         // Two triangles per quad: (0,1,2) and (0,2,3)
         let v0 = QuadVertex {
-            pos: [x, y],
+            pos: [x0, y0],
             uv: [0.0, 0.0],
             rect_size,
             color,
             radius_border,
         };
         let v1 = QuadVertex {
-            pos: [x + w, y],
+            pos: [x1, y0],
             uv: [1.0, 0.0],
             rect_size,
             color,
             radius_border,
         };
         let v2 = QuadVertex {
-            pos: [x + w, y + h],
+            pos: [x1, y1],
             uv: [1.0, 1.0],
             rect_size,
             color,
             radius_border,
         };
         let v3 = QuadVertex {
-            pos: [x, y + h],
+            pos: [x0, y1],
             uv: [0.0, 1.0],
             rect_size,
             color,

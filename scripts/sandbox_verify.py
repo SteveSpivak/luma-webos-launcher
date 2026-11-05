@@ -7,7 +7,9 @@ Checks:
   1. Trailing whitespace & hard tabs (instant rustfmt failure)
   2. 100-column max_width on non-string, non-comment code lines
   3. Dead-code detector: finds `fn name(` definitions and verifies call count >= 2
-  4. Mathematical verification of Spring1D convergence & .ltex header packing
+  4. Call-Graph Reverse Census: asserts every Phase 2/3 feature symbol has >=1
+     production call site outside its own definition and #[cfg(test)] blocks
+  5. Mathematical verification of Spring1D convergence & .ltex header packing
 """
 import glob
 import math
@@ -53,7 +55,38 @@ for path, content in all_files.items():
                 f"{path}: dead_code risk: `fn {fn_name}` appears only once across entire codebase!"
             )
 
-# 4. Mathematical Verification of Spring1D & Viewport Focus Corridor
+# 4. Call-Graph Reverse Census: assert every Phase 2/3 feature symbol has
+#    >=1 production call site outside its own definition and #[cfg(test)] blocks.
+#    Strip #[cfg(test)] blocks before counting so test-only usage doesn't count.
+prod_corpus_parts = []
+for content in all_files.values():
+    # Remove everything from #[cfg(test)] to the end of the module/test block.
+    # This is approximate but sufficient: test modules are typically at the
+    # bottom of a file and start with #[cfg(test)] mod tests { ... }.
+    parts = content.split("#[cfg(test)]")
+    prod_corpus_parts.append(parts[0])  # Everything before the first #[cfg(test)]
+prod_corpus = "\n".join(prod_corpus_parts)
+
+REQUIRED_LIVE_CALLS = [
+    ("src/motion.rs", "Spring1D", "step"),
+    ("src/state.rs", "resolve_vertical_stack_target", "resolve_vertical_stack_target"),
+    ("src/renderer.rs", "TextureUploadScheduler", "drain_within_budget"),
+    ("src/renderer.rs", "QuadBatcher", "push_rounded_quad"),
+    ("src/app_artwork.rs", "RawCachedTexture", "load_from_disk"),
+    ("src/fast_kv.rs", "LCKV", "read_bridge_cards"),
+]
+
+for module, feature, symbol in REQUIRED_LIVE_CALLS:
+    # A symbol must appear at least twice in non-test code:
+    #   1 definition + >=1 production call site
+    count = len(re.findall(rf"\b{re.escape(symbol)}\b", prod_corpus))
+    if count < 2:
+        errors.append(
+            f"REVERSE-CENSUS FAILURE [{module}]: `{symbol}` ({feature}) has "
+            f"{max(0, count - 1)} production call site(s) (hollow/unwired feature)!"
+        )
+
+# 5. Mathematical Verification of Spring1D & Viewport Focus Corridor
 def verify_math_models():
     # Test Critically Damped Spring analytical convergence & elastic edge bump
     pos, vel, target, omega = 0.0, 0.0, 100.0, 26.0
