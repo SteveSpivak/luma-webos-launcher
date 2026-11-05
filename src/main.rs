@@ -13,6 +13,8 @@ mod luna;
 mod media;
 mod model;
 mod moonlight;
+#[cfg(feature = "nuvio")]
+mod nuvio;
 mod motion;
 mod music;
 mod pad_watch;
@@ -886,6 +888,18 @@ fn jellyfin_service() -> &'static jellyfin::Service {
     })
 }
 
+fn nuvio_service() -> &'static nuvio::Service {
+    static SERVICE: std::sync::OnceLock<nuvio::Service> = std::sync::OnceLock::new();
+    SERVICE.get_or_init(|| {
+        let cache = if std::path::Path::new("/media/developer/com.denisefremov.luma").exists() {
+            std::path::PathBuf::from("/media/developer/com.denisefremov.luma/posters")
+        } else {
+            std::env::temp_dir().join("luma-posters")
+        };
+        nuvio::Service::new(cache)
+    })
+}
+
 /// The phone form that takes a Jellyfin server address (nothing is typed
 /// with the remote): link to show as QR, checked servers, form errors.
 struct JellyfinForm {
@@ -1430,6 +1444,22 @@ fn moonlight_tick(state: &mut State, preferences_path: &std::path::Path, platfor
         }
     }
 }
+/// Drain Nivío Continue Watching responses and write them into
+/// state.stack_items[index]. Follows the jellyfin_tick / plex_tick pattern.
+fn nuvio_tick(state: &mut State) {
+    while let Ok(response) = nuvio_service().receiver.lock().unwrap().try_recv() {
+        state.dirty = true;
+        match response {
+            nuvio::Response::Items(index, items) => {
+                if state.stack_items.len() <= index {
+                    state.stack_items.resize(index + 1, vec![]);
+                }
+                state.stack_items[index] = items;
+            }
+        }
+    }
+}
+
 /// The open Library page: apply its replies, ask for the next page and for
 /// the posters around the screen.
 fn library_tick(state: &mut State, preferences_path: &std::path::Path) {
@@ -1614,6 +1644,24 @@ fn stacks_refresh(state: &mut State) {
             moonlight_service().send(moonlight::Command::Fetch(
                 state.preferences.moonlight.clone(),
             ));
+        }
+    }
+    if state
+        .preferences
+        .stacks
+        .iter()
+        .any(|s| s.source == "nuvio")
+    {
+        let wanted = state
+            .preferences
+            .stacks
+            .iter()
+            .enumerate()
+            .filter(|(_, s)| s.source == "nuvio")
+            .map(|(i, s)| (i, s.collection.clone()))
+            .collect::<Vec<_>>();
+        if !wanted.is_empty() {
+            nuvio_service().send(nuvio::Command::Fetch(wanted));
         }
     }
 }
@@ -2858,6 +2906,7 @@ fn run() -> Result<(), String> {
         }
         jellyfin_tick(&mut state, &preferences_path, &platform);
         plex_tick(&mut state, &preferences_path, &platform);
+        nuvio_tick(&mut state);
         // Poll a native worker rather than doing any media I/O in the render loop.
         while let Some(update) = player_backend::poll() {
             if let Some(session) = state.playback.as_mut() {
@@ -3692,6 +3741,7 @@ fn run() -> Result<(), String> {
         }
         jellyfin_tick(&mut state, &preferences_path, &platform);
         plex_tick(&mut state, &preferences_path, &platform);
+        nuvio_tick(&mut state);
         moonlight_tick(&mut state, &preferences_path, &platform);
         library_tick(&mut state, &preferences_path);
         if state.music.tick() {

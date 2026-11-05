@@ -3581,4 +3581,69 @@ mod nuvio {
             Target::NuvioLaunch("nuvio://tmdb/movie/603".to_owned())
         );
     }
+
+    /// --- Consumer-side tests for the Nivío stack service (Phase 2) ---
+
+    #[test]
+    fn nuvio_service_fetch_returns_continue_watching_items() {
+        let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(nuvio::Command::Fetch(vec![
+            (0, "continue-watching".to_owned()),
+        ]));
+        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+            Ok(nuvio::Response::Items(index, items)) => {
+                assert_eq!(index, 0);
+                assert_eq!(items.len(), 1);
+                assert_eq!(items[0].title, "Example Movie");
+            }
+            response => panic!("unexpected response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_service_fetch_returns_empty_for_watchlist_and_library() {
+        let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(nuvio::Command::Fetch(vec![
+            (0, "watchlist".to_owned()),
+            (1, "library".to_owned()),
+        ]));
+        match (
+            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+        ) {
+            (
+                Ok(nuvio::Response::Items(0, items)),
+                Ok(nuvio::Response::Items(1, _)),
+            ) => {
+                assert!(items.is_empty());
+            }
+            (r1, r2) => panic!("unexpected responses {r1:?}, {r2:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_service_fetch_is_bounded_to_max_items() {
+        let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(nuvio::Command::Fetch(vec![
+            (0, "continue-watching".to_owned()),
+        ]));
+        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+            Ok(nuvio::Response::Items(_, items)) => {
+                assert!(items.len() <= crate::stacks::HOME_ROW_MAX as usize);
+            }
+            response => panic!("unexpected response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_stack_item_has_content_target_field() {
+        let item = crate::stacks::StackItem {
+            title: "Test".into(),
+            poster: None,
+            id: 42,
+            content_target: "nuvio://tmdb/movie/603".into(),
+        };
+        assert_eq!(item.content_target, "nuvio://tmdb/movie/603");
+        assert_eq!(item.id, 42);
+    }
 }

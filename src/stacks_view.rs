@@ -174,6 +174,7 @@ fn source_label(source: &str) -> &'static str {
         "moonlight" => "Moonlight",
         "jellyfin" => "Jellyfin",
         "plex" => "Plex",
+        "nuvio" => "Nuvio",
         _ => "",
     }
 }

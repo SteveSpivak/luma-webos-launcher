@@ -27,6 +27,17 @@ docs/AGENT-GUIDE.md,src/weather-tests.rs,yes
 docs/AGENT-GUIDE.md,src/widgets.rs,yes
 docs/AGENT-GUIDE.md,src/widgets_state.rs,yes
 docs/AGENT-GUIDE.md,src/widgets_view.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,assets/messages.json,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/app_artwork.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/main.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/nuvio.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/platform.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/stacks.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/stacks_view.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/state.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,src/tests.rs,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,tools/test_validate_docs.py,yes
+docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md,tools/validate_docs.py,yes
 docs/ARCHITECTURE.md,assets/messages.json,yes
 docs/ARCHITECTURE.md,src/,yes
 docs/ARCHITECTURE.md,src/app_artwork.rs,yes

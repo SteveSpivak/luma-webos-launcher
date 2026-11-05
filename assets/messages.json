@@ -860,6 +860,27 @@
     "zh": "未安装 Nuvio。",
     "pt": "O Nuvio não está instalado."
   },
+  "nuvioContinueWatching": {
+    "en": "Continue Watching",
+    "de": "Weiter ansehen",
+    "es": "Seguir viendo",
+    "zh": "继续观看",
+    "pt": "Continuar assistindo"
+  },
+  "nuvioWatchlist": {
+    "en": "Watchlist",
+    "de": "Merkliste",
+    "es": "Lista de seguimiento",
+    "zh": "观看列表",
+    "pt": "Lista de assistidos"
+  },
+  "nuvioLibrary": {
+    "en": "Library",
+    "de": "Bibliothek",
+    "es": "Biblioteca",
+    "zh": "资料库",
+    "pt": "Biblioteca"
+  },
   "dismissSearch": {
     "en": "Clear search",
     "de": "Suche löschen",

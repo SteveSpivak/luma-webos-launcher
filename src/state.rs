@@ -3666,6 +3666,17 @@ impl State {
                     return self.open_library(row, index);
                 }
                 let items = self.stack_items.get(stack).map_or(&[][..], Vec::as_slice);
+                // Nivío stack cards carry a content_target; launch via Phase 1.
+                if self.preferences.stacks[stack].source == "nuvio" {
+                    if let Some(item) = items.get(index) {
+                        if !item.content_target.is_empty() {
+                            return vec![Effect::NuvioLaunch {
+                                content_target: item.content_target.clone(),
+                            }];
+                        }
+                    }
+                    return vec![];
+                }
                 if self.preferences.stacks[stack].source == "moonlight" {
                     if let Some(item) = items.get(index).cloned() {
                         let hdr = self

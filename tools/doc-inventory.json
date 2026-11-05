@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/generate_doc_inventory.py",
-  "total_docs": 46,
-  "whole_project_docs": 36,
+  "total_docs": 47,
+  "whole_project_docs": 37,
   "nivio_scoped_docs": 10,
   "docs": [
     {
@@ -81,6 +81,41 @@
       "scope": "whole-project",
       "source_refs": [],
       "source_refs_resolved": [],
+      "source_refs_unresolved": [],
+      "has_index": true
+    },
+    {
+      "path": "docs/ARCHITECTURE-PHASE2-NIVIO-CONTINUE-WATCHING.md",
+      "doc_type": "reference",
+      "diataxis": "explanation",
+      "audience": "General audience",
+      "scope": "whole-project",
+      "source_refs": [
+        "assets/messages.json",
+        "src/app_artwork.rs",
+        "src/main.rs",
+        "src/nuvio.rs",
+        "src/platform.rs",
+        "src/stacks.rs",
+        "src/stacks_view.rs",
+        "src/state.rs",
+        "src/tests.rs",
+        "tools/test_validate_docs.py",
+        "tools/validate_docs.py"
+      ],
+      "source_refs_resolved": [
+        "assets/messages.json",
+        "src/app_artwork.rs",
+        "src/main.rs",
+        "src/nuvio.rs",
+        "src/platform.rs",
+        "src/stacks.rs",
+        "src/stacks_view.rs",
+        "src/state.rs",
+        "src/tests.rs",
+        "tools/test_validate_docs.py",
+        "tools/validate_docs.py"
+      ],
       "source_refs_unresolved": [],
       "has_index": true
     },
