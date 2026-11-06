@@ -1,0 +1,23 @@
+{
+  "schema": "tv-agent/repository-profile/v1",
+  "repo": "SteveSpivak/luma-webos-launcher",
+  "role": "rust-launcher",
+  "canonical_branch": "main",
+  "contract_owner": "Luma consumer/launcher",
+  "read_only_default": true,
+  "required_gates": [
+    "rustfmt",
+    "cargo-check",
+    "cargo-test",
+    "lckv-consumer-contract",
+    "launch-target-validation"
+  ],
+  "dangerous_actions": [
+    "tv-install",
+    "tv-root",
+    "production-bridge-write",
+    "release-publish"
+  ],
+  "local_agent_command": "python3 scripts/agent_receipt.py snapshot",
+  "note": "Profile documents ownership and gates; it does not authorize device mutation."
+}
