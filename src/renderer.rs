@@ -2922,6 +2922,31 @@ fn load_font(directory: &Path, id: u16) -> Result<Font, String> {
     Ok(font)
 }
 
+/// Releases all replaceable poster/still GPU textures and returns freed
+/// glibc pages to the kernel when Luma is occluded by a video player or
+/// receives SDL_APP_LOWMEMORY. Prevents webOS `memorymanager` (`memchute`)
+/// from killing/refreshing Luma during background video playback!
+///
+/// After calling, `self.textures` is empty except for entries that were
+/// `None` already. Callers should re-upload textures on return to foreground
+/// via `upload_posters()` / `upload_stills()`.
+pub fn shed_replaceable_vram(&mut self) {
+    // Drain all texture entries; each Texture's Drop calls gl::DeleteTextures.
+    self.textures.clear();
+    // Clear pending upload queues so no new textures are queued while backgrounded.
+    self.upload_scheduler.queue.clear();
+    unsafe {
+        gl::Flush();
+    }
+    // Return freed glibc pages to the kernel (webOS only; libc is optional).
+    #[cfg(feature = "webos")]
+    {
+        unsafe {
+            libc::malloc_trim(0);
+        }
+    }
+}
+
 impl Drop for Renderer {
     fn drop(&mut self) {
         unsafe {

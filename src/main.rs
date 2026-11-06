@@ -2701,6 +2701,10 @@ fn run() -> Result<(), String> {
     let mut last_minute = None;
     let mut frame = 0u64;
     let mut visible = true;
+    /// True when Luma's window is occluded by a background video player
+    /// (Hidden/Minimized/FocusLost). While true, we skip render+swap and
+    /// shed GPU textures so webOS memorymanager does not kill/refresh Luma.
+    let mut is_backgrounded = false;
     let mut last_ha_view: Option<HaView> = None;
     let mut last_ha_connect = false;
     // Starfish requires a fully displayed/foreground native Wayland window.
@@ -3316,6 +3320,20 @@ fn run() -> Result<(), String> {
                     let _ = x;
                 }
                 Event::Quit { .. } => running = false,
+                // webOS sends AppLowMemory when memorymanager is under pressure.
+                // Shed VRAM immediately to avoid being killed/refreshing.
+                Event::AppLowMemory { .. } => {
+                    is_backgrounded = true;
+                    renderer.shed_replaceable_vram();
+                }
+                Event::AppDidEnterBackground { .. } => {
+                    is_backgrounded = true;
+                    renderer.shed_replaceable_vram();
+                }
+                Event::AppWillEnterForeground { .. } => {
+                    is_backgrounded = false;
+                    state.dirty = true;
+                }
                 Event::Window {
                     window_id,
                     win_event,
@@ -3323,16 +3341,25 @@ fn run() -> Result<(), String> {
                 } if window_id == window.id() => match win_event {
                     WindowEvent::Hidden | WindowEvent::Minimized => {
                         visible = false;
+                        is_backgrounded = true;
                         press = None;
                         drag = None;
                         if matches!(state.overlay, Some(Overlay::SystemKeyboard)) {
                             pending = state.finish_text_input();
                         }
                         profile.pause();
+                        // Shed replaceable GPU textures so webOS memorymanager
+                        // does not kill/refresh Luma while a video plays.
+                        renderer.shed_replaceable_vram();
                     }
-                    WindowEvent::FocusLost => press = None,
+                    WindowEvent::FocusLost => {
+                        press = None;
+                        is_backgrounded = true;
+                        renderer.shed_replaceable_vram();
+                    }
                     WindowEvent::Shown | WindowEvent::Restored | WindowEvent::FocusGained => {
                         visible = true;
+                        is_backgrounded = false;
                         state.dirty = true;
                         // Double Start+Select on a TV gamepad (pad_watch): close the game.
                         let quit = std::fs::remove_file(pad_watch::FLAG).is_ok();
@@ -4091,7 +4118,7 @@ fn run() -> Result<(), String> {
             assets.text_pct.set(state.preferences.text_size_pct);
             scene = compose(&mut state, &assets, pill, pill_width, now);
             let (width, height) = window.drawable_size();
-            if width > 0 && height > 0 {
+            if width > 0 && height > 0 && !is_backgrounded {
                 if final_frame && let Some(path) = &options.screenshot {
                     captured = Some(renderer.capture(
                         &scene.draw,
