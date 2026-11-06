@@ -1,0 +1,190 @@
+   Compiling luma v2.2.160 (<repo>)
+warning: unused import: `Response`
+ --> src/tests.rs:8:42
+  |
+8 | use crate::platform::{Platform, Request, Response};
+  |                                          ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+   --> src/nuvio.rs:196:47
+    |
+196 |             _ => panic!("unexpected response: {response:?}"),
+    |                                               ^^^^^^^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+    = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    |
+ 37 + #[derive(Debug)]
+ 38 | pub enum Response {
+    |
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+   --> src/nuvio.rs:210:48
+    |
+210 |             _ => panic!("unexpected responses: {r1:?}, {r2:?}"),
+    |                                                ^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+    = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    |
+ 37 + #[derive(Debug)]
+ 38 | pub enum Response {
+    |
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+   --> src/nuvio.rs:225:47
+    |
+225 |             _ => panic!("unexpected response: {response:?}"),
+    |                                               ^^^^^^^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+    = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    |
+ 37 + #[derive(Debug)]
+ 38 | pub enum Response {
+    |
+
+error[E0599]: no variant, associated function, or constant named `Launched` found for enum `nuvio::Response` in the current scope
+    --> src/tests.rs:3588:26
+     |
+3588 |             Ok(Response::Launched(Err(error))) => assert!(
+     |                          ^^^^^^^^ variant, associated function, or constant not found in `nuvio::Response`
+     |
+    ::: src/nuvio.rs:37:1
+     |
+  37 | pub enum Response {
+     | ----------------- variant, associated function, or constant `Launched` not found for this enum
+
+error[E0599]: no variant, associated function, or constant named `Launched` found for enum `nuvio::Response` in the current scope
+    --> src/tests.rs:3603:26
+     |
+3603 |             Ok(Response::Launched(Err(error))) => {
+     |                          ^^^^^^^^ variant, associated function, or constant not found in `nuvio::Response`
+     |
+    ::: src/nuvio.rs:37:1
+     |
+  37 | pub enum Response {
+     | ----------------- variant, associated function, or constant `Launched` not found for this enum
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+    --> src/tests.rs:3651:53
+     |
+3651 |             response => panic!("unexpected response {response:?}"),
+     |                                                     ^^^^^^^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+     |
+     = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+     = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: the trait `std::fmt::Debug` is implemented for `std::result::Result<T, E>`
+    --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/result.rs:552:15
+     = note: required for `std::result::Result<nuvio::Response, std::sync::mpmc::RecvTimeoutError>` to implement `std::fmt::Debug`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    -->  src/nuvio.rs:37:1
+     |
+  37 + #[derive(Debug)]
+  38 | pub enum Response {
+     |
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+    --> src/tests.rs:3672:54
+     |
+3672 |             (r1, r2) => panic!("unexpected responses {r1:?}, {r2:?}"),
+     |                                                      ^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+     |
+     = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+     = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: the trait `std::fmt::Debug` is implemented for `std::result::Result<T, E>`
+    --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/result.rs:552:15
+     = note: required for `std::result::Result<nuvio::Response, std::sync::mpmc::RecvTimeoutError>` to implement `std::fmt::Debug`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    -->  src/nuvio.rs:37:1
+     |
+  37 + #[derive(Debug)]
+  38 | pub enum Response {
+     |
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+    --> src/tests.rs:3686:53
+     |
+3686 |             response => panic!("unexpected response {response:?}"),
+     |                                                     ^^^^^^^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+     |
+     = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+     = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: the trait `std::fmt::Debug` is implemented for `std::result::Result<T, E>`
+    --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/result.rs:552:15
+     = note: required for `std::result::Result<nuvio::Response, std::sync::mpmc::RecvTimeoutError>` to implement `std::fmt::Debug`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    -->  src/nuvio.rs:37:1
+     |
+  37 + #[derive(Debug)]
+  38 | pub enum Response {
+     |
+
+error[E0382]: borrow of moved value: `path`
+    --> src/renderer.rs:1469:51
+     |
+1457 |                 if let Ok((path, decoded)) = self.stills.replies.recv() {
+     |                            ---- move occurs because `path` has type `std::string::String`, which does not implement the `Copy` trait
+...
+1463 |                         self.textures.insert(path, Some(uploaded));
+     |                                              ---- value moved here
+...
+1469 |                                 .insert(format!("{path}#frost"), Some(frost_uploaded));
+     |                                                   ^^^^ value borrowed here after move
+     |
+help: consider cloning the value if the performance cost is acceptable
+     |
+1463 |                         self.textures.insert(path.clone(), Some(uploaded));
+     |                                                  ++++++++
+
+warning: unused variable: `full`
+    --> src/renderer.rs:1513:9
+     |
+1513 |         full: &image::RgbaImage,
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_full`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+error[E0502]: cannot borrow `*self` as mutable because it is also borrowed as immutable
+    --> src/renderer.rs:2335:29
+     |
+2233 |                   for batch in &self.batches {
+     |                                -------------
+     |                                |
+     |                                immutable borrow occurs here
+     |                                immutable borrow later used here
+...
+2335 | /                             self.draw_mesh(
+2336 | |                                 self.vector_program,
+2337 | |                                 mesh,
+2338 | |                                 [rect.w / mesh.width, rect.h / mesh.height, rect.x, rect.y],
+2339 | |                                 *tint,
+2340 | |                             );
+     | |_____________________________^ mutable borrow occurs here
+
+error[E0502]: cannot borrow `*self` as mutable because it is also borrowed as immutable
+    --> src/renderer.rs:2349:29
+     |
+2233 |                   for batch in &self.batches {
+     |                                -------------
+     |                                |
+     |                                immutable borrow occurs here
+     |                                immutable borrow later used here
+...
+2349 | /                             self.draw_mesh(
+2350 | |                                 self.text_program,
+2351 | |                                 mesh,
+2352 | |                                 [1., 1., origin[0], origin[1]],
+2353 | |                                 *tint,
+2354 | |                             );
+     | |_____________________________^ mutable borrow occurs here
+
+Some errors have detailed explanations: E0277, E0382, E0502, E0599.
+For more information about an error, try `rustc --explain E0277`.
+warning: `luma` (bin "luma" test) generated 2 warnings
+error: could not compile `luma` (bin "luma" test) due to 11 previous errors; 2 warnings emitted
