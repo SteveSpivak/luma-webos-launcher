@@ -6,3 +6,7 @@ dist/
 .env
 .env.*
 target/
+.agent-memory/*.db
+.agent-memory/*.db-shm
+.agent-memory/*.db-wal
+.agent-memory/__pycache__/

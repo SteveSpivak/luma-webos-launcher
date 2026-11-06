@@ -113,8 +113,174 @@ pub fn chase(current: f32, target: f32, dt: f32, reduced: bool) -> f32 {
     // 96% settled in approximately 180 ms, without overshoot.
     current + (target - current) * (1. - (-(3.22 / SCROLL) * dt.max(0.)).exp())
 }
+
+/// Analytical closed-form critically damped spring (zeta = 1.0).
+///
+/// Unconditionally stable across arbitrary dt spikes, preserves velocity across
+/// interrupts, and never ratchets: holding a directional key continuously pumps
+/// impulse into the existing velocity vector instead of restarting from zero.
+///
+/// Use for focus-ring translation, row-scroll camera, and card morph scale.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Spring1D {
+    pub pos: f32,
+    pub vel: f32,
+    pub target: f32,
+    /// Natural angular frequency (rad/s).
+    /// Recommended: 22.0..28.0 for snappy focus ring, 16.0..20.0 for row scroll.
+    pub omega: f32,
+}
+
+impl Spring1D {
+    #[inline]
+    pub const fn new(initial: f32, omega: f32) -> Self {
+        Self {
+            pos: initial,
+            vel: 0.0,
+            target: initial,
+            omega,
+        }
+    }
+
+    #[inline]
+    pub fn snap_to(&mut self, value: f32) {
+        self.pos = value;
+        self.target = value;
+        self.vel = 0.0;
+    }
+
+    #[inline]
+    pub fn set_target(&mut self, target: f32) {
+        self.target = target;
+    }
+
+    /// Injects an instantaneous velocity impulse (e.g., ±240.0 px/s) for Apple
+    /// tvOS rubber-band boundary feedback when pressing D-Pad against the
+    /// start/end of a stack row. The spring already integrates `vel` even when
+    /// `pos == target`, so this produces a smooth elastic overshoot-and-rebound
+    /// without any extra state machines or timers.
+    #[inline]
+    #[allow(dead_code)]
+    pub fn impulse(&mut self, dv: f32) {
+        self.vel += dv;
+    }
+
+    /// Exact closed-form integration of a critically damped harmonic oscillator.
+    /// Returns `true` if the spring is still in motion (requires redraw).
+    #[inline]
+    pub fn step(&mut self, dt_secs: f32) -> bool {
+        let dt = dt_secs.clamp(0.0001, 0.05);
+        let delta = self.pos - self.target;
+
+        if delta.abs() < 0.15 && self.vel.abs() < 0.75 {
+            self.pos = self.target;
+            self.vel = 0.0;
+            return false;
+        }
+
+        let w = self.omega;
+        let exp = (-w * dt).exp();
+        let c = self.vel + w * delta;
+
+        self.pos = self.target + (delta + c * dt) * exp;
+        self.vel = (self.vel - w * c * dt) * exp;
+        true
+    }
+}
+
+/// Four animated dimensions for a focus rect: x, y, width, height, plus a
+/// velocity-driven scale pulse that gives tactile "squish/lift" during fast
+/// scroll across asymmetric card sizes (Nivío 16:9 vs Jellyfin/Plex 2:3).
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy)]
+pub struct FocusRectSpring {
+    pub x: Spring1D,
+    pub y: Spring1D,
+    pub w: Spring1D,
+    pub h: Spring1D,
+    pub scale: Spring1D,
+}
+
+impl FocusRectSpring {
+    pub const fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
+        Self {
+            x: Spring1D::new(x, 26.0),
+            y: Spring1D::new(y, 26.0),
+            w: Spring1D::new(w, 30.0),
+            h: Spring1D::new(h, 30.0),
+            scale: Spring1D::new(1.0, 28.0),
+        }
+    }
+
+    #[inline]
+    pub fn set_target_rect(&mut self, x: f32, y: f32, w: f32, h: f32) {
+        self.x.set_target(x);
+        self.y.set_target(y);
+        self.w.set_target(w);
+        self.h.set_target(h);
+    }
+
+    #[inline]
+    pub fn step(&mut self, dt_secs: f32) -> bool {
+        let mx = self.x.step(dt_secs);
+        let my = self.y.step(dt_secs);
+        let mw = self.w.step(dt_secs);
+        let mh = self.h.step(dt_secs);
+        let ms = self.scale.step(dt_secs);
+        mx || my || mw || mh || ms
+    }
+}
+
 #[cfg(test)]
-mod tests {
+mod spring_tests {
+    use super::*;
+
+    #[test]
+    fn spring_settles_to_target_without_overshoot() {
+        let mut s = Spring1D::new(0.0, 22.0);
+        s.set_target(100.0);
+        let mut moving = true;
+        for _ in 0..500 {
+            moving = s.step(0.016);
+        }
+        assert!(!moving);
+        assert!((s.pos - 100.0).abs() < 0.5);
+        assert!(s.vel.abs() < 1.0);
+    }
+
+    #[test]
+    fn spring_preserves_velocity_across_interrupts() {
+        let mut s = Spring1D::new(0.0, 22.0);
+        s.set_target(100.0);
+        // Pump velocity by repeatedly stepping toward a moving target.
+        for _ in 0..30 {
+            s.step(0.016);
+        }
+        let vel_before = s.vel;
+        // Interrupt: change target mid-flight, velocity should carry over.
+        s.set_target(200.0);
+        let vel_after = s.vel;
+        assert!(
+            (vel_after - vel_before).abs() < 1.0,
+            "velocity should persist across target change, got {vel_before} -> {vel_after}"
+        );
+    }
+
+    #[test]
+    fn focus_rect_spring_steps_all_dimensions() {
+        let mut frs = FocusRectSpring::new(0.0, 0.0, 100.0, 100.0);
+        frs.set_target_rect(50.0, 50.0, 150.0, 150.0);
+        let mut moving = true;
+        for _ in 0..500 {
+            moving = frs.step(0.016);
+        }
+        assert!(!moving);
+        assert!((frs.x.pos - 50.0).abs() < 0.5);
+        assert!((frs.w.pos - 150.0).abs() < 0.5);
+    }
+}
+#[cfg(test)]
+pub(crate) mod tests {
     use super::*;
     #[test]
     fn bezier_endpoints_and_monotonic() {

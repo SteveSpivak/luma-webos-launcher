@@ -72,11 +72,12 @@ impl State {
             Target::MiniRepeat => self.music.toggle_repeat(),
             Target::MiniCover => {
                 let now = self.music.now.as_ref()?;
-                let item = crate::stacks::StackItem {
-                    title: now.album.clone(),
-                    poster: now.cover.clone(),
-                    id: now.album_id,
-                };
+            let item = crate::stacks::StackItem {
+                title: now.album.clone(),
+                poster: now.cover.clone(),
+                id: now.album_id,
+                ..Default::default()
+            };
                 return Some(self.open_album(item, Target::MiniCover));
             }
             _ => return None,

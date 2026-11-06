@@ -126,6 +126,31 @@ pub(super) fn home_stacks(out: &mut Scene, state: &State, assets: &Assets, top: 
                 out.draw
                     .push(Draw::Sheen(r, CARD_RADIUS, progress, c(0xffffff, 0.14)));
             }
+            // Nivío progress bar: drawn on cards with watch progress > 0.
+            // A thin rounded-rect bar along the bottom edge of the card,
+            // filled proportionally to progress_permille (0..1000).
+            if let Some(it) = item {
+                if it.progress_permille > 0 {
+                    let fill = it.progress_permille as f32 / 1000.0;
+                    let bar_h = 6.;
+                    let bar_y = r.y + r.h - bar_h - 8.;
+                    let bar_w = r.w * fill;
+                    // Background track
+                    out.shape(
+                        Rect::new(r.x + 8., bar_y, r.w - 16., bar_h),
+                        bar_h / 2.,
+                        c(0xffffff, 0.12),
+                    );
+                    // Filled portion
+                    if bar_w > 2. {
+                        out.shape(
+                            Rect::new(r.x + 8., bar_y, bar_w, bar_h),
+                            bar_h / 2.,
+                            c(0x00ff88, 0.9),
+                        );
+                    }
+                }
+            }
             // Scrollable: focusing a row lifts Home until the whole card is visible.
             out.control(target, rect, true);
             out.input_cascade(start, state, index + row * 2);
@@ -174,6 +199,7 @@ fn source_label(source: &str) -> &'static str {
         "moonlight" => "Moonlight",
         "jellyfin" => "Jellyfin",
         "plex" => "Plex",
+        "nuvio" => "Nuvio",
         _ => "",
     }
 }

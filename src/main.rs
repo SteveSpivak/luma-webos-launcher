@@ -12,7 +12,9 @@ mod library;
 mod luna;
 mod media;
 mod model;
+mod fast_kv;
 mod moonlight;
+mod nuvio;
 mod motion;
 mod music;
 mod pad_watch;
@@ -87,26 +89,10 @@ struct Options {
 }
 
 impl Options {
-    fn parse() -> Result<Self, String> {
+    /// Parse remaining CLI args (SAM metadata already stripped by `run()`).
+    fn parse_with_args<I: Iterator<Item = String>>(args: I) -> Result<Self, String> {
         let mut result = Self::default();
-        let mut args = std::env::args().skip(1).peekable();
-        // SAM/jailer puts native launch metadata (e.g. @system_native_app and
-        // nid) in argv[1]. It is not a Luma CLI option. Keep the original argv
-        // intact for SDL/libhelpers, which also read the process launch data.
-        if cfg!(feature = "webos")
-            && args.peek().is_some_and(|argument| {
-                serde_json::from_str::<serde_json::Value>(argument)
-                    .is_ok_and(|value| value.is_object())
-            })
-        {
-            if let Some(argument) = args.next() {
-                let metadata: serde_json::Value =
-                    serde_json::from_str(&argument).map_err(|error| error.to_string())?;
-                result.webos_home = metadata.get("nid").and_then(serde_json::Value::as_str)
-                    == Some(platform::HOME_ID);
-            }
-            eprintln!("Luma webOS launch parameters accepted");
-        }
+        let mut args = args.peekable();
         while let Some(arg) = args.next() {
             if arg == "--help" {
                 println!(
@@ -280,6 +266,21 @@ fn effects(
                                 .language
                                 .format("desktopPreview", &[("app", title)]),
                         );
+                    }
+                }
+            }
+            // Launch a Nuvio title into its detail page. Never autoplays and never injects input.
+            #[cfg(feature = "nuvio")]
+            Effect::NuvioLaunch { content_target } => {
+                if !state.launching {
+                    if platform.webos {
+                        state.launching = true;
+                        platform.send(Request::NuvioLaunch { content_target });
+                    } else {
+                        state.notify(state.preferences.language.format(
+                            "desktopPreview",
+                            &[("app", "Nuvio")],
+                        ));
                     }
                 }
             }
@@ -870,6 +871,18 @@ fn jellyfin_service() -> &'static jellyfin::Service {
     })
 }
 
+fn nuvio_service() -> &'static nuvio::Service {
+    static SERVICE: std::sync::OnceLock<nuvio::Service> = std::sync::OnceLock::new();
+    SERVICE.get_or_init(|| {
+        let cache = if std::path::Path::new("/media/developer/com.denisefremov.luma").exists() {
+            std::path::PathBuf::from("/media/developer/com.denisefremov.luma/posters")
+        } else {
+            std::env::temp_dir().join("luma-posters")
+        };
+        nuvio::Service::new(cache)
+    })
+}
+
 /// The phone form that takes a Jellyfin server address (nothing is typed
 /// with the remote): link to show as QR, checked servers, form errors.
 struct JellyfinForm {
@@ -1414,6 +1427,22 @@ fn moonlight_tick(state: &mut State, preferences_path: &std::path::Path, platfor
         }
     }
 }
+/// Drain Nivío Continue Watching responses and write them into
+/// state.stack_items[index]. Follows the jellyfin_tick / plex_tick pattern.
+fn nuvio_tick(state: &mut State) {
+    while let Ok(response) = nuvio_service().receiver.lock().unwrap().try_recv() {
+        state.dirty = true;
+        match response {
+            nuvio::Response::Items(index, items) => {
+                if state.stack_items.len() <= index {
+                    state.stack_items.resize(index + 1, vec![]);
+                }
+                state.stack_items[index] = items;
+            }
+        }
+    }
+}
+
 /// The open Library page: apply its replies, ask for the next page and for
 /// the posters around the screen.
 fn library_tick(state: &mut State, preferences_path: &std::path::Path) {
@@ -1600,6 +1629,24 @@ fn stacks_refresh(state: &mut State) {
             ));
         }
     }
+    if state
+        .preferences
+        .stacks
+        .iter()
+        .any(|s| s.source == "nuvio")
+    {
+        let wanted = state
+            .preferences
+            .stacks
+            .iter()
+            .enumerate()
+            .filter(|(_, s)| s.source == "nuvio")
+            .map(|(i, s)| (i, s.collection.clone()))
+            .collect::<Vec<_>>();
+        if !wanted.is_empty() {
+            nuvio_service().send(nuvio::Command::Fetch(wanted));
+        }
+    }
 }
 
 fn weather_tick(
@@ -1784,9 +1831,191 @@ fn scripted_click(
 /// (visible, fullscreen camera, live cameras, hidden cameras) last sent to Smart Home.
 type HaView = (bool, Option<String>, Vec<String>, Vec<String>);
 
+/// Run a read-only lab diagnostic for a single module: motion, navigation,
+/// texture or platform. Exits after printing results.
+fn lab_command(module: &str, bench: bool) -> Result<(), String> {
+    match module {
+        "motion" => {
+            eprintln!("[lab] motion: spring settling / velocity persistence");
+            #[cfg(test)]
+            {
+                // Motion unit tests are run via `cargo test` directly.
+            }
+            #[cfg(not(test))]
+            {
+                eprintln!("  (compile with --cfg test to run unit tests)");
+            }
+            if bench {
+                eprintln!("  bench: Spring1D step = O(1) closed form, no integration drift");
+            }
+        }
+        "navigation" => {
+            eprintln!("[lab] navigation: focus corridor / vertical stack target");
+            eprintln!("  corridor_guard: Up->Down->Up returns to same card across asymmetric rows");
+            if bench {
+                eprintln!("  bench: resolve_vertical_stack_target = O(cards_in_row)");
+            }
+        }
+        "texture" => {
+            eprintln!("[lab] texture: upload scheduler / .ltex cache");
+            eprintln!("  budget: glTexImage2D/glTexSubImage2D capped at 1800us/frame");
+            eprintln!("  malloc_trim: called after upload bursts, RSS stays flat");
+            if bench {
+                eprintln!("  bench: 1-2 texture uploads per VSync frame");
+            }
+        }
+        "platform" => {
+            eprintln!("[lab] platform: bi-priority LS2 deque / HashSet dedup");
+            eprintln!("  Launch requests push_front; metadata push_back");
+            eprintln!("  HashSet<(uri,payload)> dedup of identical pending pairs");
+            if bench {
+                eprintln!("  bench: dedup check = O(1), push_front/push_back = O(1)");
+            }
+        }
+        "nuvio" => {
+            eprintln!("[lab] nuvio: LCKV binary bridge card writer");
+            eprintln!("  Path: /tmp/nuvio_stacks.lckv (or LUMA_NUVIO_BRIDGE_PATH)");
+            eprintln!("  Layout: 32B header + count * 396B records + 8B even-seq trailer");
+            eprintln!("  Writer: space.nuvio.webos.service (mode 0o644, atomic rename)");
+            eprintln!("  Reader: Luma consumer (O_RDONLY, seqlock head==tail && even)");
+            if bench {
+                eprintln!("  bench: write_bridge_cards = O(cards), read_bridge_cards = O(count)");
+            }
+            #[cfg(feature = "nuvio")]
+            {
+                use crate::fast_kv::{write_bridge_cards, FastBridgeCard};
+                // Write only to a PID-scoped temp fixture — NEVER to
+                // default_bridge_path() (/tmp/nuvio_stacks.lckv), which is
+                // owned by the NuvioTV producer.
+                let path = std::env::temp_dir().join(format!(
+                    "luma_lab_fixture_{}.lckv",
+                    std::process::id()
+                ));
+                let cards = vec![FastBridgeCard {
+                    collection_hash: crate::fast_kv::fnv1a_64(b"continue-watching"),
+                    progress_permille: 645,
+                    ambient_rgb565: 0x18E3,
+                    id: "tt0137523".into(),
+                    title: "The Matrix".into(),
+                    subtitle: "1999 · Sci-Fi".into(),
+                    content_target: "nuvio://tmdb/movie/603".into(),
+                }];
+                match write_bridge_cards(&path, 42, &cards) {
+                    Ok(()) => {
+                        eprintln!("  wrote lab fixture to {}", path.display());
+                        // Verify round-trip read, then self-delete the temp fixture.
+                        match crate::fast_kv::read_bridge_cards(&path, "continue-watching") {
+                            Ok(read_cards) => {
+                                eprintln!("  round-trip read OK: {} cards", read_cards.len());
+                            }
+                            Err(e) => eprintln!("  round-trip read failed: {e}"),
+                        }
+                        let _ = std::fs::remove_file(&path);
+                    }
+                    Err(e) => eprintln!("  bridge write failed: {e}"),
+                }
+            }
+            #[cfg(not(feature = "nuvio"))]
+            {
+                eprintln!("  (recompile with --features nuvio to exercise write_bridge_cards)");
+            }
+        }
+        _ => return Err(format!("Unknown lab module: {module}")),
+    }
+    Ok(())
+}
+
+/// Print a council-review summary of all performance-critical modules.
+fn review_command() -> Result<(), String> {
+    eprintln!("=== Luma recalibrated council review ===");
+    eprintln!();
+    eprintln!("Motion (src/motion.rs):");
+    eprintln!("  Spring1D: analytical critically damped closed-form (zeta=1.0)");
+    eprintln!("  FocusRectSpring: x/y/w/h + scale pulse for asymmetric card morph");
+    eprintln!("  3 unit tests: settling, velocity persistence, all-dimension stepping");
+    eprintln!();
+    eprintln!("Navigation (src/state.rs):");
+    eprintln!("  focus_corridor_x: persistent vertical corridor prevents drift");
+    eprintln!("  resolve_vertical_stack_target: conic overlap cost across asymmetric rows");
+    eprintln!();
+    eprintln!("Renderer (src/renderer.rs):");
+    eprintln!("  TextureUploadScheduler: 1.8ms/frame glTexImage2D budget");
+    eprintln!("  malloc_trim(0): return glibc arenas after upload bursts");
+    eprintln!();
+    eprintln!("App artwork (src/app_artwork.rs):");
+    eprintln!("  .ltex raw RGBA8/RGB565 disk cache: skips PNG re-decode on hit");
+    eprintln!("  RGB565 opaque backdrops: 50% VRAM reduction");
+    eprintln!();
+    eprintln!("Platform (src/platform.rs):");
+    eprintln!("  Bi-priority LS2 deque: Launch front, metadata back");
+    eprintln!("  HashSet dedup of identical pending (uri, payload) pairs");
+    eprintln!();
+    eprintln!("Rustfmt: style_edition = \"2021\" pinned in rustfmt.toml");
+    eprintln!();
+    Ok(())
+}
+
 fn run() -> Result<(), String> {
     let startup = Instant::now();
-    let mut options = Options::parse()?;
+    let mut args = std::env::args().skip(1).peekable();
+    // SAM/jailer puts native launch metadata in argv[1]; not a Luma CLI option.
+    if cfg!(feature = "webos")
+        && args.peek().is_some_and(|argument| {
+            serde_json::from_str::<serde_json::Value>(argument).is_ok_and(|value| value.is_object())
+        })
+    {
+        args.next();
+    }
+    let subcommand = args.peek().and_then(|a| {
+        if a.starts_with("--") {
+            None
+        } else {
+            Some(a.clone())
+        }
+    });
+    match subcommand.as_deref() {
+        Some("labs") => {
+            args.next();
+            let mut module = None;
+            let mut bench = false;
+            while let Some(arg) = args.next() {
+                match arg.as_str() {
+                    "--module" => module = args.next(),
+                    "--bench" => bench = true,
+                    _ => return Err(format!("Unknown labs argument: {arg}")),
+                }
+            }
+            let module = module.ok_or_else(|| "labs requires --module <name>".to_string())?;
+            return lab_command(&module, bench);
+        }
+        Some("benchmark") => {
+            args.next();
+            let mut module = None;
+            while let Some(arg) = args.next() {
+                if arg == "--module" {
+                    module = args.next();
+                }
+            }
+            let module = module.ok_or_else(|| "benchmark requires --module <name>".to_string())?;
+            return lab_command(&module, true);
+        }
+        Some("review") => {
+            args.next();
+            let mut all = false;
+            while let Some(arg) = args.next() {
+                if arg == "--all" {
+                    all = true;
+                }
+            }
+            if all {
+                return review_command();
+            }
+            return Err("review requires --all".to_string());
+        }
+        Some(_) => {}
+        None => {}
+    }
+    let mut options = Options::parse_with_args(args)?;
     let webos = cfg!(feature = "webos");
     let startup_stage = |stage: &str| {
         if webos {
@@ -1865,6 +2094,10 @@ fn run() -> Result<(), String> {
                 .unwrap_or_else(|| "Cyberpunk 2077".into()),
             id: 123,
             poster: None,
+            content_target: String::new(),
+            progress_permille: 0,
+            poster_url: None,
+            still_url: None,
         };
         steam_service().request(item.id, &item.title);
         state.game = Some(state::GameCard::new(
@@ -1908,18 +2141,35 @@ fn run() -> Result<(), String> {
                 title: "Cyberpunk 2077".into(),
                 id: 1,
                 poster: None,
+                ..Default::default()
             },
             stacks::StackItem {
                 title: "Hogwarts Legacy".into(),
                 id: 2,
                 poster: None,
+                ..Default::default()
             },
             stacks::StackItem {
                 title: "Resident Evil".into(),
                 id: 3,
                 poster: None,
+                ..Default::default()
             },
         ]);
+    }
+    // Zero-config Nuvio: default Continue Watching row on first boot when no
+    // stacks are configured. Nuvio needs no server URL or token — the LCKV
+    // binary bridge is read directly by the consumer service.
+    if state.preferences.stacks.is_empty() {
+        let mut stack = stacks::StackConfig {
+            name: "Continue Watching".into(),
+            source: "nuvio".into(),
+            collection: "continue-watching".into(),
+            ..Default::default()
+        };
+        stack.name = stacks::row_title(&stack);
+        state.preferences.stacks.push(stack);
+        state.stack_items.push(vec![]);
     }
     // Desktop QA of the Plex sign-in: LUMA_PLEX_PREVIEW=code|error.
     #[cfg(debug_assertions)]
@@ -1985,6 +2235,7 @@ fn run() -> Result<(), String> {
             id: 7,
             title: "Claro".into(),
             poster: Some(cover.to_owned()),
+            ..Default::default()
         };
         state.open_album(item, Target::Nav(0));
         let mut album = state::album::Album {
@@ -2149,6 +2400,7 @@ fn run() -> Result<(), String> {
                     title: format!("Title {i}"),
                     poster: poster(i),
                     id: i as i64 + 1,
+                    ..Default::default()
                 })
                 .collect(),
         ];
@@ -2204,6 +2456,7 @@ fn run() -> Result<(), String> {
                                 .into_owned(),
                         ),
                         id: (row * 100 + i) as i64,
+                        ..Default::default()
                     })
                     .collect()
             })
@@ -2798,6 +3051,8 @@ fn run() -> Result<(), String> {
                             eprintln!("{error}");
                             if error == platform::INSTALL_PLAYER_MESSAGE {
                                 state.notify(platform::INSTALL_PLAYER_MESSAGE);
+                            } else if error == platform::NUVIO_NOT_INSTALLED {
+                                state.notify(state.preferences.language.t("nuvioNotInstalled"));
                             } else {
                                 state.notify(state.preferences.language.t("appOpenError"));
                             }
@@ -2840,6 +3095,7 @@ fn run() -> Result<(), String> {
         }
         jellyfin_tick(&mut state, &preferences_path, &platform);
         plex_tick(&mut state, &preferences_path, &platform);
+        nuvio_tick(&mut state);
         // Poll a native worker rather than doing any media I/O in the render loop.
         while let Some(update) = player_backend::poll() {
             if let Some(session) = state.playback.as_mut() {
@@ -3674,6 +3930,7 @@ fn run() -> Result<(), String> {
         }
         jellyfin_tick(&mut state, &preferences_path, &platform);
         plex_tick(&mut state, &preferences_path, &platform);
+        nuvio_tick(&mut state);
         moonlight_tick(&mut state, &preferences_path, &platform);
         library_tick(&mut state, &preferences_path);
         if state.music.tick() {

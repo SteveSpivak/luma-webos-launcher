@@ -1,0 +1,662 @@
+Diff in <repo>/src/app_artwork.rs:115:
+                 return Err(std::io::Error::new(
+                     std::io::ErrorKind::InvalidData,
+                     "Unknown PixelFormat",
+[31m-                ))
+(B[m[32m+                ));
+(B[m             }
+         };
+         let width = u16::from_le_bytes([header[6], header[7]]);
+Diff in <repo>/src/app_artwork.rs:149:
+     let cached = RawCachedTexture::load_from_disk(&path).ok()?;
+     let pixels = match cached.format {
+         PixelFormat::Rgba8 => {
+[31m-            let pixels = image::RgbaImage::from_vec(
+(B[m[31m-                cached.width.into(),
+(B[m[31m-                cached.height.into(),
+(B[m[31m-                cached.data,
+(B[m[31m-            )
+(B[m[31m-            ?;
+(B[m[32m+            let pixels =
+(B[m[32m+                image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), cached.data)?;
+(B[m             pixels
+         }
+         PixelFormat::Rgb565 => {
+Diff in <repo>/src/fast_kv.rs:94:
+ /// Reads the binary bridge snapshot with torn-read verification.
+ /// Returns `Err(WouldBlock)` if head/tail sequence numbers mismatch or
+ /// are odd (a write may be in progress or the file was torn).
+[31m-pub fn read_bridge_cards(
+(B[m[31m-    path: &Path,
+(B[m[31m-    target_collection: &str,
+(B[m[31m-) -> io::Result<Vec<FastBridgeCard>> {
+(B[m[32m+pub fn read_bridge_cards(path: &Path, target_collection: &str) -> io::Result<Vec<FastBridgeCard>> {
+(B[m     let mut f = File::open(path)?;
+     let mut buf = Vec::with_capacity(MAX_BRIDGE_BYTES);
+     f.read_to_end(&mut buf)?;
+Diff in <repo>/src/fast_kv.rs:131:
+         ));
+     }
+     let seq_head = u64::from_le_bytes(buf[8..16].try_into().unwrap());
+[31m-    let seq_tail = u64::from_le_bytes(
+(B[m[31m-        buf[buf.len() - TRAILER_SIZE..].try_into().unwrap(),
+(B[m[31m-    );
+(B[m[32m+    let seq_tail = u64::from_le_bytes(buf[buf.len() - TRAILER_SIZE..].try_into().unwrap());
+(B[m     if (seq_head & 1) == 1 || seq_head != seq_tail {
+         return Err(io::Error::new(
+             io::ErrorKind::WouldBlock,
+Diff in <repo>/src/fast_kv.rs:264:
+     let mut offset = HEADER_SIZE;
+     for c in cards.iter().take(count as usize) {
+         buf[offset..offset + 8].copy_from_slice(&c.collection_hash.to_le_bytes());
+[31m-        buf[offset + 8..offset + 10]
+(B[m[31m-            .copy_from_slice(&c.progress_permille.to_le_bytes());
+(B[m[31m-        buf[offset + 10..offset + 12]
+(B[m[31m-            .copy_from_slice(&c.ambient_rgb565.to_le_bytes());
+(B[m[32m+        buf[offset + 8..offset + 10].copy_from_slice(&c.progress_permille.to_le_bytes());
+(B[m[32m+        buf[offset + 10..offset + 12].copy_from_slice(&c.ambient_rgb565.to_le_bytes());
+(B[m 
+         let s_base = offset + 12;
+         let mut slot = [0u8; MAX_SLOT_STR];
+Diff in <repo>/src/fast_kv.rs:276:
+         buf[s_base..s_base + MAX_SLOT_STR].copy_from_slice(&slot);
+ 
+         pack_fixed_str(&mut slot, &c.title);
+[31m-        buf[s_base + MAX_SLOT_STR..s_base + MAX_SLOT_STR * 2]
+(B[m[31m-            .copy_from_slice(&slot);
+(B[m[32m+        buf[s_base + MAX_SLOT_STR..s_base + MAX_SLOT_STR * 2].copy_from_slice(&slot);
+(B[m 
+         pack_fixed_str(&mut slot, &c.subtitle);
+[31m-        buf[s_base + MAX_SLOT_STR * 2..s_base + MAX_SLOT_STR * 3]
+(B[m[31m-            .copy_from_slice(&slot);
+(B[m[32m+        buf[s_base + MAX_SLOT_STR * 2..s_base + MAX_SLOT_STR * 3].copy_from_slice(&slot);
+(B[m 
+         pack_fixed_str(&mut slot, &c.content_target);
+[31m-        buf[s_base + MAX_SLOT_STR * 3..s_base + MAX_SLOT_STR * 4]
+(B[m[31m-            .copy_from_slice(&slot);
+(B[m[32m+        buf[s_base + MAX_SLOT_STR * 3..s_base + MAX_SLOT_STR * 4].copy_from_slice(&slot);
+(B[m 
+         offset += RECORD_SIZE;
+     }
+Diff in <repo>/src/fast_kv.rs:292:
+ 
+     // Trailer: repeat committed_seq for torn-read detection.
+[31m-    buf[payload_size..payload_size + TRAILER_SIZE]
+(B[m[31m-        .copy_from_slice(&committed_seq.to_le_bytes());
+(B[m[32m+    buf[payload_size..payload_size + TRAILER_SIZE].copy_from_slice(&committed_seq.to_le_bytes());
+(B[m 
+     let tmp_path = path.with_extension("lckv.tmp");
+     {
+Diff in <repo>/src/fast_kv.rs:326:
+     ///   "library"           → 0xe029b3e5014c2890
+     #[test]
+     fn fnv1a_known_constants() {
+[31m-        assert_eq!(
+(B[m[31m-            fnv1a_64(b"continue-watching"),
+(B[m[31m-            0x01aa2aebbc61d6f6u64
+(B[m[31m-        );
+(B[m[32m+        assert_eq!(fnv1a_64(b"continue-watching"), 0x01aa2aebbc61d6f6u64);
+(B[m         assert_eq!(fnv1a_64(b"watchlist"), 0xa05bdde6192df670u64);
+         assert_eq!(fnv1a_64(b"library"), 0xe029b3e5014c2890u64);
+     }
+Diff in <repo>/src/main.rs:2:
+ mod app_artwork;
+ mod branding;
+ mod diagnostics;
+[32m+mod fast_kv;
+(B[m mod font;
+ #[cfg(all(feature = "webos", target_os = "linux", target_arch = "arm"))]
+ mod hw_wallpaper;
+Diff in <repo>/src/main.rs:12:
+ mod luna;
+ mod media;
+ mod model;
+[31m-mod fast_kv;
+(B[m mod moonlight;
+[31m-mod nuvio;
+(B[m mod motion;
+ mod music;
+[32m+mod nuvio;
+(B[m mod pad_watch;
+ mod phone_link;
+ mod platform;
+Diff in <repo>/src/main.rs:277:
+                         state.launching = true;
+                         platform.send(Request::NuvioLaunch { content_target });
+                     } else {
+[31m-                        state.notify(state.preferences.language.format(
+(B[m[31m-                            "desktopPreview",
+(B[m[31m-                            &[("app", "Nuvio")],
+(B[m[31m-                        ));
+(B[m[32m+                        state.notify(
+(B[m[32m+                            state
+(B[m[32m+                                .preferences
+(B[m[32m+                                .language
+(B[m[32m+                                .format("desktopPreview", &[("app", "Nuvio")]),
+(B[m[32m+                        );
+(B[m                     }
+                 }
+             }
+Diff in <repo>/src/main.rs:1629:
+             ));
+         }
+     }
+[31m-    if state
+(B[m[31m-        .preferences
+(B[m[31m-        .stacks
+(B[m[31m-        .iter()
+(B[m[31m-        .any(|s| s.source == "nuvio")
+(B[m[31m-    {
+(B[m[32m+    if state.preferences.stacks.iter().any(|s| s.source == "nuvio") {
+(B[m         let wanted = state
+             .preferences
+             .stacks
+Diff in <repo>/src/main.rs:1883:
+             }
+             #[cfg(feature = "nuvio")]
+             {
+[31m-                use crate::fast_kv::{write_bridge_cards, FastBridgeCard};
+(B[m[32m+                use crate::fast_kv::{FastBridgeCard, write_bridge_cards};
+(B[m                 // Write only to a PID-scoped temp fixture — NEVER to
+                 // default_bridge_path() (/tmp/nuvio_stacks.lckv), which is
+                 // owned by the NuvioTV producer.
+Diff in <repo>/src/main.rs:1890:
+[31m-                let path = std::env::temp_dir().join(format!(
+(B[m[31m-                    "luma_lab_fixture_{}.lckv",
+(B[m[31m-                    std::process::id()
+(B[m[31m-                ));
+(B[m[32m+                let path = std::env::temp_dir()
+(B[m[32m+                    .join(format!("luma_lab_fixture_{}.lckv", std::process::id()));
+(B[m                 let cards = vec![FastBridgeCard {
+                     collection_hash: crate::fast_kv::fnv1a_64(b"continue-watching"),
+                     progress_permille: 645,
+Diff in <repo>/src/mini.rs:72:
+             Target::MiniRepeat => self.music.toggle_repeat(),
+             Target::MiniCover => {
+                 let now = self.music.now.as_ref()?;
+[31m-            let item = crate::stacks::StackItem {
+(B[m[31m-                title: now.album.clone(),
+(B[m[31m-                poster: now.cover.clone(),
+(B[m[31m-                id: now.album_id,
+(B[m[31m-                ..Default::default()
+(B[m[31m-            };
+(B[m[32m+                let item = crate::stacks::StackItem {
+(B[m[32m+                    title: now.album.clone(),
+(B[m[32m+                    poster: now.cover.clone(),
+(B[m[32m+                    id: now.album_id,
+(B[m[32m+                    ..Default::default()
+(B[m[32m+                };
+(B[m                 return Some(self.open_album(item, Target::MiniCover));
+             }
+             _ => return None,
+Diff in <repo>/src/nuvio.rs:77:
+ fn fetch(reply: &mpsc::Sender<Response>, stacks: Vec<(usize, String)>) {
+     let bridge_path = default_bridge_path();
+     for (index, collection) in stacks {
+[31m-        let items = bridge_items(&bridge_path, &collection)
+(B[m[31m-            .unwrap_or_else(|| match collection.as_str() {
+(B[m[32m+        let items =
+(B[m[32m+            bridge_items(&bridge_path, &collection).unwrap_or_else(|| match collection.as_str() {
+(B[m                 "continue-watching" => continue_watching_items(),
+                 "watchlist" => watchlist_items(),
+                 "library" => library_items(),
+Diff in <repo>/src/nuvio.rs:101:
+ fn metahub_poster_url(id: &str) -> Option<String> {
+     let base = imdb_id(id);
+     if base.starts_with("tt") && base.len() >= 7 && base[2..].chars().all(|c| c.is_ascii_digit()) {
+[31m-        return Some(format!("https://images.metahub.space/poster/medium/{base}/img"));
+(B[m[32m+        return Some(format!(
+(B[m[32m+            "https://images.metahub.space/poster/medium/{base}/img"
+(B[m[32m+        ));
+(B[m     }
+     None
+ }
+Diff in <repo>/src/nuvio.rs:111:
+ fn metahub_still_url(id: &str) -> Option<String> {
+     let base = imdb_id(id);
+     if base.starts_with("tt") && base.len() >= 7 && base[2..].chars().all(|c| c.is_ascii_digit()) {
+[31m-        return Some(format!("https://images.metahub.space/background/medium/{base}/img"));
+(B[m[32m+        return Some(format!(
+(B[m[32m+            "https://images.metahub.space/background/medium/{base}/img"
+(B[m[32m+        ));
+(B[m     }
+     None
+ }
+Diff in <repo>/src/nuvio.rs:149:
+ /// Uses FNV-1a-64 of the card id mixed with the content target and sequence
+ /// position, so every card in a collection has a unique id.
+ fn unique_card_id(card_id: &str, content_target: &str) -> i64 {
+[31m-    let key = if !card_id.is_empty() { card_id } else { content_target };
+(B[m[32m+    let key = if !card_id.is_empty() {
+(B[m[32m+        card_id
+(B[m[32m+    } else {
+(B[m[32m+        content_target
+(B[m[32m+    };
+(B[m     let h = crate::fast_kv::fnv1a_64(key.as_bytes()) & 0x7FFF_FFFF_FFFF_FFFF;
+     h.max(1) as i64
+ }
+Diff in <repo>/src/nuvio.rs:186:
+     fn fetch_returns_items_for_continue_watching() {
+         let (reply, receiver) = mpsc::channel();
+         fetch(&reply, vec![(0, "continue-watching".to_owned())]);
+[31m-        let response = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[32m+        let response = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m         match response {
+             Response::Items(index, items) => {
+                 assert_eq!(index, 0);
+Diff in <repo>/src/nuvio.rs:200:
+     #[test]
+     fn fetch_returns_empty_for_watchlist_and_library() {
+         let (reply, receiver) = mpsc::channel();
+[31m-        fetch(&reply, vec![(0, "watchlist".to_owned()), (1, "library".to_owned())]);
+(B[m[31m-        let r1 = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[31m-        let r2 = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[32m+        fetch(
+(B[m[32m+            &reply,
+(B[m[32m+            vec![(0, "watchlist".to_owned()), (1, "library".to_owned())],
+(B[m[32m+        );
+(B[m[32m+        let r1 = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m[32m+        let r2 = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m         match (r1, r2) {
+             (Response::Items(0, items), Response::Items(1, _)) => {
+                 assert!(items.is_empty());
+Diff in <repo>/src/nuvio.rs:217:
+         // but the take() bound guarantees the limit regardless of source.
+         let (reply, receiver) = mpsc::channel();
+         fetch(&reply, vec![(0, "continue-watching".to_owned())]);
+[31m-        let response = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[32m+        let response = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m         match response {
+             Response::Items(_, items) => {
+                 assert!(items.len() <= MAX_ITEMS_PER_COLLECTION);
+Diff in <repo>/src/platform.rs:54:
+     CloseApp(String),
+     /// Launch a Nuvio title by content target. Never autoplays and never injects input.
+     #[cfg(feature = "nuvio")]
+[31m-    NuvioLaunch { content_target: String },
+(B[m[32m+    NuvioLaunch {
+(B[m[32m+        content_target: String,
+(B[m[32m+    },
+(B[m     /// Open Luma's web player app with these launch parameters. They hold
+     /// signed URLs and a token, so they are never logged.
+     WebPlayer(Value),
+Diff in <repo>/src/platform.rs:227:
+                                 } else {
+                                     Ok(())
+                                 }
+[31m-                            },
+(B[m[32m+                            }
+(B[m                             Err(error) => Err(error),
+                         })
+                     }
+Diff in <repo>/src/renderer.rs:1409:
+             gl::EnableVertexAttribArray(0); // a_position
+             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, stride, 0 as *const _);
+             gl::EnableVertexAttribArray(1); // a_uv
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                1,
+(B[m[31m-                2,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (2 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, stride, (2 * 4) as *const _);
+(B[m             gl::EnableVertexAttribArray(2); // a_color
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                2,
+(B[m[31m-                4,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (4 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(2, 4, gl::FLOAT, gl::FALSE, stride, (4 * 4) as *const _);
+(B[m             gl::EnableVertexAttribArray(3); // a_shape
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                3,
+(B[m[31m-                4,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (8 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(3, 4, gl::FLOAT, gl::FALSE, stride, (8 * 4) as *const _);
+(B[m             gl::EnableVertexAttribArray(4); // a_params
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                4,
+(B[m[31m-                2,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (12 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(4, 2, gl::FLOAT, gl::FALSE, stride, (12 * 4) as *const _);
+(B[m             gl::BindTexture(gl::TEXTURE_2D, self.white.id);
+             gl::DrawArrays(gl::TRIANGLES, 0, vertex_count as i32);
+         }
+Diff in <repo>/src/renderer.rs:1514:
+         frost: Option<&image::RgbaImage>,
+     ) {
+         if let Some(camera) = camera_key(&path) {
+[31m-            if let Some(old) = self.cameras.insert(camera.to_string(), path.clone()) && old != path {
+(B[m[32m+            if let Some(old) = self.cameras.insert(camera.to_string(), path.clone())
+(B[m[32m+                && old != path
+(B[m[32m+            {
+(B[m                 self.textures.remove(&old);
+             }
+             self.fresh = true;
+Diff in <repo>/src/renderer.rs:2067:
+             // Painter's Algorithm Z-order. This guard sits outside the
+             // `match` arms to avoid the bare-statement-between-arms
+             // syntax error.
+[31m-            if !matches!(command, Draw::Shape(..))
+(B[m[31m-                && self.quad_batcher.triangle_vertex_count() > 0
+(B[m[32m+            if !matches!(command, Draw::Shape(..)) && self.quad_batcher.triangle_vertex_count() > 0
+(B[m             {
+                 self.flush_quad_batcher();
+                 self.quad_batcher.clear();
+Diff in <repo>/src/renderer.rs:2477:
+         }
+     }
+ 
+[31m-    fn draw_mesh(&mut self, program: GLuint, mesh: &vector::Mesh, transform: [f32; 4], tint: Color) {
+(B[m[32m+    fn draw_mesh(
+(B[m[32m+        &mut self,
+(B[m[32m+        program: GLuint,
+(B[m[32m+        mesh: &vector::Mesh,
+(B[m[32m+        transform: [f32; 4],
+(B[m[32m+        tint: Color,
+(B[m[32m+    ) {
+(B[m         let viewport = self.stats.viewport;
+         unsafe {
+             gl::UseProgram(program);
+Diff in <repo>/src/renderer.rs:3102:
+     #[inline]
+     pub fn enqueue(&mut self, item: PendingTextureUpload) {
+         // Deduplicate if the same key is already queued.
+[31m-        self.queue.retain(|existing| existing.cache_key != item.cache_key);
+(B[m[32m+        self.queue
+(B[m[32m+            .retain(|existing| existing.cache_key != item.cache_key);
+(B[m         self.queue.push_back(item);
+     }
+ 
+Diff in <repo>/src/stacks.rs:180:
+         .is_some_and(|s| s.source == "nuvio")
+     {
+         return vec![
+[31m-            ("continue-watching".to_owned(), "Continue Watching".to_owned()),
+(B[m[32m+            (
+(B[m[32m+                "continue-watching".to_owned(),
+(B[m[32m+                "Continue Watching".to_owned(),
+(B[m[32m+            ),
+(B[m             ("watchlist".to_owned(), "Watchlist".to_owned()),
+             ("library".to_owned(), "Library".to_owned()),
+         ];
+Diff in <repo>/src/state.rs:380:
+     /// Raised by `Target::StackCard` when clicking a Nuvio card; handled in
+     /// `main.rs` → `platform.send(Request::NuvioLaunch { .. })`.
+     #[cfg(feature = "nuvio")]
+[31m-    NuvioLaunch { content_target: String },
+(B[m[32m+    NuvioLaunch {
+(B[m[32m+        content_target: String,
+(B[m[32m+    },
+(B[m     /// Songs and cover of a Jellyfin album card.
+     AlbumDetails(i64),
+     /// Play an album from this song, in order or shuffled.
+Diff in <repo>/src/state.rs:677:
+ 
+         let corridor_dist = (cand_center - corridor_screen_x).abs();
+ 
+[31m-        let overlap = (source_screen_right.min(cand_right)
+(B[m[31m-            - source_screen_left.max(cand_left))
+(B[m[31m-            .max(0.0);
+(B[m[32m+        let overlap =
+(B[m[32m+            (source_screen_right.min(cand_right) - source_screen_left.max(cand_left)).max(0.0);
+(B[m         let min_w = source_w.min(card.width.max(1.0));
+         let overlap_ratio = overlap / min_w;
+ 
+Diff in <repo>/src/state.rs:2197:
+         self.dirty = true;
+     }
+ 
+[31m-/// Record the current card's center as the vertical focus corridor so Up/Down
+(B[m[31m-/// moves land on the best overlapping card in the target row.
+(B[m[31m-///
+(B[m[31m-/// The corridor is stored in estimated screen-space pixels ([72..960+]) so
+(B[m[31m-/// that pressing Down from a deeply scrolled row lands on the visually
+(B[m[31m-/// aligned card in an unscrolled target row, regardless of scroll depth.
+(B[m[31m-fn update_corridor(&mut self, row: usize, index: usize) {
+(B[m[31m-    if let Some(stack_idx) = crate::stacks::row_stack(self, row) {
+(B[m[32m+    /// Record the current card's center as the vertical focus corridor so Up/Down
+(B[m[32m+    /// moves land on the best overlapping card in the target row.
+(B[m[32m+    ///
+(B[m[32m+    /// The corridor is stored in estimated screen-space pixels ([72..960+]) so
+(B[m[32m+    /// that pressing Down from a deeply scrolled row lands on the visually
+(B[m[32m+    /// aligned card in an unscrolled target row, regardless of scroll depth.
+(B[m[32m+    fn update_corridor(&mut self, row: usize, index: usize) {
+(B[m[32m+        if let Some(stack_idx) = crate::stacks::row_stack(self, row) {
+(B[m[32m+            let shape = self.preferences.stacks[stack_idx].shape;
+(B[m[32m+            let (card_w, _) = shape.size();
+(B[m[32m+            let pitch = shape.pitch();
+(B[m[32m+            // Card center in unscrolled row-local coordinates.
+(B[m[32m+            let local_center = crate::state::HOME_STRIP_LEFT + index as f32 * pitch + card_w * 0.5;
+(B[m[32m+            // Estimate row camera scroll: camera keeps focus within viewport,
+(B[m[32m+            // centered at 960.0 (half of 1920p width).
+(B[m[32m+            let est_scroll_x = (local_center - 960.0).max(0.0);
+(B[m[32m+            self.focus_corridor_x = local_center - est_scroll_x;
+(B[m[32m+        }
+(B[m[32m+    }
+(B[m[32m+
+(B[m[32m+    /// Compute the best card index in `target_row` aligned to the vertical focus
+(B[m[32m+    /// corridor. Falls back to card 0 when no corridor data is usable.
+(B[m[32m+    fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
+(B[m[32m+        let stack_idx = crate::stacks::row_stack(self, target_row)?;
+(B[m         let shape = self.preferences.stacks[stack_idx].shape;
+         let (card_w, _) = shape.size();
+         let pitch = shape.pitch();
+Diff in <repo>/src/state.rs:2211:
+[31m-        // Card center in unscrolled row-local coordinates.
+(B[m[31m-        let local_center = crate::state::HOME_STRIP_LEFT
+(B[m[31m-            + index as f32 * pitch
+(B[m[31m-            + card_w * 0.5;
+(B[m[31m-        // Estimate row camera scroll: camera keeps focus within viewport,
+(B[m[31m-        // centered at 960.0 (half of 1920p width).
+(B[m[31m-        let est_scroll_x = (local_center - 960.0).max(0.0);
+(B[m[31m-        self.focus_corridor_x = local_center - est_scroll_x;
+(B[m[32m+        // Target rows start at scroll 0 (we don't track per-row scroll). The
+(B[m[32m+        // corridor holds absolute screen-space X from update_corridor(), so
+(B[m[32m+        // comparing against target-row cards at their natural screen position
+(B[m[32m+        // keeps vertical focus on the same visual column.
+(B[m[32m+        let target_scroll_x = 0.;
+(B[m[32m+        let shown = crate::stacks::row_shown(self, target_row);
+(B[m[32m+        let mut cards: Vec<CardLayoutMetric> = Vec::new();
+(B[m[32m+        for i in 0..shown {
+(B[m[32m+            cards.push(CardLayoutMetric {
+(B[m[32m+                index: i,
+(B[m[32m+                local_x: crate::state::HOME_STRIP_LEFT + i as f32 * pitch,
+(B[m[32m+                width: card_w,
+(B[m[32m+            });
+(B[m[32m+        }
+(B[m[32m+        if cards.is_empty() {
+(B[m[32m+            return None;
+(B[m[32m+        }
+(B[m[32m+        resolve_vertical_stack_target(
+(B[m[32m+            self.focus_corridor_x,
+(B[m[32m+            self.focus_corridor_x - card_w * 0.5,
+(B[m[32m+            self.focus_corridor_x + card_w * 0.5,
+(B[m[32m+            target_scroll_x,
+(B[m[32m+            &cards,
+(B[m[32m+        )
+(B[m     }
+[31m-}
+(B[m[31m-
+(B[m[31m-/// Compute the best card index in `target_row` aligned to the vertical focus
+(B[m[31m-/// corridor. Falls back to card 0 when no corridor data is usable.
+(B[m[31m-fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
+(B[m[31m-    let stack_idx = crate::stacks::row_stack(self, target_row)?;
+(B[m[31m-    let shape = self.preferences.stacks[stack_idx].shape;
+(B[m[31m-    let (card_w, _) = shape.size();
+(B[m[31m-    let pitch = shape.pitch();
+(B[m[31m-    // Target rows start at scroll 0 (we don't track per-row scroll). The
+(B[m[31m-    // corridor holds absolute screen-space X from update_corridor(), so
+(B[m[31m-    // comparing against target-row cards at their natural screen position
+(B[m[31m-    // keeps vertical focus on the same visual column.
+(B[m[31m-    let target_scroll_x = 0.;
+(B[m[31m-    let shown = crate::stacks::row_shown(self, target_row);
+(B[m[31m-    let mut cards: Vec<CardLayoutMetric> = Vec::new();
+(B[m[31m-    for i in 0..shown {
+(B[m[31m-        cards.push(CardLayoutMetric {
+(B[m[31m-            index: i,
+(B[m[31m-            local_x: crate::state::HOME_STRIP_LEFT + i as f32 * pitch,
+(B[m[31m-            width: card_w,
+(B[m[31m-        });
+(B[m[31m-    }
+(B[m[31m-    if cards.is_empty() {
+(B[m[31m-        return None;
+(B[m[31m-    }
+(B[m[31m-    resolve_vertical_stack_target(
+(B[m[31m-        self.focus_corridor_x,
+(B[m[31m-        self.focus_corridor_x - card_w * 0.5,
+(B[m[31m-        self.focus_corridor_x + card_w * 0.5,
+(B[m[31m-        target_scroll_x,
+(B[m[31m-        &cards,
+(B[m[31m-    )
+(B[m[31m-}
+(B[m 
+     pub fn direction(&mut self, direction: Direction, controls: &[Control]) -> Vec<Effect> {
+         if self.ambient_on() {
+Diff in <repo>/src/tests.rs:1:
+[32m+#[cfg(feature = "nuvio")]
+(B[m[32m+use crate::platform::{Platform, Request, Response};
+(B[m use crate::{
+     model::{App, Input, InputMode, Preferences, demo_inventory},
+     platform::{normalize_apps, normalize_inputs},
+Diff in <repo>/src/tests.rs:4:
+     state::{Direction, Effect, Overlay, Page, State, Target},
+     storage, view,
+ };
+[31m-#[cfg(feature = "nuvio")]
+(B[m[31m-use crate::platform::{Platform, Request, Response};
+(B[m use serde_json::json;
+[31m-use std::{collections::BTreeMap, path::PathBuf};
+(B[m #[cfg(feature = "nuvio")]
+ use std::time::Duration;
+[32m+use std::{collections::BTreeMap, path::PathBuf};
+(B[m 
+ fn ready() -> State {
+     let mut state = State::new(Preferences::default());
+Diff in <repo>/src/tests.rs:3533:
+     #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+     #[test]
+     fn nuvio_lab_app_id_is_distinct_and_valid() {
+[31m-        assert_eq!(
+(B[m[31m-            crate::platform::NUVIO_LAB_APP_ID,
+(B[m[31m-            "space.nuvio.lab"
+(B[m[31m-        );
+(B[m[32m+        assert_eq!(crate::platform::NUVIO_LAB_APP_ID, "space.nuvio.lab");
+(B[m         assert_ne!(
+             crate::platform::NUVIO_LAB_APP_ID,
+             crate::platform::NUVIO_APP_ID
+Diff in <repo>/src/tests.rs:3543:
+         );
+[31m-        assert!(crate::model::valid_app_id(crate::platform::NUVIO_LAB_APP_ID));
+(B[m[32m+        assert!(crate::model::valid_app_id(
+(B[m[32m+            crate::platform::NUVIO_LAB_APP_ID
+(B[m[32m+        ));
+(B[m     }
+ 
+     /// `nuvio_app_id(false)` always returns production ID.
+Diff in <repo>/src/tests.rs:3639:
+     #[test]
+     fn nuvio_service_fetch_returns_continue_watching_items() {
+         let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+[31m-        service.send(Command::Fetch(vec![
+(B[m[31m-            (0, "continue-watching".to_owned()),
+(B[m[31m-        ]));
+(B[m[31m-        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+(B[m[32m+        service.send(Command::Fetch(vec![(0, "continue-watching".to_owned())]));
+(B[m[32m+        match service
+(B[m[32m+            .receiver
+(B[m[32m+            .lock()
+(B[m[32m+            .unwrap()
+(B[m[32m+            .recv_timeout(Duration::from_secs(5))
+(B[m[32m+        {
+(B[m             Ok(Response::Items(index, items)) => {
+                 assert_eq!(index, 0);
+                 assert_eq!(items.len(), 1);
+Diff in <repo>/src/tests.rs:3660:
+             (1, "library".to_owned()),
+         ]));
+         match (
+[31m-            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+(B[m[31m-            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+(B[m[32m+            service
+(B[m[32m+                .receiver
+(B[m[32m+                .lock()
+(B[m[32m+                .unwrap()
+(B[m[32m+                .recv_timeout(Duration::from_secs(5)),
+(B[m[32m+            service
+(B[m[32m+                .receiver
+(B[m[32m+                .lock()
+(B[m[32m+                .unwrap()
+(B[m[32m+                .recv_timeout(Duration::from_secs(5)),
+(B[m         ) {
+[31m-            (
+(B[m[31m-                Ok(Response::Items(0, items)),
+(B[m[31m-                Ok(Response::Items(1, _)),
+(B[m[31m-            ) => {
+(B[m[32m+            (Ok(Response::Items(0, items)), Ok(Response::Items(1, _))) => {
+(B[m                 assert!(items.is_empty());
+             }
+             (r1, r2) => panic!("unexpected responses {r1:?}, {r2:?}"),
+Diff in <repo>/src/tests.rs:3676:
+     #[test]
+     fn nuvio_service_fetch_is_bounded_to_max_items() {
+         let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+[31m-        service.send(Command::Fetch(vec![
+(B[m[31m-            (0, "continue-watching".to_owned()),
+(B[m[31m-        ]));
+(B[m[31m-        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+(B[m[32m+        service.send(Command::Fetch(vec![(0, "continue-watching".to_owned())]));
+(B[m[32m+        match service
+(B[m[32m+            .receiver
+(B[m[32m+            .lock()
+(B[m[32m+            .unwrap()
+(B[m[32m+            .recv_timeout(Duration::from_secs(5))
+(B[m[32m+        {
+(B[m             Ok(Response::Items(_, items)) => {
+                 assert!(items.len() <= crate::stacks::HOME_ROW_MAX as usize);
+             }
+Diff in <repo>/src/tvos_settings_view.rs:2253:
+         return;
+     }
+     let collection = crate::stacks::collection_label(stack);
+[31m-    let nuvio_connected = stack.source == "nuvio"
+(B[m[31m-        && crate::fast_kv::default_bridge_path().exists();
+(B[m[32m+    let nuvio_connected = stack.source == "nuvio" && crate::fast_kv::default_bridge_path().exists();
+(B[m     let rows: [(&str, Option<&str>, bool, Option<&str>); 7] = [
+         (
+             "Collection",
+Diff in <repo>/src/tvos_settings_view.rs:2278:
+             false,
+             None,
+         ),
+[31m-        ("Move up", if i == 0 { Some("Top") } else { None }, false, None),
+(B[m[32m+        (
+(B[m[32m+            "Move up",
+(B[m[32m+            if i == 0 { Some("Top") } else { None },
+(B[m[32m+            false,
+(B[m[32m+            None,
+(B[m[32m+        ),
+(B[m         (
+             "Move down",
+             if i + 1 == n { Some("Bottom") } else { None },

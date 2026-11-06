@@ -717,6 +717,7 @@ impl State {
             title: i.title.clone(),
             poster: i.poster.clone(),
             id: i.id,
+            ..Default::default()
         };
         let item = card(item);
         if library.games {

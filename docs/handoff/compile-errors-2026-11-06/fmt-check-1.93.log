@@ -1,0 +1,2095 @@
+Diff in <repo>/src/aerial_video.rs:4:
+     fs::OpenOptions,
+     io::Read,
+     process::{Child, Command, Stdio},
+[31m-    sync::mpsc::{Receiver, TrySendError, sync_channel},
+(B[m[32m+    sync::mpsc::{sync_channel, Receiver, TrySendError},
+(B[m     thread::{self, JoinHandle},
+     time::{Duration, Instant},
+ };
+Diff in <repo>/src/aerial_video.rs:157:
+             .map_err(|e| format!("GStreamer spawn: {e}"))?;
+         let mut stdout = child.stdout.take().ok_or("No pipe")?;
+         let (sender, receiver) = sync_channel(2);
+[31m-        let reader = thread::spawn(move || {
+(B[m[31m-            loop {
+(B[m[31m-                let mut bytes = vec![0u8; BYTES_PER_FRAME];
+(B[m[31m-                if stdout.read_exact(&mut bytes).is_err() {
+(B[m[31m-                    break;
+(B[m[31m-                }
+(B[m[31m-                match sender.try_send(bytes) {
+(B[m[31m-                    Ok(()) | Err(TrySendError::Full(_)) => {}
+(B[m[31m-                    Err(TrySendError::Disconnected(_)) => break,
+(B[m[31m-                }
+(B[m[32m+        let reader = thread::spawn(move || loop {
+(B[m[32m+            let mut bytes = vec![0u8; BYTES_PER_FRAME];
+(B[m[32m+            if stdout.read_exact(&mut bytes).is_err() {
+(B[m[32m+                break;
+(B[m[32m+            }
+(B[m[32m+            match sender.try_send(bytes) {
+(B[m[32m+                Ok(()) | Err(TrySendError::Full(_)) => {}
+(B[m[32m+                Err(TrySendError::Disconnected(_)) => break,
+(B[m             }
+         });
+         self.child = Some(child);
+Diff in <repo>/src/album.rs:1:
+ //! Album card (mockup "Музыка: альбом", 25.10): the movie card's panel with
+ //! the cover on the left and the songs on the right. Jellyfin fills it.
+[31m-use super::{Direction, Effect, State, Target, movie};
+(B[m[32m+use super::{movie, Direction, Effect, State, Target};
+(B[m use crate::stacks::StackItem;
+ use std::time::Instant;
+ 
+Diff in <repo>/src/app-artwork-tests.rs:335:
+         .map(|image| image.pixels.as_raw().len())
+         .sum();
+     assert!(bytes <= CACHE_BYTES);
+[31m-    assert!(
+(B[m[31m-        !cache
+(B[m[31m-            .entries
+(B[m[31m-            .contains_key(&Source::new("app-0", &json!({})))
+(B[m[31m-    );
+(B[m[31m-    assert!(
+(B[m[31m-        cache
+(B[m[31m-            .entries
+(B[m[31m-            .contains_key(&Source::new("app-79", &json!({})))
+(B[m[31m-    );
+(B[m[32m+    assert!(!cache
+(B[m[32m+        .entries
+(B[m[32m+        .contains_key(&Source::new("app-0", &json!({}))));
+(B[m[32m+    assert!(cache
+(B[m[32m+        .entries
+(B[m[32m+        .contains_key(&Source::new("app-79", &json!({}))));
+(B[m }
+ 
+ #[test]
+Diff in <repo>/src/app-artwork-tests.rs:382:
+             time::OffsetDateTime::UNIX_EPOCH,
+         )
+     };
+[31m-    assert!(
+(B[m[31m-        !scene()
+(B[m[31m-            .draw
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|draw| matches!(draw, crate::renderer::Draw::AppImage(..)))
+(B[m[31m-    );
+(B[m[32m+    assert!(!scene()
+(B[m[32m+        .draw
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|draw| matches!(draw, crate::renderer::Draw::AppImage(..))));
+(B[m     poll_until(&assets.artwork, || {
+         scene()
+             .draw
+Diff in <repo>/src/app_artwork.rs:10:
+     fs::File,
+     io::{Cursor, Read},
+     path::{Component, Path, PathBuf},
+[31m-    sync::{Arc, mpsc},
+(B[m[32m+    sync::{mpsc, Arc},
+(B[m     thread,
+ };
+ 
+Diff in <repo>/src/app_artwork.rs:149:
+     let cached = RawCachedTexture::load_from_disk(&path).ok()?;
+     let pixels = match cached.format {
+         PixelFormat::Rgba8 => {
+[31m-            let pixels = image::RgbaImage::from_vec(
+(B[m[31m-                cached.width.into(),
+(B[m[31m-                cached.height.into(),
+(B[m[31m-                cached.data,
+(B[m[31m-            )
+(B[m[31m-            .ok()?;
+(B[m[32m+            let pixels =
+(B[m[32m+                image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), cached.data)
+(B[m[32m+                    .ok()?;
+(B[m             pixels
+         }
+         PixelFormat::Rgb565 => {
+Diff in <repo>/src/fast_kv.rs:94:
+ /// Reads the binary bridge snapshot with torn-read verification.
+ /// Returns `Err(WouldBlock)` if head/tail sequence numbers mismatch or
+ /// are odd (a write may be in progress or the file was torn).
+[31m-pub fn read_bridge_cards(
+(B[m[31m-    path: &Path,
+(B[m[31m-    target_collection: &str,
+(B[m[31m-) -> io::Result<Vec<FastBridgeCard>> {
+(B[m[32m+pub fn read_bridge_cards(path: &Path, target_collection: &str) -> io::Result<Vec<FastBridgeCard>> {
+(B[m     let mut f = File::open(path)?;
+     let mut buf = Vec::with_capacity(MAX_BRIDGE_BYTES);
+     f.read_to_end(&mut buf)?;
+Diff in <repo>/src/fast_kv.rs:131:
+         ));
+     }
+     let seq_head = u64::from_le_bytes(buf[8..16].try_into().unwrap());
+[31m-    let seq_tail = u64::from_le_bytes(
+(B[m[31m-        buf[buf.len() - TRAILER_SIZE..].try_into().unwrap(),
+(B[m[31m-    );
+(B[m[32m+    let seq_tail = u64::from_le_bytes(buf[buf.len() - TRAILER_SIZE..].try_into().unwrap());
+(B[m     if (seq_head & 1) == 1 || seq_head != seq_tail {
+         return Err(io::Error::new(
+             io::ErrorKind::WouldBlock,
+Diff in <repo>/src/fast_kv.rs:264:
+     let mut offset = HEADER_SIZE;
+     for c in cards.iter().take(count as usize) {
+         buf[offset..offset + 8].copy_from_slice(&c.collection_hash.to_le_bytes());
+[31m-        buf[offset + 8..offset + 10]
+(B[m[31m-            .copy_from_slice(&c.progress_permille.to_le_bytes());
+(B[m[31m-        buf[offset + 10..offset + 12]
+(B[m[31m-            .copy_from_slice(&c.ambient_rgb565.to_le_bytes());
+(B[m[32m+        buf[offset + 8..offset + 10].copy_from_slice(&c.progress_permille.to_le_bytes());
+(B[m[32m+        buf[offset + 10..offset + 12].copy_from_slice(&c.ambient_rgb565.to_le_bytes());
+(B[m 
+         let s_base = offset + 12;
+         let mut slot = [0u8; MAX_SLOT_STR];
+Diff in <repo>/src/fast_kv.rs:276:
+         buf[s_base..s_base + MAX_SLOT_STR].copy_from_slice(&slot);
+ 
+         pack_fixed_str(&mut slot, &c.title);
+[31m-        buf[s_base + MAX_SLOT_STR..s_base + MAX_SLOT_STR * 2]
+(B[m[31m-            .copy_from_slice(&slot);
+(B[m[32m+        buf[s_base + MAX_SLOT_STR..s_base + MAX_SLOT_STR * 2].copy_from_slice(&slot);
+(B[m 
+         pack_fixed_str(&mut slot, &c.subtitle);
+[31m-        buf[s_base + MAX_SLOT_STR * 2..s_base + MAX_SLOT_STR * 3]
+(B[m[31m-            .copy_from_slice(&slot);
+(B[m[32m+        buf[s_base + MAX_SLOT_STR * 2..s_base + MAX_SLOT_STR * 3].copy_from_slice(&slot);
+(B[m 
+         pack_fixed_str(&mut slot, &c.content_target);
+[31m-        buf[s_base + MAX_SLOT_STR * 3..s_base + MAX_SLOT_STR * 4]
+(B[m[31m-            .copy_from_slice(&slot);
+(B[m[32m+        buf[s_base + MAX_SLOT_STR * 3..s_base + MAX_SLOT_STR * 4].copy_from_slice(&slot);
+(B[m 
+         offset += RECORD_SIZE;
+     }
+Diff in <repo>/src/fast_kv.rs:292:
+ 
+     // Trailer: repeat committed_seq for torn-read detection.
+[31m-    buf[payload_size..payload_size + TRAILER_SIZE]
+(B[m[31m-        .copy_from_slice(&committed_seq.to_le_bytes());
+(B[m[32m+    buf[payload_size..payload_size + TRAILER_SIZE].copy_from_slice(&committed_seq.to_le_bytes());
+(B[m 
+     let tmp_path = path.with_extension("lckv.tmp");
+     {
+Diff in <repo>/src/fast_kv.rs:326:
+     ///   "library"           → 0xe029b3e5014c2890
+     #[test]
+     fn fnv1a_known_constants() {
+[31m-        assert_eq!(
+(B[m[31m-            fnv1a_64(b"continue-watching"),
+(B[m[31m-            0x01aa2aebbc61d6f6u64
+(B[m[31m-        );
+(B[m[32m+        assert_eq!(fnv1a_64(b"continue-watching"), 0x01aa2aebbc61d6f6u64);
+(B[m         assert_eq!(fnv1a_64(b"watchlist"), 0xa05bdde6192df670u64);
+         assert_eq!(fnv1a_64(b"library"), 0xe029b3e5014c2890u64);
+     }
+Diff in <repo>/src/font.rs:1:
+ //! Lazy TTF metrics and individual outlines; never preprocess an entire font.
+ use geometry::lyon_tessellation::{
+[31m-    FillRule,
+(B[m     math::point,
+[31m-    path::{Path, path::Builder},
+(B[m[32m+    path::{path::Builder, Path},
+(B[m[32m+    FillRule,
+(B[m };
+ use luma_vector_geometry::{self as geometry, Vertex};
+ use owned_ttf_parser::{AsFaceRef, GlyphId, OutlineBuilder, OwnedFace};
+Diff in <repo>/src/hw_wallpaper.rs:4:
+ //! The code never downloads all 289 files or caches the entire video collection.
+ #![cfg(all(feature = "webos", target_os = "linux", target_arch = "arm"))]
+ use std::{
+[31m-    ffi::{CString, c_void},
+(B[m[32m+    ffi::{c_void, CString},
+(B[m     fs::OpenOptions,
+     io::{Read, Write},
+     os::raw::{c_char, c_int},
+Diff in <repo>/src/hw_wallpaper.rs:11:
+     process::{Child, Command, Stdio},
+     sync::{
+[31m-        Arc, OnceLock,
+(B[m         atomic::{AtomicBool, Ordering},
+[32m+        Arc, OnceLock,
+(B[m     },
+     thread::{self, JoinHandle},
+     time::{Duration, Instant},
+Diff in <repo>/src/i18n.rs:279:
+     fn every_message_has_all_languages_and_no_empty_values() {
+         for (key, entry) in messages() {
+             for language in Language::ALL {
+[31m-                assert!(
+(B[m[31m-                    !entry
+(B[m[31m-                        .get(language.code())
+(B[m[31m-                        .unwrap_or_else(|| panic!("Missing {key} / {}", language.code()))
+(B[m[31m-                        .is_empty()
+(B[m[31m-                );
+(B[m[32m+                assert!(!entry
+(B[m[32m+                    .get(language.code())
+(B[m[32m+                    .unwrap_or_else(|| panic!("Missing {key} / {}", language.code()))
+(B[m[32m+                    .is_empty());
+(B[m             }
+         }
+     }
+Diff in <repo>/src/jellyfin.rs:4:
+ use crate::media::{Detail, Episode, PlayRequest};
+ use crate::stacks::StackItem;
+ use serde::{Deserialize, Serialize};
+[31m-use serde_json::{Value, json};
+(B[m[32m+use serde_json::{json, Value};
+(B[m use std::collections::BTreeMap;
+ use std::path::{Path, PathBuf};
+ use std::sync::atomic::{AtomicU64, Ordering};
+Diff in <repo>/src/jellyfin.rs:11:
+[31m-use std::sync::{Mutex, mpsc};
+(B[m[32m+use std::sync::{mpsc, Mutex};
+(B[m use std::thread;
+ use std::time::{Duration, Instant};
+ 
+Diff in <repo>/src/jellyfin.rs:1374:
+             .map(|v| v.to_str().unwrap_or("").to_owned());
+         // A server that lost its media folder answers 404/500 here: shown, not failed.
+         println!("song 2: {} {:?}", response.status(), kind);
+[31m-        assert!(
+(B[m[31m-            views(&agent, &link)
+(B[m[31m-                .iter()
+(B[m[31m-                .any(|(k, _)| k.starts_with("music:"))
+(B[m[31m-        );
+(B[m[32m+        assert!(views(&agent, &link)
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|(k, _)| k.starts_with("music:")));
+(B[m     }
+ 
+     #[test]
+Diff in <repo>/src/library.rs:7:
+ 
+ use crate::state::Target;
+ use std::path::PathBuf;
+[31m-use std::sync::{Arc, Mutex, OnceLock, mpsc};
+(B[m[32m+use std::sync::{mpsc, Arc, Mutex, OnceLock};
+(B[m use std::time::{Duration, Instant};
+ 
+ pub const COLUMNS: usize = 6;
+Diff in <repo>/src/library.rs:145:
+ 
+     /// Card height: posters, or square album covers.
+     pub fn card_h(&self) -> f32 {
+[31m-        if self.square { CARD_W } else { CARD_H }
+(B[m[32m+        if self.square {
+(B[m[32m+            CARD_W
+(B[m[32m+        } else {
+(B[m[32m+            CARD_H
+(B[m[32m+        }
+(B[m     }
+ 
+     pub fn pitch_y(&self) -> f32 {
+Diff in <repo>/src/library.rs:396:
+         let wanted: Arc<Mutex<Vec<(i64, String)>>> = Arc::default();
+         let queue = wanted.clone();
+         let (_, own) = folders();
+[31m-        std::thread::spawn(move || {
+(B[m[31m-            loop {
+(B[m[31m-                let next = {
+(B[m[31m-                    let mut list = queue.lock().unwrap();
+(B[m[31m-                    (!list.is_empty()).then(|| list.remove(0))
+(B[m[31m-                };
+(B[m[31m-                match next {
+(B[m[31m-                    Some((id, url)) => {
+(B[m[31m-                        if let Some(path) = media::library_poster(&own, id, &url) {
+(B[m[31m-                            let _ = reply.send(Reply::Poster(id, path));
+(B[m[31m-                        }
+(B[m[32m+        std::thread::spawn(move || loop {
+(B[m[32m+            let next = {
+(B[m[32m+                let mut list = queue.lock().unwrap();
+(B[m[32m+                (!list.is_empty()).then(|| list.remove(0))
+(B[m[32m+            };
+(B[m[32m+            match next {
+(B[m[32m+                Some((id, url)) => {
+(B[m[32m+                    if let Some(path) = media::library_poster(&own, id, &url) {
+(B[m[32m+                        let _ = reply.send(Reply::Poster(id, path));
+(B[m                     }
+[31m-                    None => std::thread::sleep(Duration::from_millis(60)),
+(B[m                 }
+[32m+                None => std::thread::sleep(Duration::from_millis(60)),
+(B[m             }
+         });
+         Service {
+Diff in <repo>/src/library_view.rs:1:
+ //! Library page (mockup 25.10): a fixed header (Back, title, tabs, search)
+ //! over the Apps grid of Home-size posters. Only rows on screen are drawn.
+ use super::*;
+[31m-use crate::library::{CARD_W, CLOSE_TIME, COLUMNS, GRID_LEFT, GRID_TOP, Library, PITCH_X};
+(B[m[32m+use crate::library::{Library, CARD_W, CLOSE_TIME, COLUMNS, GRID_LEFT, GRID_TOP, PITCH_X};
+(B[m 
+ const CARD_RADIUS: f32 = TILE_RADIUS;
+ const HEADER_Y: f32 = 108.;
+Diff in <repo>/src/library_view.rs:199:
+         _ => None,
+     };
+     let noun = if library.games {
+[31m-        if n == 1 { "game" } else { "games" }
+(B[m[32m+        if n == 1 {
+(B[m[32m+            "game"
+(B[m[32m+        } else {
+(B[m[32m+            "games"
+(B[m[32m+        }
+(B[m     } else if library.square {
+[31m-        if n == 1 { "album" } else { "albums" }
+(B[m[32m+        if n == 1 {
+(B[m[32m+            "album"
+(B[m[32m+        } else {
+(B[m[32m+            "albums"
+(B[m[32m+        }
+(B[m     } else if n == 1 {
+         "title"
+     } else {
+Diff in <repo>/src/main.rs:2:
+ mod app_artwork;
+ mod branding;
+ mod diagnostics;
+[32m+mod fast_kv;
+(B[m mod font;
+ #[cfg(all(feature = "webos", target_os = "linux", target_arch = "arm"))]
+ mod hw_wallpaper;
+Diff in <repo>/src/main.rs:12:
+ mod luna;
+ mod media;
+ mod model;
+[31m-mod fast_kv;
+(B[m mod moonlight;
+[31m-mod nuvio;
+(B[m mod motion;
+ mod music;
+[32m+mod nuvio;
+(B[m mod pad_watch;
+ mod phone_link;
+ mod platform;
+Diff in <repo>/src/main.rs:277:
+                         state.launching = true;
+                         platform.send(Request::NuvioLaunch { content_target });
+                     } else {
+[31m-                        state.notify(state.preferences.language.format(
+(B[m[31m-                            "desktopPreview",
+(B[m[31m-                            &[("app", "Nuvio")],
+(B[m[31m-                        ));
+(B[m[32m+                        state.notify(
+(B[m[32m+                            state
+(B[m[32m+                                .preferences
+(B[m[32m+                                .language
+(B[m[32m+                                .format("desktopPreview", &[("app", "Nuvio")]),
+(B[m[32m+                        );
+(B[m                     }
+                 }
+             }
+Diff in <repo>/src/main.rs:1629:
+             ));
+         }
+     }
+[31m-    if state
+(B[m[31m-        .preferences
+(B[m[31m-        .stacks
+(B[m[31m-        .iter()
+(B[m[31m-        .any(|s| s.source == "nuvio")
+(B[m[31m-    {
+(B[m[32m+    if state.preferences.stacks.iter().any(|s| s.source == "nuvio") {
+(B[m         let wanted = state
+             .preferences
+             .stacks
+Diff in <repo>/src/main.rs:1889:
+                 // Write only to a PID-scoped temp fixture — NEVER to
+                 // default_bridge_path() (/tmp/nuvio_stacks.lckv), which is
+                 // owned by the NuvioTV producer.
+[31m-                let path = std::env::temp_dir().join(format!(
+(B[m[31m-                    "luma_lab_fixture_{}.lckv",
+(B[m[31m-                    std::process::id()
+(B[m[31m-                ));
+(B[m[32m+                let path = std::env::temp_dir()
+(B[m[32m+                    .join(format!("luma_lab_fixture_{}.lckv", std::process::id()));
+(B[m                 let cards = vec![FastBridgeCard {
+                     collection_hash: crate::fast_kv::fnv1a_64(b"continue-watching"),
+                     progress_permille: 645,
+Diff in <repo>/src/main.rs:2392:
+             .into(),
+             ..Default::default()
+         }];
+[31m-        state.stack_items = vec![
+(B[m[31m-            (0..30)
+(B[m[31m-                .map(|i| crate::stacks::StackItem {
+(B[m[31m-                    title: format!("Title {i}"),
+(B[m[31m-                    poster: poster(i),
+(B[m[31m-                    id: i as i64 + 1,
+(B[m[31m-                    ..Default::default()
+(B[m[31m-                })
+(B[m[31m-                .collect(),
+(B[m[31m-        ];
+(B[m[32m+        state.stack_items = vec![(0..30)
+(B[m[32m+            .map(|i| crate::stacks::StackItem {
+(B[m[32m+                title: format!("Title {i}"),
+(B[m[32m+                poster: poster(i),
+(B[m[32m+                id: i as i64 + 1,
+(B[m[32m+                ..Default::default()
+(B[m[32m+            })
+(B[m[32m+            .collect()];
+(B[m         state.open_library(0, crate::stacks::HOME_ROW_MAX);
+         if let Some(library) = state.library.as_mut() {
+             library.items = (0..if games { 40 } else { 144 })
+Diff in <repo>/src/mini.rs:72:
+             Target::MiniRepeat => self.music.toggle_repeat(),
+             Target::MiniCover => {
+                 let now = self.music.now.as_ref()?;
+[31m-            let item = crate::stacks::StackItem {
+(B[m[31m-                title: now.album.clone(),
+(B[m[31m-                poster: now.cover.clone(),
+(B[m[31m-                id: now.album_id,
+(B[m[31m-                ..Default::default()
+(B[m[31m-            };
+(B[m[32m+                let item = crate::stacks::StackItem {
+(B[m[32m+                    title: now.album.clone(),
+(B[m[32m+                    poster: now.cover.clone(),
+(B[m[32m+                    id: now.album_id,
+(B[m[32m+                    ..Default::default()
+(B[m[32m+                };
+(B[m                 return Some(self.open_album(item, Target::MiniCover));
+             }
+             _ => return None,
+Diff in <repo>/src/moonlight.rs:2:
+ //! Only Luma's own RSA identity is used. All network calls run off the UI thread.
+ use crate::stacks::StackItem;
+ use aes::{
+[32m+    cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyInit},
+(B[m     Aes128,
+[31m-    cipher::{BlockDecrypt, BlockEncrypt, KeyInit, generic_array::GenericArray},
+(B[m };
+ use base64::Engine;
+[31m-use rand::{RngCore, rngs::OsRng};
+(B[m[32m+use rand::{rngs::OsRng, RngCore};
+(B[m use rsa::{
+[31m-    RsaPrivateKey, RsaPublicKey,
+(B[m     pkcs1v15::{SigningKey, VerifyingKey},
+     pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, LineEnding},
+     signature::{SignatureEncoding, Signer, Verifier},
+Diff in <repo>/src/moonlight.rs:15:
+[32m+    RsaPrivateKey, RsaPublicKey,
+(B[m };
+ use rustls::{
+[31m-    ClientConfig, ClientConnection, DigitallySignedStruct, Error as TlsError, SignatureScheme,
+(B[m[31m-    StreamOwned,
+(B[m     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+     crypto::{verify_tls12_signature, verify_tls13_signature},
+     pki_types::{CertificateDer, ServerName, UnixTime},
+Diff in <repo>/src/moonlight.rs:22:
+[32m+    ClientConfig, ClientConnection, DigitallySignedStruct, Error as TlsError, SignatureScheme,
+(B[m[32m+    StreamOwned,
+(B[m };
+ use serde::{Deserialize, Serialize};
+ use sha2::{Digest, Sha256};
+Diff in <repo>/src/moonlight.rs:29:
+     path::{Path, PathBuf},
+     sync::atomic::{AtomicBool, Ordering},
+     sync::{
+[31m-        Arc, Mutex,
+(B[m         mpsc::{self, Receiver, Sender},
+[32m+        Arc, Mutex,
+(B[m     },
+     thread,
+     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+Diff in <repo>/src/moonlight.rs:232:
+                                 let next = next.clone();
+                                 let shared = shared.clone();
+                                 let updates = updates.clone();
+[31m-                                workers.push(thread::spawn(move || {
+(B[m[31m-                                    loop {
+(B[m[31m-                                        let i = next.fetch_add(1, Ordering::Relaxed);
+(B[m[31m-                                        if i >= shared.len() {
+(B[m[31m-                                            break;
+(B[m[31m-                                        }
+(B[m[31m-                                        if let Ok(host) =
+(B[m[31m-                                            probe_fast(&shared[i], Duration::from_millis(390))
+(B[m[31m-                                        {
+(B[m[31m-                                            let _ = updates.send(Update::Found(host));
+(B[m[31m-                                        }
+(B[m[32m+                                workers.push(thread::spawn(move || loop {
+(B[m[32m+                                    let i = next.fetch_add(1, Ordering::Relaxed);
+(B[m[32m+                                    if i >= shared.len() {
+(B[m[32m+                                        break;
+(B[m                                     }
+[32m+                                    if let Ok(host) =
+(B[m[32m+                                        probe_fast(&shared[i], Duration::from_millis(390))
+(B[m[32m+                                    {
+(B[m[32m+                                        let _ = updates.send(Update::Found(host));
+(B[m[32m+                                    }
+(B[m                                 }));
+                             }
+                             for worker in workers {
+Diff in <repo>/src/moonlight.rs:1746:
+     }
+     #[test]
+     fn pairing_screen_back_cancels() {
+[31m-        use crate::state::{Effect, Page, STACKS_SECTION, SettingsLevel, State, Target};
+(B[m[32m+        use crate::state::{Effect, Page, SettingsLevel, State, Target, STACKS_SECTION};
+(B[m         let mut state = State::new(crate::model::Preferences::default());
+         state.page = Page::Settings;
+         state.section = STACKS_SECTION;
+Diff in <repo>/src/movie_view.rs:1:
+ //! Title card popup (approved mockup "Movie card"): one padding of 88
+ //! everywhere, round buttons 84 high that size to their content, a close
+ //! button on the panel and a side panel for subtitles and quality.
+[31m-use super::{Assets, Scene, WHITE, accent_fill, accent_ink, c};
+(B[m[32m+use super::{accent_fill, accent_ink, c, Assets, Scene, WHITE};
+(B[m use crate::motion;
+ use crate::renderer::{Color, Draw, TextStyle};
+ use crate::state::movie::{self, MovieCard};
+Diff in <repo>/src/nuvio.rs:23:
+ use crate::stacks::StackItem;
+ use std::path::PathBuf;
+ use std::sync::atomic::{AtomicU64, Ordering};
+[31m-use std::sync::{Mutex, mpsc};
+(B[m[32m+use std::sync::{mpsc, Mutex};
+(B[m use std::thread;
+ 
+ /// Maximum items per collection (matches `stacks::HOME_ROW_MAX`).
+Diff in <repo>/src/nuvio.rs:77:
+ fn fetch(reply: &mpsc::Sender<Response>, stacks: Vec<(usize, String)>) {
+     let bridge_path = default_bridge_path();
+     for (index, collection) in stacks {
+[31m-        let items = bridge_items(&bridge_path, &collection)
+(B[m[31m-            .unwrap_or_else(|| match collection.as_str() {
+(B[m[32m+        let items =
+(B[m[32m+            bridge_items(&bridge_path, &collection).unwrap_or_else(|| match collection.as_str() {
+(B[m                 "continue-watching" => continue_watching_items(),
+                 "watchlist" => watchlist_items(),
+                 "library" => library_items(),
+Diff in <repo>/src/nuvio.rs:101:
+ fn metahub_poster_url(id: &str) -> Option<String> {
+     let base = imdb_id(id);
+     if base.starts_with("tt") && base.len() >= 7 && base[2..].chars().all(|c| c.is_ascii_digit()) {
+[31m-        return Some(format!("https://images.metahub.space/poster/medium/{base}/img"));
+(B[m[32m+        return Some(format!(
+(B[m[32m+            "https://images.metahub.space/poster/medium/{base}/img"
+(B[m[32m+        ));
+(B[m     }
+     None
+ }
+Diff in <repo>/src/nuvio.rs:111:
+ fn metahub_still_url(id: &str) -> Option<String> {
+     let base = imdb_id(id);
+     if base.starts_with("tt") && base.len() >= 7 && base[2..].chars().all(|c| c.is_ascii_digit()) {
+[31m-        return Some(format!("https://images.metahub.space/background/medium/{base}/img"));
+(B[m[32m+        return Some(format!(
+(B[m[32m+            "https://images.metahub.space/background/medium/{base}/img"
+(B[m[32m+        ));
+(B[m     }
+     None
+ }
+Diff in <repo>/src/nuvio.rs:149:
+ /// Uses FNV-1a-64 of the card id mixed with the content target and sequence
+ /// position, so every card in a collection has a unique id.
+ fn unique_card_id(card_id: &str, content_target: &str) -> i64 {
+[31m-    let key = if !card_id.is_empty() { card_id } else { content_target };
+(B[m[32m+    let key = if !card_id.is_empty() {
+(B[m[32m+        card_id
+(B[m[32m+    } else {
+(B[m[32m+        content_target
+(B[m[32m+    };
+(B[m     let h = crate::fast_kv::fnv1a_64(key.as_bytes()) & 0x7FFF_FFFF_FFFF_FFFF;
+     h.max(1) as i64
+ }
+Diff in <repo>/src/nuvio.rs:186:
+     fn fetch_returns_items_for_continue_watching() {
+         let (reply, receiver) = mpsc::channel();
+         fetch(&reply, vec![(0, "continue-watching".to_owned())]);
+[31m-        let response = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[32m+        let response = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m         match response {
+             Response::Items(index, items) => {
+                 assert_eq!(index, 0);
+Diff in <repo>/src/nuvio.rs:200:
+     #[test]
+     fn fetch_returns_empty_for_watchlist_and_library() {
+         let (reply, receiver) = mpsc::channel();
+[31m-        fetch(&reply, vec![(0, "watchlist".to_owned()), (1, "library".to_owned())]);
+(B[m[31m-        let r1 = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[31m-        let r2 = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[32m+        fetch(
+(B[m[32m+            &reply,
+(B[m[32m+            vec![(0, "watchlist".to_owned()), (1, "library".to_owned())],
+(B[m[32m+        );
+(B[m[32m+        let r1 = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m[32m+        let r2 = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m         match (r1, r2) {
+             (Response::Items(0, items), Response::Items(1, _)) => {
+                 assert!(items.is_empty());
+Diff in <repo>/src/nuvio.rs:217:
+         // but the take() bound guarantees the limit regardless of source.
+         let (reply, receiver) = mpsc::channel();
+         fetch(&reply, vec![(0, "continue-watching".to_owned())]);
+[31m-        let response = receiver.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+(B[m[32m+        let response = receiver
+(B[m[32m+            .recv_timeout(std::time::Duration::from_secs(5))
+(B[m[32m+            .unwrap();
+(B[m         match response {
+             Response::Items(_, items) => {
+                 assert!(items.len() <= MAX_ITEMS_PER_COLLECTION);
+Diff in <repo>/src/phone_link.rs:1:
+ //! Reusable on-LAN, phone-only input for Luma (Home Assistant, Moonlight).
+ //! No secrets in logs, preferences or URLs. QR links contain only a random nonce.
+[31m-use rand::{RngCore, rngs::OsRng};
+(B[m[32m+use rand::{rngs::OsRng, RngCore};
+(B[m use std::{
+     collections::HashMap,
+     io::{Read, Write},
+Diff in <repo>/src/phone_link.rs:7:
+     net::{SocketAddr, TcpListener, TcpStream, UdpSocket},
+     sync::{
+[31m-        Arc,
+(B[m         atomic::{AtomicBool, Ordering},
+         mpsc::{self, Receiver, Sender},
+[32m+        Arc,
+(B[m     },
+     thread,
+     time::{Duration, Instant},
+Diff in <repo>/src/platform.rs:3:
+ //! process trying to impersonate its application identity.
+ use crate::{
+     app_artwork,
+[31m-    model::{App, Input, Inventory, demo_inventory, valid_app_id},
+(B[m[32m+    model::{demo_inventory, valid_app_id, App, Input, Inventory},
+(B[m };
+[31m-use serde_json::{Value, json};
+(B[m[32m+use serde_json::{json, Value};
+(B[m use std::{
+     collections::{HashSet, VecDeque},
+[31m-    sync::{Arc, Condvar, Mutex, mpsc},
+(B[m[32m+    sync::{mpsc, Arc, Condvar, Mutex},
+(B[m     thread,
+ };
+ 
+Diff in <repo>/src/platform.rs:53:
+     CloseApp(String),
+     /// Launch a Nuvio title by content target. Never autoplays and never injects input.
+     #[cfg(feature = "nuvio")]
+[31m-    NuvioLaunch { content_target: String },
+(B[m[32m+    NuvioLaunch {
+(B[m[32m+        content_target: String,
+(B[m[32m+    },
+(B[m     /// Open Luma's web player app with these launch parameters. They hold
+     /// signed URLs and a token, so they are never logged.
+     WebPlayer(Value),
+Diff in <repo>/src/platform.rs:225:
+                                 } else {
+                                     Ok(())
+                                 }
+[31m-                            },
+(B[m[32m+                            }
+(B[m                             Err(error) => Err(error),
+                         })
+                     }
+Diff in <repo>/src/platform.rs:282:
+     let invalid = || "Invalid Nuvio content target".to_string();
+     let rest = target.strip_prefix("nuvio://tmdb/").ok_or_else(invalid)?;
+     let (kind, id) = rest.split_once('/').ok_or_else(invalid)?;
+[31m-    if !matches!(kind, "movie" | "tv")
+(B[m[31m-        || id.is_empty()
+(B[m[31m-        || !id.bytes().all(u8::is_ascii_digit)
+(B[m[31m-    {
+(B[m[32m+    if !matches!(kind, "movie" | "tv") || id.is_empty() || !id.bytes().all(u8::is_ascii_digit) {
+(B[m         return Err(invalid());
+     }
+     Ok(target.to_owned())
+Diff in <repo>/src/player_backend.rs:1:
+ //! Non-blocking native cinema controller. All I/O and codec calls run off UI thread.
+ //! On the TV playback goes through com.webos.media (uMediaServer) over LS2 so we
+ //! get real currentTime/duration/video-size events; the C facade is a fallback.
+[31m-use crate::player::{Command, Cue, OpenRequest, parse_subtitle};
+(B[m[32m+use crate::player::{parse_subtitle, Command, Cue, OpenRequest};
+(B[m use std::{
+     sync::{
+[31m-        Mutex, OnceLock,
+(B[m         atomic::{AtomicBool, Ordering},
+[31m-        mpsc,
+(B[m[32m+        mpsc, Mutex, OnceLock,
+(B[m     },
+     time::{Duration, Instant},
+ };
+Diff in <repo>/src/player_backend.rs:259:
+ #[cfg(all(feature = "webos", target_os = "linux", target_arch = "arm"))]
+ mod native {
+     //! Thin dlopen wrapper around libluma_cinema.so (window helpers + C facade).
+[31m-    use std::ffi::{CStr, CString, c_char, c_void};
+(B[m[32m+    use std::ffi::{c_char, c_void, CStr, CString};
+(B[m     pub struct Native {
+         library: *mut c_void,
+         pub handle: *mut c_void,
+Diff in <repo>/src/player_view.rs:2:
+ //! PlayerChapters): one padding of 88, right edge at 1832, round buttons 84
+ //! high that share the movie card's two states, alpha gradients only.
+ use super::movie_view::{body, bottom_shade, close_button, fixed, line_in, two_state};
+[31m-use super::{Assets, Scene, accent_fill, accent_ink, c};
+(B[m[32m+use super::{accent_fill, accent_ink, c, Assets, Scene};
+(B[m use crate::player::{self, Panel, Session, Source};
+ use crate::renderer::{Color, Draw, TextStyle, WHITE};
+ use crate::state::{Rect, State, Target};
+Diff in <repo>/src/player_view.rs:28:
+     style
+ }
+ fn focused(state: &State, target: Target) -> f32 {
+[31m-    if state.focus == target { 1. } else { 0. }
+(B[m[32m+    if state.focus == target {
+(B[m[32m+        1.
+(B[m[32m+    } else {
+(B[m[32m+        0.
+(B[m[32m+    }
+(B[m }
+ 
+ /// A round button: icon before or after the label, sized to its content.
+Diff in <repo>/src/plex.rs:8:
+ use std::collections::BTreeMap;
+ use std::path::{Path, PathBuf};
+ use std::sync::atomic::{AtomicU64, Ordering};
+[31m-use std::sync::{Mutex, mpsc};
+(B[m[32m+use std::sync::{mpsc, Mutex};
+(B[m use std::thread;
+ use std::time::{Duration, Instant};
+ 
+Diff in <repo>/src/renderer.rs:13:
+     collections::{HashMap, HashSet},
+     ffi::{CStr, CString},
+     path::{Path, PathBuf},
+[31m-    sync::{Arc, mpsc},
+(B[m[32m+    sync::{mpsc, Arc},
+(B[m     time::Instant,
+ };
+ 
+Diff in <repo>/src/renderer.rs:973:
+             } else if legacy_ready && fonts[&legacy_id].lookup_glyph_index(c) != 0 {
+                 legacy_id
+             } else if is_hangul(c) {
+[31m-                if hangul_ready { hangul_id } else { font_id }
+(B[m[32m+                if hangul_ready {
+(B[m[32m+                    hangul_id
+(B[m[32m+                } else {
+(B[m[32m+                    font_id
+(B[m[32m+                }
+(B[m             } else if cjk_ready {
+                 cjk_id
+             } else {
+Diff in <repo>/src/renderer.rs:1409:
+             gl::EnableVertexAttribArray(0); // a_position
+             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, stride, 0 as *const _);
+             gl::EnableVertexAttribArray(1); // a_uv
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                1,
+(B[m[31m-                2,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (2 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, stride, (2 * 4) as *const _);
+(B[m             gl::EnableVertexAttribArray(2); // a_color
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                2,
+(B[m[31m-                4,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (4 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(2, 4, gl::FLOAT, gl::FALSE, stride, (4 * 4) as *const _);
+(B[m             gl::EnableVertexAttribArray(3); // a_shape
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                3,
+(B[m[31m-                4,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (8 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(3, 4, gl::FLOAT, gl::FALSE, stride, (8 * 4) as *const _);
+(B[m             gl::EnableVertexAttribArray(4); // a_params
+[31m-            gl::VertexAttribPointer(
+(B[m[31m-                4,
+(B[m[31m-                2,
+(B[m[31m-                gl::FLOAT,
+(B[m[31m-                gl::FALSE,
+(B[m[31m-                stride,
+(B[m[31m-                (12 * 4) as *const _,
+(B[m[31m-            );
+(B[m[32m+            gl::VertexAttribPointer(4, 2, gl::FLOAT, gl::FALSE, stride, (12 * 4) as *const _);
+(B[m             gl::BindTexture(gl::TEXTURE_2D, self.white.id);
+             gl::DrawArrays(gl::TRIANGLES, 0, vertex_count as i32);
+         }
+Diff in <repo>/src/renderer.rs:1514:
+         frost: Option<&image::RgbaImage>,
+     ) {
+         if let Some(camera) = camera_key(&path) {
+[31m-            if let Some(old) = self.cameras.insert(camera, path.clone()) && old != path {
+(B[m[32m+            if let Some(old) = self.cameras.insert(camera, path.clone())
+(B[m[32m+                && old != path
+(B[m[32m+            {
+(B[m                 self.textures.remove(&old);
+             }
+             self.fresh = true;
+Diff in <repo>/src/renderer.rs:2067:
+             // Painter's Algorithm Z-order. This guard sits outside the
+             // `match` arms to avoid the bare-statement-between-arms
+             // syntax error.
+[31m-            if !matches!(command, Draw::Shape(..))
+(B[m[31m-                && self.quad_batcher.triangle_vertex_count() > 0
+(B[m[32m+            if !matches!(command, Draw::Shape(..)) && self.quad_batcher.triangle_vertex_count() > 0
+(B[m             {
+                 self.flush_quad_batcher();
+                 self.quad_batcher.clear();
+Diff in <repo>/src/renderer.rs:2846:
+         .unwrap_or(1) as u16;
+     let face = if heading {
+         if family == "nunito" {
+[31m-            if weight >= 850 { 900 } else { 800 }
+(B[m[32m+            if weight >= 850 {
+(B[m[32m+                900
+(B[m[32m+            } else {
+(B[m[32m+                800
+(B[m[32m+            }
+(B[m         } else if matches!(family, "archivo" | "inter" | "unbounded") {
+             800
+         } else {
+Diff in <repo>/src/renderer.rs:3102:
+     #[inline]
+     pub fn enqueue(&mut self, item: PendingTextureUpload) {
+         // Deduplicate if the same key is already queued.
+[31m-        self.queue.retain(|existing| existing.cache_key != item.cache_key);
+(B[m[32m+        self.queue
+(B[m[32m+            .retain(|existing| existing.cache_key != item.cache_key);
+(B[m         self.queue.push_back(item);
+     }
+ 
+Diff in <repo>/src/settings_art.rs:115:
+     let mut acc = 0.;
+     k.map(|v| {
+         acc += v;
+[31m-        if acc > 0. { v / acc } else { 0. }
+(B[m[32m+        if acc > 0. {
+(B[m[32m+            v / acc
+(B[m[32m+        } else {
+(B[m[32m+            0.
+(B[m[32m+        }
+(B[m     })
+ }
+ 
+Diff in <repo>/src/smart_home.rs:1:
+ //! Home Assistant REST bridge. Network work never runs on the SDL/GL thread.
+ //! Do not log access tokens or persist them with UI preferences.
+ use serde::{Deserialize, Serialize};
+[31m-use serde_json::{Value, json};
+(B[m[32m+use serde_json::{json, Value};
+(B[m use std::path::PathBuf;
+ use std::sync::mpsc::{self, Receiver, Sender};
+ use std::thread;
+Diff in <repo>/src/smart_home_pairing.rs:1:
+ //! Home Assistant OAuth / phone-only fallback. Nothing secret enters preferences or logs.
+ use crate::phone_link::{
+[31m-    self, Field, FieldType, Form, FormResult, HttpResponse, Session, constant_time_eq, encode_form,
+(B[m[31m-    html_page, parse_form, random_hex,
+(B[m[32m+    self, constant_time_eq, encode_form, html_page, parse_form, random_hex, Field, FieldType, Form,
+(B[m[32m+    FormResult, HttpResponse, Session,
+(B[m };
+ use crate::smart_home::{self, Command, Secrets, Update};
+[31m-use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
+(B[m[32m+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+(B[m use serde_json::Value;
+ use sha2::{Digest, Sha256};
+ use std::{
+Diff in <repo>/src/smart_home_pairing.rs:12:
+     net::TcpStream,
+     path::PathBuf,
+     sync::{
+[31m-        Arc,
+(B[m         atomic::{AtomicBool, Ordering},
+         mpsc::Sender,
+[32m+        Arc,
+(B[m     },
+     thread,
+     time::{Duration, Instant},
+Diff in <repo>/src/smart_home_pairing.rs:358:
+         let fields = parse_form(&body);
+         assert_eq!(fields["token"], "special&token+");
+         let form = token_form();
+[31m-        assert!(
+(B[m[31m-            form.fields
+(B[m[31m-                .iter()
+(B[m[31m-                .any(|field| matches!(field.kind, FieldType::Secret))
+(B[m[31m-        );
+(B[m[32m+        assert!(form
+(B[m[32m+            .fields
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|field| matches!(field.kind, FieldType::Secret)));
+(B[m     }
+ }
+ 
+Diff in <repo>/src/smart_home_ws.rs:1:
+ //! Live Home Assistant WebSocket connection, registry room names, and services.
+[31m-use crate::smart_home::{Entity, Update, parse_states};
+(B[m[31m-use serde_json::{Value, json};
+(B[m[32m+use crate::smart_home::{parse_states, Entity, Update};
+(B[m[32m+use serde_json::{json, Value};
+(B[m use std::{
+     collections::HashMap,
+     net::TcpStream,
+Diff in <repo>/src/smart_home_ws.rs:7:
+     sync::{
+[31m-        Arc,
+(B[m         atomic::{AtomicBool, Ordering},
+         mpsc::{self, Receiver, Sender},
+[32m+        Arc,
+(B[m     },
+     thread,
+     time::{Duration, Instant},
+Diff in <repo>/src/smart_home_ws.rs:14:
+ };
+[31m-use tungstenite::{self, Message, stream::MaybeTlsStream};
+(B[m[32m+use tungstenite::{self, stream::MaybeTlsStream, Message};
+(B[m 
+ struct Registry {
+     area_names: HashMap<String, String>,
+Diff in <repo>/src/stacks.rs:180:
+         .is_some_and(|s| s.source == "nuvio")
+     {
+         return vec![
+[31m-            ("continue-watching".to_owned(), "Continue Watching".to_owned()),
+(B[m[32m+            (
+(B[m[32m+                "continue-watching".to_owned(),
+(B[m[32m+                "Continue Watching".to_owned(),
+(B[m[32m+            ),
+(B[m             ("watchlist".to_owned(), "Watchlist".to_owned()),
+             ("library".to_owned(), "Library".to_owned()),
+         ];
+Diff in <repo>/src/state.rs:1:
+ use crate::i18n::Language;
+ use crate::model::{
+[31m-    App, BACKGROUNDS, CATEGORIES, INPUT_NAME_LIMIT, InputMode, Inventory, Preferences,
+(B[m[31m-    clean_input_name,
+(B[m[32m+    clean_input_name, App, InputMode, Inventory, Preferences, BACKGROUNDS, CATEGORIES,
+(B[m[32m+    INPUT_NAME_LIMIT,
+(B[m };
+ use crate::motion;
+ use crate::renderer::Draw;
+Diff in <repo>/src/state.rs:380:
+     /// Raised by `Target::StackCard` when clicking a Nuvio card; handled in
+     /// `main.rs` → `platform.send(Request::NuvioLaunch { .. })`.
+     #[cfg(feature = "nuvio")]
+[31m-    NuvioLaunch { content_target: String },
+(B[m[32m+    NuvioLaunch {
+(B[m[32m+        content_target: String,
+(B[m[32m+    },
+(B[m     /// Songs and cover of a Jellyfin album card.
+     AlbumDetails(i64),
+     /// Play an album from this song, in order or shuffled.
+Diff in <repo>/src/state.rs:677:
+ 
+         let corridor_dist = (cand_center - corridor_screen_x).abs();
+ 
+[31m-        let overlap = (source_screen_right.min(cand_right)
+(B[m[31m-            - source_screen_left.max(cand_left))
+(B[m[31m-            .max(0.0);
+(B[m[32m+        let overlap =
+(B[m[32m+            (source_screen_right.min(cand_right) - source_screen_left.max(cand_left)).max(0.0);
+(B[m         let min_w = source_w.min(card.width.max(1.0));
+         let overlap_ratio = overlap / min_w;
+ 
+Diff in <repo>/src/state.rs:1396:
+     }
+ 
+     pub fn settings_nav_index(&self) -> usize {
+[31m-        if self.show_smart_tab() { 3 } else { 2 }
+(B[m[32m+        if self.show_smart_tab() {
+(B[m[32m+            3
+(B[m[32m+        } else {
+(B[m[32m+            2
+(B[m[32m+        }
+(B[m     }
+ 
+     pub fn page_index(&self) -> usize {
+Diff in <repo>/src/state.rs:2197:
+         self.dirty = true;
+     }
+ 
+[31m-/// Record the current card's center as the vertical focus corridor so Up/Down
+(B[m[31m-/// moves land on the best overlapping card in the target row.
+(B[m[31m-///
+(B[m[31m-/// The corridor is stored in estimated screen-space pixels ([72..960+]) so
+(B[m[31m-/// that pressing Down from a deeply scrolled row lands on the visually
+(B[m[31m-/// aligned card in an unscrolled target row, regardless of scroll depth.
+(B[m[31m-fn update_corridor(&mut self, row: usize, index: usize) {
+(B[m[31m-    if let Some(stack) = crate::stacks::row_stack(self, row) {
+(B[m[32m+    /// Record the current card's center as the vertical focus corridor so Up/Down
+(B[m[32m+    /// moves land on the best overlapping card in the target row.
+(B[m[32m+    ///
+(B[m[32m+    /// The corridor is stored in estimated screen-space pixels ([72..960+]) so
+(B[m[32m+    /// that pressing Down from a deeply scrolled row lands on the visually
+(B[m[32m+    /// aligned card in an unscrolled target row, regardless of scroll depth.
+(B[m[32m+    fn update_corridor(&mut self, row: usize, index: usize) {
+(B[m[32m+        if let Some(stack) = crate::stacks::row_stack(self, row) {
+(B[m[32m+            let shape = stack.shape;
+(B[m[32m+            let (card_w, _) = shape.size();
+(B[m[32m+            let pitch = shape.pitch();
+(B[m[32m+            // Card center in unscrolled row-local coordinates.
+(B[m[32m+            let local_center = crate::state::HOME_STRIP_LEFT + index as f32 * pitch + card_w * 0.5;
+(B[m[32m+            // Estimate row camera scroll: camera keeps focus within viewport,
+(B[m[32m+            // centered at 960.0 (half of 1920p width).
+(B[m[32m+            let est_scroll_x = (local_center - 960.0).max(0.0);
+(B[m[32m+            self.focus_corridor_x = local_center - est_scroll_x;
+(B[m[32m+        }
+(B[m[32m+    }
+(B[m[32m+
+(B[m[32m+    /// Compute the best card index in `target_row` aligned to the vertical focus
+(B[m[32m+    /// corridor. Falls back to card 0 when no corridor data is usable.
+(B[m[32m+    fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
+(B[m[32m+        let stack = crate::stacks::row_stack(self, target_row)?;
+(B[m         let shape = stack.shape;
+         let (card_w, _) = shape.size();
+         let pitch = shape.pitch();
+Diff in <repo>/src/state.rs:2211:
+[31m-        // Card center in unscrolled row-local coordinates.
+(B[m[31m-        let local_center = crate::state::HOME_STRIP_LEFT
+(B[m[31m-            + index as f32 * pitch
+(B[m[31m-            + card_w * 0.5;
+(B[m[31m-        // Estimate row camera scroll: camera keeps focus within viewport,
+(B[m[31m-        // centered at 960.0 (half of 1920p width).
+(B[m[31m-        let est_scroll_x = (local_center - 960.0).max(0.0);
+(B[m[31m-        self.focus_corridor_x = local_center - est_scroll_x;
+(B[m[32m+        // Target rows start at scroll 0 (we don't track per-row scroll). The
+(B[m[32m+        // corridor holds absolute screen-space X from update_corridor(), so
+(B[m[32m+        // comparing against target-row cards at their natural screen position
+(B[m[32m+        // keeps vertical focus on the same visual column.
+(B[m[32m+        let target_scroll_x = 0.;
+(B[m[32m+        let shown = crate::stacks::row_shown(self, target_row);
+(B[m[32m+        let mut cards: Vec<CardLayoutMetric> = Vec::new();
+(B[m[32m+        for i in 0..shown {
+(B[m[32m+            cards.push(CardLayoutMetric {
+(B[m[32m+                index: i,
+(B[m[32m+                local_x: crate::state::HOME_STRIP_LEFT + i as f32 * pitch,
+(B[m[32m+                width: card_w,
+(B[m[32m+            });
+(B[m[32m+        }
+(B[m[32m+        if cards.is_empty() {
+(B[m[32m+            return None;
+(B[m[32m+        }
+(B[m[32m+        resolve_vertical_stack_target(
+(B[m[32m+            self.focus_corridor_x,
+(B[m[32m+            self.focus_corridor_x - card_w * 0.5,
+(B[m[32m+            self.focus_corridor_x + card_w * 0.5,
+(B[m[32m+            target_scroll_x,
+(B[m[32m+            &cards,
+(B[m[32m+        )
+(B[m     }
+[31m-}
+(B[m 
+[31m-/// Compute the best card index in `target_row` aligned to the vertical focus
+(B[m[31m-/// corridor. Falls back to card 0 when no corridor data is usable.
+(B[m[31m-fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
+(B[m[31m-    let stack = crate::stacks::row_stack(self, target_row)?;
+(B[m[31m-    let shape = stack.shape;
+(B[m[31m-    let (card_w, _) = shape.size();
+(B[m[31m-    let pitch = shape.pitch();
+(B[m[31m-    // Target rows start at scroll 0 (we don't track per-row scroll). The
+(B[m[31m-    // corridor holds absolute screen-space X from update_corridor(), so
+(B[m[31m-    // comparing against target-row cards at their natural screen position
+(B[m[31m-    // keeps vertical focus on the same visual column.
+(B[m[31m-    let target_scroll_x = 0.;
+(B[m[31m-    let shown = crate::stacks::row_shown(self, target_row);
+(B[m[31m-    let mut cards: Vec<CardLayoutMetric> = Vec::new();
+(B[m[31m-    for i in 0..shown {
+(B[m[31m-        cards.push(CardLayoutMetric {
+(B[m[31m-            index: i,
+(B[m[31m-            local_x: crate::state::HOME_STRIP_LEFT + i as f32 * pitch,
+(B[m[31m-            width: card_w,
+(B[m[31m-        });
+(B[m[31m-    }
+(B[m[31m-    if cards.is_empty() {
+(B[m[31m-        return None;
+(B[m[31m-    }
+(B[m[31m-    resolve_vertical_stack_target(
+(B[m[31m-        self.focus_corridor_x,
+(B[m[31m-        self.focus_corridor_x - card_w * 0.5,
+(B[m[31m-        self.focus_corridor_x + card_w * 0.5,
+(B[m[31m-        target_scroll_x,
+(B[m[31m-        &cards,
+(B[m[31m-    )
+(B[m[31m-}
+(B[m[31m-
+(B[m     pub fn direction(&mut self, direction: Direction, controls: &[Control]) -> Vec<Effect> {
+         if self.ambient_on() {
+             // Left and Right flip the clip, as on the caption; the rest wakes.
+Diff in <repo>/src/state.rs:4409:
+                 {
+                     let turn_on = !entity.on();
+                     let service = if entity.domain == "cover" {
+[31m-                        if turn_on { "open_cover" } else { "close_cover" }
+(B[m[32m+                        if turn_on {
+(B[m[32m+                            "open_cover"
+(B[m[32m+                        } else {
+(B[m[32m+                            "close_cover"
+(B[m[32m+                        }
+(B[m                     } else if turn_on {
+                         "turn_on"
+                     } else {
+Diff in <repo>/src/state.rs:5263:
+         };
+         let t = start.elapsed().as_secs_f32() - delay;
+         let k = if self.preferences.reduced_motion {
+[31m-            if t >= 0. { 1. } else { 0. }
+(B[m[32m+            if t >= 0. {
+(B[m[32m+                1.
+(B[m[32m+            } else {
+(B[m[32m+                0.
+(B[m[32m+            }
+(B[m         } else {
+             crate::motion::progress(t.max(0.), AMBIENT_TIME)
+         };
+Diff in <repo>/src/state.rs:5270:
+[31m-        if on { k } else { 1. - k }
+(B[m[32m+        if on {
+(B[m[32m+            k
+(B[m[32m+        } else {
+(B[m[32m+            1. - k
+(B[m[32m+        }
+(B[m     }
+ 
+     /// The caption's press: 0 before and after, peaks halfway through.
+Diff in <repo>/src/steam.rs:8:
+     io::Read,
+     path::{Path, PathBuf},
+     sync::{
+[31m-        Mutex,
+(B[m         mpsc::{self, Receiver, Sender},
+[32m+        Mutex,
+(B[m     },
+     thread,
+     time::{Duration, SystemTime},
+Diff in <repo>/src/tests.rs:1:
+[32m+#[cfg(feature = "nuvio")]
+(B[m[32m+use crate::platform::{Platform, Request, Response};
+(B[m use crate::{
+[31m-    model::{App, Input, InputMode, Preferences, demo_inventory},
+(B[m[32m+    model::{demo_inventory, App, Input, InputMode, Preferences},
+(B[m     platform::{normalize_apps, normalize_inputs},
+     state::{Direction, Effect, Overlay, Page, State, Target},
+     storage, view,
+Diff in <repo>/src/tests.rs:6:
+ };
+[31m-#[cfg(feature = "nuvio")]
+(B[m[31m-use crate::platform::{Platform, Request, Response};
+(B[m use serde_json::json;
+[31m-use std::{collections::BTreeMap, path::PathBuf};
+(B[m #[cfg(feature = "nuvio")]
+ use std::time::Duration;
+[32m+use std::{collections::BTreeMap, path::PathBuf};
+(B[m 
+ fn ready() -> State {
+     let mut state = State::new(Preferences::default());
+Diff in <repo>/src/tests.rs:109:
+     state.open(1);
+     state.focus = Target::Search;
+     state.activate();
+[31m-    assert!(
+(B[m[31m-        controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .all(|c| matches!(c.target, Target::Key(_) | Target::CloseDialog))
+(B[m[31m-    );
+(B[m[32m+    assert!(controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .all(|c| matches!(c.target, Target::Key(_) | Target::CloseDialog)));
+(B[m     state.text("netflix");
+     state.delete();
+     state.text("x");
+Diff in <repo>/src/tests.rs:521:
+     let mut state = ready();
+     state.open(2);
+     state.focus = Target::Setting(6);
+[31m-    assert!(
+(B[m[31m-        state
+(B[m[31m-            .direction(Direction::Right, &controls(&state))
+(B[m[31m-            .is_empty()
+(B[m[31m-    );
+(B[m[32m+    assert!(state
+(B[m[32m+        .direction(Direction::Right, &controls(&state))
+(B[m[32m+        .is_empty());
+(B[m     assert_eq!(state.subpage, Some(crate::state::Subpage::Greeting));
+     assert_eq!(state.focus, Target::GreetingStyle);
+     state.direction(Direction::Down, &controls(&state));
+Diff in <repo>/src/tests.rs:612:
+         before.iter().map(|(target, _)| target).collect::<Vec<_>>(),
+         after.iter().map(|(target, _)| target).collect::<Vec<_>>()
+     );
+[31m-    assert!(
+(B[m[31m-        before
+(B[m[31m-            .iter()
+(B[m[31m-            .zip(after.iter())
+(B[m[31m-            .all(|(a, b)| (a.1 - b.1).abs() < 1.)
+(B[m[31m-    );
+(B[m[32m+    assert!(before
+(B[m[32m+        .iter()
+(B[m[32m+        .zip(after.iter())
+(B[m[32m+        .all(|(a, b)| (a.1 - b.1).abs() < 1.));
+(B[m     state.direction(Direction::Left, &controls(&state));
+     assert_eq!(state.focus, Target::Setting(6));
+     assert!(state.subpage.is_none());
+Diff in <repo>/src/tests.rs:633:
+     assert!(state.preferences.show_app_names);
+     state.open(2);
+     state.focus = Target::Setting(0);
+[31m-    assert!(
+(B[m[31m-        state
+(B[m[31m-            .direction(Direction::Right, &controls(&state))
+(B[m[31m-            .is_empty()
+(B[m[31m-    );
+(B[m[32m+    assert!(state
+(B[m[32m+        .direction(Direction::Right, &controls(&state))
+(B[m[32m+        .is_empty());
+(B[m     assert_eq!(state.subpage, Some(crate::state::Subpage::AppNames));
+     assert_eq!(state.focus, Target::AppNamesHome);
+     assert_eq!(state.activate(), vec![Effect::Save]);
+Diff in <repo>/src/tests.rs:734:
+     for index in 0..2 {
+         state.pointer_focus(Target::Choice(index));
+         let screen = scene(&state);
+[31m-        assert!(
+(B[m[31m-            screen
+(B[m[31m-                .controls
+(B[m[31m-                .iter()
+(B[m[31m-                .any(|c| c.target == Target::Choice(index))
+(B[m[31m-        );
+(B[m[32m+        assert!(screen
+(B[m[32m+            .controls
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|c| c.target == Target::Choice(index)));
+(B[m         assert!(screen.draw.iter().any(|d| matches!(d,
+             crate::renderer::Draw::Shape(_, 16., 0., rgba) if rgba[3] > 0.99)));
+         assert!(state.preferences.show_seconds);
+Diff in <repo>/src/tests.rs:751:
+     let mut state = ready();
+     state.open(2);
+     state.focus = Target::Setting(1);
+[31m-    assert!(
+(B[m[31m-        state
+(B[m[31m-            .direction(Direction::Right, &controls(&state))
+(B[m[31m-            .is_empty()
+(B[m[31m-    );
+(B[m[32m+    assert!(state
+(B[m[32m+        .direction(Direction::Right, &controls(&state))
+(B[m[32m+        .is_empty());
+(B[m     assert_eq!(state.subpage, Some(crate::state::Subpage::Clock));
+     assert_eq!(state.focus, Target::ClockFormat);
+[31m-    assert!(
+(B[m[31m-        state
+(B[m[31m-            .direction(Direction::Right, &controls(&state))
+(B[m[31m-            .is_empty()
+(B[m[31m-    );
+(B[m[32m+    assert!(state
+(B[m[32m+        .direction(Direction::Right, &controls(&state))
+(B[m[32m+        .is_empty());
+(B[m     assert_eq!(state.subpage, Some(crate::state::Subpage::ClockFormat));
+     assert_eq!(state.focus, Target::Choice(0));
+     state.direction(Direction::Down, &controls(&state));
+Diff in <repo>/src/tests.rs:798:
+     state.direction(Direction::Right, &controls(&state));
+     assert_eq!(state.subpage, Some(crate::state::Subpage::TimeFormat));
+     assert_eq!(state.focus, Target::Choice(0));
+[31m-    assert!(
+(B[m[31m-        !controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::Choice(2))
+(B[m[31m-    );
+(B[m[32m+    assert!(!controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::Choice(2)));
+(B[m     state.direction(Direction::Down, &controls(&state));
+     assert_eq!(state.focus, Target::Choice(1));
+     assert_eq!(state.activate(), vec![Effect::Save]);
+Diff in <repo>/src/tests.rs:829:
+ fn system_category_owns_refresh_and_quit_and_restores_sidebar_focus() {
+     let mut state = ready();
+     state.open(2);
+[31m-    assert!(
+(B[m[31m-        !controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| matches!(c.target, Target::Setting(3 | 5)))
+(B[m[31m-    );
+(B[m[31m-    assert!(
+(B[m[31m-        controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::Sidebar(crate::state::SYSTEM_SECTION))
+(B[m[31m-    );
+(B[m[32m+    assert!(!controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| matches!(c.target, Target::Setting(3 | 5))));
+(B[m[32m+    assert!(controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::Sidebar(crate::state::SYSTEM_SECTION)));
+(B[m     state.focus = Target::Sidebar(crate::state::SYSTEM_SECTION - 1);
+     state.direction(Direction::Down, &controls(&state));
+     assert_eq!(state.focus, Target::Sidebar(crate::state::SYSTEM_SECTION));
+Diff in <repo>/src/tests.rs:901:
+ fn categories_and_search_have_clear_actions_and_conditional_hidden_control() {
+     let mut state = ready();
+     state.open(1);
+[31m-    assert!(
+(B[m[31m-        !controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::Filter(5))
+(B[m[31m-    );
+(B[m[32m+    assert!(!controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::Filter(5)));
+(B[m     state.focus = Target::Search;
+     state.direction(Direction::Left, &controls(&state));
+     assert_eq!(state.focus, Target::Filter(4));
+Diff in <repo>/src/tests.rs:929:
+     state.notify("Saved");
+     state.focus = Target::App("netflix".into());
+     state.options();
+[31m-    assert!(
+(B[m[31m-        controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .all(|c| matches!(c.target, Target::Option(_) | Target::CloseDialog))
+(B[m[31m-    );
+(B[m[32m+    assert!(controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .all(|c| matches!(c.target, Target::Option(_) | Target::CloseDialog)));
+(B[m     state.focus = Target::Option(1);
+     state.direction(Direction::Down, &controls(&state));
+     assert_eq!(state.focus, Target::Option(1));
+Diff in <repo>/src/tests.rs:999:
+     state.activate();
+     assert!(state.preferences.hidden.is_empty());
+     assert_eq!(state.filter, 0);
+[31m-    assert!(
+(B[m[31m-        state
+(B[m[31m-            .preferences
+(B[m[31m-            .favorites(&state.inventory.apps)
+(B[m[31m-            .contains(&"org.jellyfin.webos".into())
+(B[m[31m-    );
+(B[m[32m+    assert!(state
+(B[m[32m+        .preferences
+(B[m[32m+        .favorites(&state.inventory.apps)
+(B[m[32m+        .contains(&"org.jellyfin.webos".into()));
+(B[m     assert_eq!(state.focus, Target::App("org.jellyfin.webos".into()));
+ }
+ 
+Diff in <repo>/src/tests.rs:1364:
+     assert_eq!(state.focus, Target::Choice(2));
+     state.direction(Direction::Down, &controls(&state));
+     assert_eq!(state.focus, Target::InputRename);
+[31m-    assert!(
+(B[m[31m-        !controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::InputNameReset)
+(B[m[31m-    );
+(B[m[32m+    assert!(!controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::InputNameReset));
+(B[m     state.activate();
+     assert!(matches!(state.overlay, Some(Overlay::Keyboard)));
+     state.text("DENONX");
+Diff in <repo>/src/tests.rs:1459:
+     );
+     assert_eq!(state.focus, Target::VideoPick(index));
+     assert_eq!(state.activate(), vec![Effect::Save]);
+[31m-    assert!(
+(B[m[31m-        state
+(B[m[31m-            .preferences
+(B[m[31m-            .video_excluded
+(B[m[31m-            .contains(&crate::video_catalog::all()[index].id)
+(B[m[31m-    );
+(B[m[32m+    assert!(state
+(B[m[32m+        .preferences
+(B[m[32m+        .video_excluded
+(B[m[32m+        .contains(&crate::video_catalog::all()[index].id));
+(B[m     assert_ne!(state.preferences.background, "video");
+     assert_eq!(state.hold(), vec![Effect::Save]);
+     assert_eq!(state.preferences.background, "video");
+Diff in <repo>/src/tests.rs:1471:
+     assert_eq!(state.preferences.video_index, index);
+[31m-    assert!(
+(B[m[31m-        !state
+(B[m[31m-            .preferences
+(B[m[31m-            .video_excluded
+(B[m[31m-            .contains(&crate::video_catalog::all()[index].id)
+(B[m[31m-    );
+(B[m[32m+    assert!(!state
+(B[m[32m+        .preferences
+(B[m[32m+        .video_excluded
+(B[m[32m+        .contains(&crate::video_catalog::all()[index].id));
+(B[m     state.back();
+     assert_eq!(state.focus, Target::VideoGroup(0));
+ }
+Diff in <repo>/src/tests.rs:1538:
+     );
+     state.focus = Target::WallpaperMenu(2);
+     state.activate();
+[31m-    assert!(
+(B[m[31m-        controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::VideoGroup(0))
+(B[m[31m-    );
+(B[m[31m-    assert!(
+(B[m[31m-        !controls(&state)
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| matches!(c.target, Target::VideoFilter(_)))
+(B[m[31m-    );
+(B[m[32m+    assert!(controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::VideoGroup(0)));
+(B[m[32m+    assert!(!controls(&state)
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| matches!(c.target, Target::VideoFilter(_))));
+(B[m }
+ 
+ #[test]
+Diff in <repo>/src/tests.rs:1777:
+ 
+ #[test]
+ fn smart_home_tvos_push_pop_and_selection() {
+[31m-    use crate::state::{Page, SMARTHOME_SECTION, Subpage, Target};
+(B[m[32m+    use crate::state::{Page, Subpage, Target, SMARTHOME_SECTION};
+(B[m     let mut state = crate::state::State::new(crate::model::Preferences::default());
+     state.preferences.smart_home.server_url = "http://homeassistant.local:8123".into();
+     state.preferences.smart_home.show_tab = true;
+Diff in <repo>/src/tests.rs:1965:
+ 
+ #[test]
+ fn tvos_legacy_section_body_clears_page_heading() {
+[31m-    use crate::state::{INPUTS_SECTION, SettingsLevel, WEATHER_SECTION};
+(B[m[32m+    use crate::state::{SettingsLevel, INPUTS_SECTION, WEATHER_SECTION};
+(B[m     let mut state = ready();
+     state.open_settings();
+     state.settings_level = SettingsLevel::Section;
+Diff in <repo>/src/tests.rs:2004:
+     state.activate();
+     let before = state.preferences.video_excluded.clone();
+     let screen = scene(&state);
+[31m-    assert!(
+(B[m[31m-        screen
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::VideoGroup(0))
+(B[m[31m-    );
+(B[m[32m+    assert!(screen
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::VideoGroup(0)));
+(B[m     state.pointer_focus(Target::VideoGroup(0));
+     assert!(state.activate().is_empty());
+     assert_eq!(state.settings_level, SettingsLevel::WallpaperCategory(0));
+Diff in <repo>/src/tests.rs:2049:
+         assert_eq!(state.settings_level, expected);
+         assert_eq!(state.focus, focus);
+     }
+[31m-    assert!(
+(B[m[31m-        scene(&state)
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .all(|c| c.target != Target::SettingsBack)
+(B[m[31m-    );
+(B[m[32m+    assert!(scene(&state)
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .all(|c| c.target != Target::SettingsBack));
+(B[m }
+ #[test]
+ fn settings_v2_glass_rows_are_exactly_80px_with_no_left_row_icons() {
+Diff in <repo>/src/tests.rs:2068:
+         .filter(|c| matches!(c.target, Target::Sidebar(_)))
+         .collect();
+     assert_eq!(rows.len(), 8);
+[31m-    assert!(
+(B[m[31m-        rows.iter()
+(B[m[31m-            .all(|r| r.rect.h == 80. && r.rect.x == 864. && r.rect.w == 940.)
+(B[m[31m-    );
+(B[m[32m+    assert!(rows
+(B[m[32m+        .iter()
+(B[m[32m+        .all(|r| r.rect.h == 80. && r.rect.x == 864. && r.rect.w == 940.));
+(B[m     assert!(layout.draw.iter().any(
+         |d| matches!(d,crate::renderer::Draw::Shape(r, radius, _,color)
+       if r.x==832. && *radius==28. && color[3] > 0.3)
+Diff in <repo>/src/tests.rs:2107:
+     assert_eq!(state.settings_level, SettingsLevel::Section);
+     assert_eq!(state.subpage, Some(Subpage::SmartConnect));
+     let screen = scene(&state);
+[31m-    assert!(
+(B[m[31m-        screen
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::SmartRetry)
+(B[m[31m-    );
+(B[m[31m-    assert!(
+(B[m[31m-        screen
+(B[m[31m-            .draw
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|d| matches!(d, crate::renderer::Draw::Text(label,_,_,_,_)
+(B[m[31m-        if label == "SIGN IN WITH YOUR PHONE"))
+(B[m[31m-    );
+(B[m[32m+    assert!(screen
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::SmartRetry));
+(B[m[32m+    assert!(screen
+(B[m[32m+        .draw
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|d| matches!(d, crate::renderer::Draw::Text(label,_,_,_,_)
+(B[m[32m+        if label == "SIGN IN WITH YOUR PHONE")));
+(B[m     // The token path is a second phone QR, never remote typing.
+[31m-    assert!(
+(B[m[31m-        screen
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::SmartFallback)
+(B[m[31m-    );
+(B[m[32m+    assert!(screen
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::SmartFallback));
+(B[m     state.pointer_focus(Target::SettingsBack);
+     state.activate();
+     assert_eq!(state.subpage, None);
+Diff in <repo>/src/tests.rs:2228:
+         assert_eq!(panels[0].x, crate::state::HOME_STRIP_LEFT);
+         assert_eq!(panels[1].x, 832.);
+         assert_eq!(panels[1].x + panels[1].w, crate::state::HOME_STRIP_RIGHT);
+[31m-        assert!(
+(B[m[31m-            rendered.draw[rendered.settings_panel_range.clone()]
+(B[m[31m-                .iter()
+(B[m[31m-                .all(|d| !matches!(d,crate::renderer::Draw::Text(t,_,_,_,_)
+(B[m[31m-            if (t=="Wallpaper"||t=="Settings") && level != SettingsLevel::Root))
+(B[m[31m-        );
+(B[m[32m+        assert!(rendered.draw[rendered.settings_panel_range.clone()]
+(B[m[32m+            .iter()
+(B[m[32m+            .all(|d| !matches!(d,crate::renderer::Draw::Text(t,_,_,_,_)
+(B[m[32m+            if (t=="Wallpaper"||t=="Settings") && level != SettingsLevel::Root)));
+(B[m     }
+ }
+ 
+Diff in <repo>/src/tests.rs:2430:
+         .collect::<Vec<_>>();
+     rows.sort_by(|a, b| a.rect.y.total_cmp(&b.rect.y));
+     assert_eq!(rows.len(), state.inventory.inputs.len());
+[31m-    assert!(
+(B[m[31m-        rows.iter()
+(B[m[31m-            .all(|r| r.rect.h == 104. && r.rect.x == 864. && r.rect.w == 940.)
+(B[m[31m-    );
+(B[m[32m+    assert!(rows
+(B[m[32m+        .iter()
+(B[m[32m+        .all(|r| r.rect.h == 104. && r.rect.x == 864. && r.rect.w == 940.));
+(B[m     assert!(layout.draw.iter().any(|d| matches!(d,
+         crate::renderer::Draw::Text(text,_,_,_,_) if text=="CONNECTED")));
+ }
+Diff in <repo>/src/tests.rs:2675:
+ 
+ #[test]
+ fn appearance_left_direction_never_navigates_back() {
+[31m-    use crate::state::{APPEARANCE_SECTION, SettingsLevel};
+(B[m[32m+    use crate::state::{SettingsLevel, APPEARANCE_SECTION};
+(B[m     let mut state = ready();
+     state.preferences.reduced_motion = true;
+     state.open_settings();
+Diff in <repo>/src/tests.rs:2711:
+ }
+ #[test]
+ fn gradient_focus_ring_uses_two_color_native_border() {
+[31m-    use crate::state::{APPEARANCE_SECTION, SettingsLevel};
+(B[m[32m+    use crate::state::{SettingsLevel, APPEARANCE_SECTION};
+(B[m     let mut state = ready();
+     state.preferences.reduced_motion = true;
+     state.preferences.accent.choose(12); // 8 solids + Citrus gradient index 4
+Diff in <repo>/src/tests.rs:2720:
+     state.focus = Target::Sidebar(APPEARANCE_SECTION);
+     let rendered = scene(&state);
+     // The focused Settings row is one solid accent gradient fill (no outline).
+[31m-    assert!(
+(B[m[31m-        rendered
+(B[m[31m-            .draw
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|d| matches!(d, crate::renderer::Draw::DiagonalGradient(_, _, _, _)))
+(B[m[31m-    );
+(B[m[32m+    assert!(rendered
+(B[m[32m+        .draw
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|d| matches!(d, crate::renderer::Draw::DiagonalGradient(_, _, _, _))));
+(B[m     assert_eq!(state.preferences.accent.colors(), (0xFFE94A, 0x3FD3FF));
+     state.settings_level = SettingsLevel::Section;
+     state.section = APPEARANCE_SECTION;
+Diff in <repo>/src/tests.rs:2822:
+ }
+ #[test]
+ fn appearance_has_independent_font_lists_and_clipped_scroll() {
+[31m-    use crate::state::{APPEARANCE_SECTION, SettingsLevel};
+(B[m[32m+    use crate::state::{SettingsLevel, APPEARANCE_SECTION};
+(B[m     use crate::typography::{HeadingFont, TextFont};
+     let mut state = ready();
+     state.preferences.reduced_motion = true;
+Diff in <repo>/src/tests.rs:2831:
+     state.activate();
+     assert_eq!(state.settings_level, SettingsLevel::Section);
+     let rendered = scene(&state);
+[31m-    assert!(
+(B[m[31m-        rendered
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::HeadingFontOpen)
+(B[m[31m-    );
+(B[m[31m-    assert!(
+(B[m[31m-        rendered
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::TextFontOpen)
+(B[m[31m-    );
+(B[m[31m-    assert!(
+(B[m[31m-        rendered
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::HeadingSize)
+(B[m[31m-    );
+(B[m[31m-    assert!(
+(B[m[31m-        rendered
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::TextSize)
+(B[m[31m-    );
+(B[m[32m+    assert!(rendered
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::HeadingFontOpen));
+(B[m[32m+    assert!(rendered
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::TextFontOpen));
+(B[m[32m+    assert!(rendered
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::HeadingSize));
+(B[m[32m+    assert!(rendered
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::TextSize));
+(B[m     assert_eq!(
+         rendered
+             .controls
+Diff in <repo>/src/tests.rs:3008:
+ #[test]
+ fn ui_resolution_selection_back_restores_appearance_and_remote_navigation() {
+     use crate::model::UiResolution;
+[31m-    use crate::state::{APPEARANCE_SECTION, SettingsLevel};
+(B[m[32m+    use crate::state::{SettingsLevel, APPEARANCE_SECTION};
+(B[m     let mut state = ready();
+     legacy_look(&mut state.preferences);
+     state.preferences.reduced_motion = true;
+Diff in <repo>/src/tests.rs:3016:
+     state.focus = Target::Sidebar(APPEARANCE_SECTION);
+     state.activate();
+     let appearance = scene(&state);
+[31m-    assert!(
+(B[m[31m-        appearance
+(B[m[31m-            .controls
+(B[m[31m-            .iter()
+(B[m[31m-            .any(|c| c.target == Target::UiResolutionOpen)
+(B[m[31m-    );
+(B[m[32m+    assert!(appearance
+(B[m[32m+        .controls
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|c| c.target == Target::UiResolutionOpen));
+(B[m     state.focus = Target::UiResolutionOpen;
+     state.activate();
+     assert_eq!(state.settings_level, SettingsLevel::UiResolution);
+Diff in <repo>/src/tests.rs:3149:
+ 
+ #[test]
+ fn leaving_a_scrolled_stack_row_glides_home_with_one_small_swing() {
+[31m-    use crate::state::{STACK_RETURN_DELAY, STACK_RETURN_TIME, stack_return_curve};
+(B[m[32m+    use crate::state::{stack_return_curve, STACK_RETURN_DELAY, STACK_RETURN_TIME};
+(B[m     for offset in [300., 1200., 5000.] {
+         assert_eq!(stack_return_curve(offset, STACK_RETURN_DELAY * 0.5), offset);
+         let mid = stack_return_curve(offset, STACK_RETURN_DELAY + 0.15);
+Diff in <repo>/src/tests.rs:3186:
+         source: "jellyfin".into(),
+         ..Default::default()
+     }];
+[31m-    state.stack_items = vec![
+(B[m[31m-        (1..=3)
+(B[m[31m-            .map(|id| StackItem {
+(B[m[31m-                title: format!("Film {id}"),
+(B[m[31m-                poster: None,
+(B[m[31m-                id,
+(B[m[31m-                ..Default::default()
+(B[m[31m-            })
+(B[m[31m-            .collect(),
+(B[m[31m-    ];
+(B[m[32m+    state.stack_items = vec![(1..=3)
+(B[m[32m+        .map(|id| StackItem {
+(B[m[32m+            title: format!("Film {id}"),
+(B[m[32m+            poster: None,
+(B[m[32m+            id,
+(B[m[32m+            ..Default::default()
+(B[m[32m+        })
+(B[m[32m+        .collect()];
+(B[m     state.focus = Target::StackCard(0, 1);
+     assert_eq!(state.activate(), vec![Effect::MediaDetails(2)]);
+     assert!(state.movie.is_some());
+Diff in <repo>/src/tests.rs:3532:
+     #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+     #[test]
+     fn nuvio_lab_app_id_is_distinct_and_valid() {
+[31m-        assert_eq!(
+(B[m[31m-            crate::platform::NUVIO_LAB_APP_ID,
+(B[m[31m-            "space.nuvio.lab"
+(B[m[31m-        );
+(B[m[32m+        assert_eq!(crate::platform::NUVIO_LAB_APP_ID, "space.nuvio.lab");
+(B[m         assert_ne!(
+             crate::platform::NUVIO_LAB_APP_ID,
+             crate::platform::NUVIO_APP_ID
+Diff in <repo>/src/tests.rs:3542:
+         );
+[31m-        assert!(crate::model::valid_app_id(crate::platform::NUVIO_LAB_APP_ID));
+(B[m[32m+        assert!(crate::model::valid_app_id(
+(B[m[32m+            crate::platform::NUVIO_LAB_APP_ID
+(B[m[32m+        ));
+(B[m     }
+ 
+     /// `nuvio_app_id(false)` always returns production ID.
+Diff in <repo>/src/tests.rs:3638:
+     #[test]
+     fn nuvio_service_fetch_returns_continue_watching_items() {
+         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+[31m-        service.send(nuvio::Command::Fetch(vec![
+(B[m[31m-            (0, "continue-watching".to_owned()),
+(B[m[31m-        ]));
+(B[m[31m-        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+(B[m[32m+        service.send(nuvio::Command::Fetch(vec![(
+(B[m[32m+            0,
+(B[m[32m+            "continue-watching".to_owned(),
+(B[m[32m+        )]));
+(B[m[32m+        match service
+(B[m[32m+            .receiver
+(B[m[32m+            .lock()
+(B[m[32m+            .unwrap()
+(B[m[32m+            .recv_timeout(Duration::from_secs(5))
+(B[m[32m+        {
+(B[m             Ok(nuvio::Response::Items(index, items)) => {
+                 assert_eq!(index, 0);
+                 assert_eq!(items.len(), 1);
+Diff in <repo>/src/tests.rs:3659:
+             (1, "library".to_owned()),
+         ]));
+         match (
+[31m-            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+(B[m[31m-            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+(B[m[32m+            service
+(B[m[32m+                .receiver
+(B[m[32m+                .lock()
+(B[m[32m+                .unwrap()
+(B[m[32m+                .recv_timeout(Duration::from_secs(5)),
+(B[m[32m+            service
+(B[m[32m+                .receiver
+(B[m[32m+                .lock()
+(B[m[32m+                .unwrap()
+(B[m[32m+                .recv_timeout(Duration::from_secs(5)),
+(B[m         ) {
+[31m-            (
+(B[m[31m-                Ok(nuvio::Response::Items(0, items)),
+(B[m[31m-                Ok(nuvio::Response::Items(1, _)),
+(B[m[31m-            ) => {
+(B[m[32m+            (Ok(nuvio::Response::Items(0, items)), Ok(nuvio::Response::Items(1, _))) => {
+(B[m                 assert!(items.is_empty());
+             }
+             (r1, r2) => panic!("unexpected responses {r1:?}, {r2:?}"),
+Diff in <repo>/src/tests.rs:3675:
+     #[test]
+     fn nuvio_service_fetch_is_bounded_to_max_items() {
+         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+[31m-        service.send(nuvio::Command::Fetch(vec![
+(B[m[31m-            (0, "continue-watching".to_owned()),
+(B[m[31m-        ]));
+(B[m[31m-        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+(B[m[32m+        service.send(nuvio::Command::Fetch(vec![(
+(B[m[32m+            0,
+(B[m[32m+            "continue-watching".to_owned(),
+(B[m[32m+        )]));
+(B[m[32m+        match service
+(B[m[32m+            .receiver
+(B[m[32m+            .lock()
+(B[m[32m+            .unwrap()
+(B[m[32m+            .recv_timeout(Duration::from_secs(5))
+(B[m[32m+        {
+(B[m             Ok(nuvio::Response::Items(_, items)) => {
+                 assert!(items.len() <= crate::stacks::HOME_ROW_MAX as usize);
+             }
+Diff in <repo>/src/tvos_settings_view.rs:2253:
+         return;
+     }
+     let collection = crate::stacks::collection_label(stack);
+[31m-    let nuvio_connected = stack.source == "nuvio"
+(B[m[31m-        && crate::fast_kv::default_bridge_path().exists();
+(B[m[32m+    let nuvio_connected = stack.source == "nuvio" && crate::fast_kv::default_bridge_path().exists();
+(B[m     let rows: [(&str, Option<&str>, bool, Option<&str>); 7] = [
+         (
+             "Collection",
+Diff in <repo>/src/tvos_settings_view.rs:2278:
+             false,
+             None,
+         ),
+[31m-        ("Move up", if i == 0 { Some("Top") } else { None }, false, None),
+(B[m[32m+        (
+(B[m[32m+            "Move up",
+(B[m[32m+            if i == 0 { Some("Top") } else { None },
+(B[m[32m+            false,
+(B[m[32m+            None,
+(B[m[32m+        ),
+(B[m         (
+             "Move down",
+             if i + 1 == n { Some("Bottom") } else { None },
+Diff in <repo>/src/view.rs:1:
+ //! Screen geometry and styling mirror the web UI's 1920×1080 / 16px-rem layout.
+ use crate::{
+     i18n::Language,
+[31m-    model::{App, BACKGROUNDS, CATEGORIES, Input, InputMode},
+(B[m[32m+    model::{App, Input, InputMode, BACKGROUNDS, CATEGORIES},
+(B[m     motion,
+     renderer::{Color, Draw, TextStyle, WHITE},
+     state::{
+Diff in <repo>/src/view.rs:8:
+[31m-        APPS_COLUMNS, Control, HOME_TILE_PITCH, HOME_TILE_WIDTH, KEYS, Overlay, Page, Rect,
+(B[m[31m-        SYSTEM_SECTION, State, Subpage, Target, TextField, WEATHER_SECTION,
+(B[m[32m+        Control, Overlay, Page, Rect, State, Subpage, Target, TextField, APPS_COLUMNS,
+(B[m[32m+        HOME_TILE_PITCH, HOME_TILE_WIDTH, KEYS, SYSTEM_SECTION, WEATHER_SECTION,
+(B[m     },
+     typography::{HeadingFont, TextFont, TextRole},
+     weather::{self, Unit},
+Diff in <repo>/src/view.rs:93:
+         let family = if display { heading.id() } else { body.id() };
+         let weight = if display {
+             if family == "nunito" {
+[31m-                if style.weight >= 850 { 900 } else { 800 }
+(B[m[32m+                if style.weight >= 850 {
+(B[m[32m+                    900
+(B[m[32m+                } else {
+(B[m[32m+                    800
+(B[m[32m+                }
+(B[m             } else if matches!(family, "archivo" | "inter" | "unbounded") {
+                 800
+             } else {
+Diff in <repo>/src/view.rs:1045:
+         0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0)
+     };
+     let mean = (luma(a) + luma(b)) * 0.5;
+[31m-    if mean > 0.21 { c(0x121519, 1.) } else { WHITE }
+(B[m[32m+    if mean > 0.21 {
+(B[m[32m+        c(0x121519, 1.)
+(B[m[32m+    } else {
+(B[m[32m+        WHITE
+(B[m[32m+    }
+(B[m }
+ 
+ fn header(
+Diff in <repo>/src/view.rs:3974:
+         out.icon(
+             assets,
+             if index == 0 {
+[31m-                if favorite { "heart-filled" } else { "heart" }
+(B[m[32m+                if favorite {
+(B[m[32m+                    "heart-filled"
+(B[m[32m+                } else {
+(B[m[32m+                    "heart"
+(B[m[32m+                }
+(B[m             } else if hidden {
+                 "eye"
+             } else {
+Diff in <repo>/src/weather-service.rs:1:
+ //! Dedicated latest-job HTTP workers and an ordered cache writer. No request,
+ //! DNS/TLS work or cache write blocks the SDL thread.
+ use crate::i18n::Language;
+[31m-use crate::weather::{Cache, Command, Location, Reading, parse_locations, parse_reading};
+(B[m[32m+use crate::weather::{parse_locations, parse_reading, Cache, Command, Location, Reading};
+(B[m use serde_json::Value;
+ use std::{
+     fs,
+Diff in <repo>/src/weather-service.rs:9:
+     net::SocketAddr,
+     path::{Path, PathBuf},
+     sync::{
+[31m-        Arc, Condvar, Mutex,
+(B[m         atomic::{AtomicU64, Ordering},
+[31m-        mpsc,
+(B[m[32m+        mpsc, Arc, Condvar, Mutex,
+(B[m     },
+     thread::{self, JoinHandle},
+     time::Duration,
+Diff in <repo>/src/weather-service.rs:181:
+         let spawn = |client: Client, sender: mpsc::Sender<Response>| {
+             let queue = Arc::new(Queue::default());
+             let worker = queue.clone();
+[31m-            thread::spawn(move || {
+(B[m[31m-                loop {
+(B[m[31m-                    let job = {
+(B[m[31m-                        let mut pending = worker.pending.lock().unwrap();
+(B[m[31m-                        while pending.job.is_none() && !pending.closed {
+(B[m[31m-                            pending = worker.ready.wait(pending).unwrap();
+(B[m[31m-                        }
+(B[m[31m-                        if pending.closed {
+(B[m[31m-                            break;
+(B[m[31m-                        }
+(B[m[31m-                        pending.job.take().unwrap()
+(B[m[31m-                    };
+(B[m[31m-                    let id = match &job {
+(B[m[31m-                        Command::Search { id, .. } | Command::Forecast { id, .. } => *id,
+(B[m[31m-                        _ => continue,
+(B[m[31m-                    };
+(B[m[31m-                    if worker.generation.load(Ordering::SeqCst) != id {
+(B[m[31m-                        continue;
+(B[m[32m+            thread::spawn(move || loop {
+(B[m[32m+                let job = {
+(B[m[32m+                    let mut pending = worker.pending.lock().unwrap();
+(B[m[32m+                    while pending.job.is_none() && !pending.closed {
+(B[m[32m+                        pending = worker.ready.wait(pending).unwrap();
+(B[m                     }
+[31m-                    let response = match job {
+(B[m[31m-                        Command::Search {
+(B[m[31m-                            id,
+(B[m[31m-                            query,
+(B[m[31m-                            language,
+(B[m[31m-                        } => Response::Search {
+(B[m[31m-                            id,
+(B[m[31m-                            result: client.search(&query, language),
+(B[m[31m-                        },
+(B[m[31m-                        Command::Forecast { id, location } => Response::Forecast {
+(B[m[31m-                            id,
+(B[m[31m-                            key: location.key(),
+(B[m[31m-                            result: client.forecast(&location),
+(B[m[31m-                        },
+(B[m[31m-                        _ => continue,
+(B[m[31m-                    };
+(B[m[31m-                    if worker.generation.load(Ordering::SeqCst) == id
+(B[m[31m-                        && sender.send(response).is_err()
+(B[m[31m-                    {
+(B[m[32m+                    if pending.closed {
+(B[m                         break;
+                     }
+[32m+                    pending.job.take().unwrap()
+(B[m[32m+                };
+(B[m[32m+                let id = match &job {
+(B[m[32m+                    Command::Search { id, .. } | Command::Forecast { id, .. } => *id,
+(B[m[32m+                    _ => continue,
+(B[m[32m+                };
+(B[m[32m+                if worker.generation.load(Ordering::SeqCst) != id {
+(B[m[32m+                    continue;
+(B[m[32m+                }
+(B[m[32m+                let response = match job {
+(B[m[32m+                    Command::Search {
+(B[m[32m+                        id,
+(B[m[32m+                        query,
+(B[m[32m+                        language,
+(B[m[32m+                    } => Response::Search {
+(B[m[32m+                        id,
+(B[m[32m+                        result: client.search(&query, language),
+(B[m[32m+                    },
+(B[m[32m+                    Command::Forecast { id, location } => Response::Forecast {
+(B[m[32m+                        id,
+(B[m[32m+                        key: location.key(),
+(B[m[32m+                        result: client.forecast(&location),
+(B[m[32m+                    },
+(B[m[32m+                    _ => continue,
+(B[m[32m+                };
+(B[m[32m+                if worker.generation.load(Ordering::SeqCst) == id && sender.send(response).is_err()
+(B[m[32m+                {
+(B[m[32m+                    break;
+(B[m                 }
+             });
+             queue
+Diff in <repo>/src/widgets.rs:5:
+ use serde_json::Value;
+ use std::{
+     io::Read,
+[31m-    sync::{Mutex, OnceLock, mpsc},
+(B[m[32m+    sync::{mpsc, Mutex, OnceLock},
+(B[m     thread,
+     time::{Duration, Instant},
+ };
+Diff in <repo>/src/widgets_state.rs:5:
+     smart_home::Entity,
+     state::{Control, Direction, Effect, Page, SettingsLevel, State, Target, WEATHER_SECTION},
+     widgets::{
+[31m-        Block, COINS, Detail, Edit, Exchange, Grab, Kind, Period, QUOTES, REFRESH_CHOICES,
+(B[m[31m-        SettingsPage, Size, TEXT_MAX, ZONE_COLUMNS,
+(B[m[32m+        Block, Detail, Edit, Exchange, Grab, Kind, Period, SettingsPage, Size, COINS, QUOTES,
+(B[m[32m+        REFRESH_CHOICES, TEXT_MAX, ZONE_COLUMNS,
+(B[m     },
+ };
+ use std::time::Instant;
+Diff in <repo>/src/widgets_state.rs:487:
+         }
+         let turn_on = !entity.on();
+         let service = if entity.domain == "cover" {
+[31m-            if turn_on { "open_cover" } else { "close_cover" }
+(B[m[32m+            if turn_on {
+(B[m[32m+                "open_cover"
+(B[m[32m+            } else {
+(B[m[32m+                "close_cover"
+(B[m[32m+            }
+(B[m         } else if turn_on {
+             "turn_on"
+         } else {
+Diff in <repo>/src/widgets_view.rs:7:
+     smart_home::Entity,
+     weather::Reading,
+     weather_sky::Mood,
+[31m-    widgets::{self as w, Block, Detail, Kind, RADIUS, Size},
+(B[m[32m+    widgets::{self as w, Block, Detail, Kind, Size, RADIUS},
+(B[m     widgets_state::{
+         hdmi_inputs, input_live, input_name, smart_camera, smart_devices, smart_sensor,
+     },
+Diff in <repo>/tools/vector-assets/src/main.rs:1:
+ //! Host-only SVG compiler. No XML parser or tessellator is linked into the TV app.
+ use luma_vector_geometry as geometry;
+ use luma_vector_geometry::lyon_tessellation::{
+[31m-    FillRule,
+(B[m[31m-    math::{Point, point},
+(B[m[32m+    math::{point, Point},
+(B[m     path::Path,
+[32m+    FillRule,
+(B[m };
+ use serde::Deserialize;
+ use std::{fs, io::Write, path::PathBuf};
+Diff in <repo>/tools/vector-assets/src/main.rs:10:
+ use usvg::{
+[31m-    Paint,
+(B[m     tiny_skia_path::{PathSegment, Transform},
+[32m+    Paint,
+(B[m };
+ 
+ const MAGIC: &[u8; 8] = b"LUMAVEC1";
+Diff in <repo>/tools/vector-assets/src/main.rs:111:
+             usvg::SpreadMethod::Repeat => t.rem_euclid(1.),
+             usvg::SpreadMethod::Reflect => {
+                 let t = t.rem_euclid(2.);
+[31m-                if t > 1. { 2. - t } else { t }
+(B[m[32m+                if t > 1. {
+(B[m[32m+                    2. - t
+(B[m[32m+                } else {
+(B[m[32m+                    t
+(B[m[32m+                }
+(B[m             }
+         };
+         let first = stops.first().ok_or("SVG gradient has no stops")?;
+Diff in <repo>/vector-geometry/src/lib.rs:1:
+ //! Shared polygon tessellation and drawable-aware boundary coverage.
+ pub use lyon_tessellation;
+ use lyon_tessellation::{
+[32m+    math::{point, Point},
+(B[m[32m+    path::{iterator::PathIterator, Event, Path},
+(B[m     BuffersBuilder, FillOptions, FillRule, FillTessellator, FillVertex, VertexBuffers,
+[31m-    math::{Point, point},
+(B[m[31m-    path::{Event, Path, iterator::PathIterator},
+(B[m };
+ use std::collections::BTreeMap;
+ 

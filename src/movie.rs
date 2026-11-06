@@ -858,12 +858,14 @@ impl State {
             title: format!("Sample {i}"),
             poster: image(f),
             id: i as i64 + 2,
+            ..Default::default()
         })
         .collect();
         let item = StackItem {
             title: String::new(),
             poster: image("prism.jpg"),
             id: 1,
+            ..Default::default()
         };
         self.open_movie(item, pool, Target::StackCard(0, 0));
         let episodes: Vec<Episode> = (1..=3)

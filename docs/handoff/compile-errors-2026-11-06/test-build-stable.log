@@ -1,0 +1,871 @@
+   Compiling cfg-if v1.0.5
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.191
+   Compiling zeroize v1.9.1
+   Compiling stable_deref_trait v1.2.1
+   Compiling libm v0.2.16
+   Compiling log v0.4.34
+   Compiling scopeguard v1.2.0
+   Compiling zerofrom v0.1.8
+   Compiling const-oid v0.9.6
+   Compiling num-conv v0.2.2
+   Compiling time-core v0.1.9
+   Compiling lock_api v0.4.14
+   Compiling yoke v0.8.4
+   Compiling rustls-pki-types v1.15.1
+   Compiling deranged v0.5.9
+   Compiling writeable v0.6.4
+   Compiling litemap v0.8.3
+   Compiling time-macros v0.2.32
+   Compiling zerovec v0.11.9
+   Compiling spin v0.9.9
+   Compiling powerfmt v0.2.1
+   Compiling memchr v2.8.3
+   Compiling zerotrie v0.2.5
+   Compiling base64ct v1.8.3
+   Compiling jobserver v0.1.35
+   Compiling getrandom v0.2.17
+   Compiling num_threads v0.1.8
+   Compiling cc v1.10.0
+   Compiling generic-array v0.14.7
+   Compiling tinystr v0.8.5
+   Compiling potential_utf v0.1.6
+   Compiling untrusted v0.9.0
+   Compiling utf8_iter v1.0.4
+   Compiling num-traits v0.2.19
+   Compiling simd-adler32 v0.3.10
+   Compiling smallvec v1.16.4
+   Compiling icu_locale_core v2.4.0
+   Compiling minimal-lexical v0.2.1
+   Compiling icu_collections v2.4.0
+   Compiling rand_core v0.6.4
+   Compiling hybrid-array v0.4.15
+   Compiling nom v7.1.3
+   Compiling pem-rfc7468 v0.7.0
+   Compiling thiserror v2.0.21
+   Compiling crypto-common v0.1.7
+   Compiling zerocopy v0.8.63
+   Compiling num-integer v0.1.47
+   Compiling adler2 v2.0.1
+   Compiling time v0.3.55
+   Compiling itoa v1.0.18
+   Compiling sdl2-sys v0.38.0
+   Compiling euclid v0.22.14
+   Compiling der v0.7.10
+   Compiling block-buffer v0.10.4
+   Compiling icu_properties_data v2.4.0
+   Compiling icu_normalizer_data v2.4.0
+   Compiling lazy_static v1.5.1
+   Compiling subtle v2.6.1
+   Compiling rand_core v0.10.1
+   Compiling cmake v0.1.58
+   Compiling icu_provider v2.4.0
+   Compiling bytes v1.12.1
+   Compiling arrayvec v0.7.8
+   Compiling gl_generator v0.14.0
+   Compiling icu_properties v2.4.0
+   Compiling icu_normalizer v2.4.0
+   Compiling lyon_geom v1.0.20
+   Compiling spki v0.7.3
+   Compiling aws-lc-sys v0.46.0
+   Compiling ring v0.17.14
+   Compiling rusticata-macros v4.1.0
+   Compiling http v1.5.0
+   Compiling digest v0.10.7
+   Compiling miniz_oxide v0.9.1
+   Compiling crc32fast v1.5.3
+   Compiling httparse v1.10.1
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling webpki-roots v1.0.11
+   Compiling const-oid v0.10.2
+   Compiling percent-encoding v2.3.2
+   Compiling once_cell v1.21.4
+   Compiling asn1-rs v0.7.2
+   Compiling idna_adapter v1.2.2
+   Compiling flate2 v1.1.10
+   Compiling lyon_path v1.0.19
+   Compiling pkcs8 v0.10.2
+   Compiling gl v0.14.0
+   Compiling digest v0.11.3
+   Compiling serde_core v1.0.229
+   Compiling getrandom v0.4.3
+   Compiling chacha20 v0.10.2
+   Compiling num-bigint v0.4.8
+   Compiling num-iter v0.1.46
+   Compiling miniz_oxide v0.8.9
+   Compiling inout v0.1.4
+   Compiling fdeflate v0.3.7
+   Compiling socket2 v0.6.5
+   Compiling cpufeatures v0.2.17
+   Compiling ppv-lite86 v0.2.21
+   Compiling cpufeatures v0.3.1
+   Compiling pxfm v0.1.30
+   Compiling byteorder-lite v0.1.0
+   Compiling data-encoding v2.11.1
+   Compiling rand_chacha v0.3.1
+   Compiling rand v0.8.8
+   Compiling bitflags v2.13.2
+   Compiling zune-core v0.5.3
+   Compiling base64 v0.22.1
+   Compiling float_next_after v1.0.0
+   Compiling base64 v0.23.1
+   Compiling quick-error v2.0.1
+   Compiling image-webp v0.2.4
+   Compiling sdl2 v0.38.0
+   Compiling num-bigint-dig v0.8.6
+   Compiling ureq-proto v0.6.5
+   Compiling pem v3.0.6
+   Compiling lyon_tessellation v1.0.23
+   Compiling der-parser v10.0.0
+   Compiling zune-jpeg v0.5.15
+   Compiling png v0.18.1
+   Compiling sha1 v0.11.0
+   Compiling oid-registry v0.8.1
+   Compiling socket-pktinfo v0.4.1
+   Compiling moxcms v0.8.1
+   Compiling cipher v0.4.4
+   Compiling rand v0.10.3
+   Compiling pkcs1 v0.7.5
+   Compiling idna v1.1.0
+   Compiling zmij v1.0.23
+   Compiling yasna v0.5.2
+   Compiling form_urlencoded v1.2.2
+   Compiling webpki-roots v0.26.11
+   Compiling signature v2.2.0
+   Compiling mio v1.2.4
+   Compiling if-addrs v0.15.0
+   Compiling flume v0.12.0
+   Compiling utf8-zero v0.8.1
+   Compiling ttf-parser v0.25.1
+   Compiling fastrand v2.5.0
+   Compiling bitflags v1.3.2
+   Compiling bytemuck v1.25.2
+   Compiling mdns-sd v0.21.6
+   Compiling serde v1.0.229
+   Compiling rsa v0.9.10
+   Compiling url v2.5.8
+   Compiling serde_json v1.0.154
+   Compiling rcgen v0.13.2
+   Compiling owned_ttf_parser v0.25.1
+   Compiling aes v0.8.4
+   Compiling x509-parser v0.17.0
+   Compiling luma-vector-geometry v0.1.0 (<repo>/vector-geometry)
+   Compiling sha2 v0.10.9
+   Compiling image v0.25.10
+   Compiling rustls-pemfile v2.2.0
+   Compiling qrcode v0.14.1
+   Compiling hex v0.4.3
+   Compiling aws-lc-rs v1.18.2
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling ureq v3.5.0
+   Compiling tungstenite v0.30.0
+   Compiling luma v2.2.160 (<repo>)
+error[E0425]: cannot find value `sender` in this scope
+   --> src/platform.rs:239:13
+    |
+239 |             sender,
+    |             ^^^^^^ not found in this scope
+
+error[E0433]: cannot find `Service` in `nuvio`
+    --> src/tests.rs:3640:30
+     |
+3640 |         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+     |                              ^^^^^^^ could not find `Service` in `nuvio`
+     |
+note: these structs exist but are inaccessible
+    --> src/library.rs:317:1
+     |
+ 317 | struct Service {
+     | ^^^^^^^^^^^^^^ `crate::library::Service`: not accessible
+     |
+    ::: src/player_backend.rs:23:1
+     |
+  23 | struct Service {
+     | ^^^^^^^^^^^^^^ `crate::player_backend::Service`: not accessible
+help: consider importing one of these structs
+     |
+3472 +     use crate::app_artwork::Service;
+     |
+3472 +     use crate::jellyfin::Service;
+     |
+3472 +     use crate::moonlight::Service;
+     |
+3472 +     use crate::nuvio::Service;
+     |
+     = and 5 other candidates
+help: if you import `Service`, refer to it directly
+     |
+3640 -         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+3640 +         let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+     |
+
+error[E0433]: cannot find `Command` in `nuvio`
+    --> src/tests.rs:3641:29
+     |
+3641 |         service.send(nuvio::Command::Fetch(vec![
+     |                             ^^^^^^^ could not find `Command` in `nuvio`
+     |
+     = note: struct `crate::music::tests::Command` exists but is inaccessible
+help: consider importing one of these items
+     |
+3472 +     use crate::jellyfin::Command;
+     |
+3472 +     use crate::library::Command;
+     |
+3472 +     use crate::moonlight::Command;
+     |
+3472 +     use crate::nuvio::Command;
+     |
+     = and 5 other candidates
+help: if you import `Command`, refer to it directly
+     |
+3641 -         service.send(nuvio::Command::Fetch(vec![
+3641 +         service.send(Command::Fetch(vec![
+     |
+
+error[E0433]: cannot find `Service` in `nuvio`
+    --> src/tests.rs:3656:30
+     |
+3656 |         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+     |                              ^^^^^^^ could not find `Service` in `nuvio`
+     |
+note: these structs exist but are inaccessible
+    --> src/library.rs:317:1
+     |
+ 317 | struct Service {
+     | ^^^^^^^^^^^^^^ `crate::library::Service`: not accessible
+     |
+    ::: src/player_backend.rs:23:1
+     |
+  23 | struct Service {
+     | ^^^^^^^^^^^^^^ `crate::player_backend::Service`: not accessible
+help: consider importing one of these structs
+     |
+3472 +     use crate::app_artwork::Service;
+     |
+3472 +     use crate::jellyfin::Service;
+     |
+3472 +     use crate::moonlight::Service;
+     |
+3472 +     use crate::nuvio::Service;
+     |
+     = and 5 other candidates
+help: if you import `Service`, refer to it directly
+     |
+3656 -         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+3656 +         let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+     |
+
+error[E0433]: cannot find `Command` in `nuvio`
+    --> src/tests.rs:3657:29
+     |
+3657 |         service.send(nuvio::Command::Fetch(vec![
+     |                             ^^^^^^^ could not find `Command` in `nuvio`
+     |
+     = note: struct `crate::music::tests::Command` exists but is inaccessible
+help: consider importing one of these items
+     |
+3472 +     use crate::jellyfin::Command;
+     |
+3472 +     use crate::library::Command;
+     |
+3472 +     use crate::moonlight::Command;
+     |
+3472 +     use crate::nuvio::Command;
+     |
+     = and 5 other candidates
+help: if you import `Command`, refer to it directly
+     |
+3657 -         service.send(nuvio::Command::Fetch(vec![
+3657 +         service.send(Command::Fetch(vec![
+     |
+
+error[E0433]: cannot find `Service` in `nuvio`
+    --> src/tests.rs:3677:30
+     |
+3677 |         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+     |                              ^^^^^^^ could not find `Service` in `nuvio`
+     |
+note: these structs exist but are inaccessible
+    --> src/library.rs:317:1
+     |
+ 317 | struct Service {
+     | ^^^^^^^^^^^^^^ `crate::library::Service`: not accessible
+     |
+    ::: src/player_backend.rs:23:1
+     |
+  23 | struct Service {
+     | ^^^^^^^^^^^^^^ `crate::player_backend::Service`: not accessible
+help: consider importing one of these structs
+     |
+3472 +     use crate::app_artwork::Service;
+     |
+3472 +     use crate::jellyfin::Service;
+     |
+3472 +     use crate::moonlight::Service;
+     |
+3472 +     use crate::nuvio::Service;
+     |
+     = and 5 other candidates
+help: if you import `Service`, refer to it directly
+     |
+3677 -         let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
+3677 +         let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+     |
+
+error[E0433]: cannot find `Command` in `nuvio`
+    --> src/tests.rs:3678:29
+     |
+3678 |         service.send(nuvio::Command::Fetch(vec![
+     |                             ^^^^^^^ could not find `Command` in `nuvio`
+     |
+     = note: struct `crate::music::tests::Command` exists but is inaccessible
+help: consider importing one of these items
+     |
+3472 +     use crate::jellyfin::Command;
+     |
+3472 +     use crate::library::Command;
+     |
+3472 +     use crate::moonlight::Command;
+     |
+3472 +     use crate::nuvio::Command;
+     |
+     = and 5 other candidates
+help: if you import `Command`, refer to it directly
+     |
+3678 -         service.send(nuvio::Command::Fetch(vec![
+3678 +         service.send(Command::Fetch(vec![
+     |
+
+error[E0425]: cannot find function `test_spring1d_settles_to_rest` in `crate::motion::tests`
+    --> src/main.rs:1842:39
+     |
+1842 |                 crate::motion::tests::test_spring1d_settles_to_rest();
+     |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in `crate::motion::tests`
+
+error[E0425]: cannot find function `test_spring1d_preserves_velocity_on_interrupt` in `crate::motion::tests`
+    --> src/main.rs:1843:39
+     |
+1843 |                 crate::motion::tests::test_spring1d_preserves_velocity_on_interrupt();
+     |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in `crate::motion::tests`
+
+error[E0425]: cannot find function `test_focus_rect_spring_all_dimensions` in `crate::motion::tests`
+    --> src/main.rs:1844:39
+     |
+1844 |                 crate::motion::tests::test_focus_rect_spring_all_dimensions();
+     |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in `crate::motion::tests`
+
+error[E0603]: module `tests` is private
+    --> src/main.rs:1842:32
+     |
+1842 |                 crate::motion::tests::test_spring1d_settles_to_rest();
+     |                                ^^^^^ private module
+     |
+note: the module `tests` is defined here
+    --> src/motion.rs:283:1
+     |
+ 283 | mod tests {
+     | ^^^^^^^^^
+
+error[E0603]: module `tests` is private
+    --> src/main.rs:1843:32
+     |
+1843 |                 crate::motion::tests::test_spring1d_preserves_velocity_on_interrupt();
+     |                                ^^^^^ private module
+     |
+note: the module `tests` is defined here
+    --> src/motion.rs:283:1
+     |
+ 283 | mod tests {
+     | ^^^^^^^^^
+
+error[E0603]: module `tests` is private
+    --> src/main.rs:1844:32
+     |
+1844 |                 crate::motion::tests::test_focus_rect_spring_all_dimensions();
+     |                                ^^^^^ private module
+     |
+note: the module `tests` is defined here
+    --> src/motion.rs:283:1
+     |
+ 283 | mod tests {
+     | ^^^^^^^^^
+
+warning: unused import: `FastBridgeCard`
+  --> src/nuvio.rs:22:62
+   |
+22 | use crate::fast_kv::{default_bridge_path, read_bridge_cards, FastBridgeCard};
+   |                                                              ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused doc comment
+   --> src/platform.rs:198:21
+    |
+198 | /                     /// Launch a Nuvio title by content target. The target is
+199 | |                     /// validated before any TV service is called; an invalid
+200 | |                     /// target fails without touching the TV. Nuvio is never
+201 | |                     /// launched automatically: every request comes from a user
+202 | |                     /// action, and no account or profile parameters are sent.
+    | |______________________________________________________________________________^
+203 |                       #[cfg(feature = "nuvio")]
+204 | /                     Request::NuvioLaunch { content_target } => {
+205 | |                         Response::Launched(match validate_nuvio_target(&content_target) {
+206 | |                             Ok(target) => {
+207 | |                                 if webos {
+...   |
+230 | |                         })
+231 | |                     }
+    | |_____________________- rustdoc does not generate documentation for match arms
+    |
+    = help: use `//` for a plain comment
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused doc comment
+    --> src/state.rs:4518:13
+     |
+4518 | /             /// Launch a Nuvio title directly into its detail page. Focus is
+4519 | |             /// left untouched, so Back out of Nuvio returns to Luma with the
+4520 | |             /// same focus, and a repeated launch while one is in flight is
+4521 | |             /// ignored by the `!self.launching` guard.
+     | |_______________________________________________________^
+4522 |               #[cfg(feature = "nuvio")]
+4523 | /             Target::NuvioLaunch(ref content_target) if !self.launching => {
+4524 | |                 return vec![Effect::NuvioLaunch {
+4525 | |                     content_target: content_target.clone(),
+4526 | |                 }];
+4527 | |             }
+     | |_____________- rustdoc does not generate documentation for match arms
+     |
+     = help: use `//` for a plain comment
+
+warning: unused doc comment
+   --> src/main.rs:272:13
+    |
+272 |               /// Launch a Nuvio title into its detail page. Never autoplays and never injects input.
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+273 |               #[cfg(feature = "nuvio")]
+274 | /             Effect::NuvioLaunch { content_target } => {
+275 | |                 if !state.launching {
+276 | |                     if platform.webos {
+277 | |                         state.launching = true;
+...   |
+286 | |             }
+    | |_____________- rustdoc does not generate documentation for match arms
+    |
+    = help: use `//` for a plain comment
+
+error[E0599]: no method named `write_all` found for struct `File` in the current scope
+  --> src/app_artwork.rs:96:11
+   |
+96 |         f.write_all(&header)?;
+   |           ^^^^^^^^^
+   |
+  --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/std/src/io/mod.rs:1857:7
+   |
+   = note: the method is available for `File` here
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: there is a method `write_all_at` with a similar name, but with different arguments
+  --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/std/src/os/unix/fs.rs:330:4
+help: trait `Write` which provides `write_all` is implemented but not in scope; perhaps you want to import it
+   |
+ 3 + use std::io::Write;
+   |
+
+error[E0599]: no method named `write_all` found for struct `File` in the current scope
+  --> src/app_artwork.rs:97:11
+   |
+97 |         f.write_all(&self.data)?;
+   |           ^^^^^^^^^
+   |
+  --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/std/src/io/mod.rs:1857:7
+   |
+   = note: the method is available for `File` here
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: there is a method `write_all_at` with a similar name, but with different arguments
+  --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/std/src/os/unix/fs.rs:330:4
+help: trait `Write` which provides `write_all` is implemented but not in scope; perhaps you want to import it
+   |
+ 3 + use std::io::Write;
+   |
+
+error[E0599]: no method named `ok` found for enum `std::option::Option<T>` in the current scope
+   --> src/app_artwork.rs:157:14
+    |
+152 |               let pixels = image::RgbaImage::from_vec(
+    |  __________________________-
+153 | |                 cached.width.into(),
+154 | |                 cached.height.into(),
+155 | |                 cached.data,
+156 | |             )
+157 | |             .ok()?;
+    | |_____________-^^
+    |
+help: there is a method `or` with a similar name, but with different arguments
+   --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/option.rs:1621:4
+
+error[E0599]: no method named `ok` found for enum `std::option::Option<T>` in the current scope
+   --> src/app_artwork.rs:171:89
+    |
+171 |             image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), rgba).ok()?
+    |                                                                                         ^^
+    |
+help: there is a method `or` with a similar name, but with different arguments
+   --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/option.rs:1621:4
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:347:19
+    |
+347 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:374:19
+    |
+374 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:414:19
+    |
+414 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:438:19
+    |
+438 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:451:19
+    |
+451 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:481:19
+    |
+481 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:500:19
+    |
+500 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:526:19
+    |
+526 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:552:19
+    |
+552 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:580:19
+    |
+580 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `tempfile` in this scope
+   --> src/fast_kv.rs:615:19
+    |
+615 |         let dir = tempfile::tempdir().unwrap();
+    |                   ^^^^^^^^ use of unresolved module or unlinked crate `tempfile`
+    |
+    = help: if you wanted to use a crate named `tempfile`, use `cargo add tempfile` to add it to your `Cargo.toml`
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+   --> src/nuvio.rs:196:47
+    |
+196 |             _ => panic!("unexpected response: {response:?}"),
+    |                                               ^^^^^^^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+    = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    |
+ 37 + #[derive(Debug)]
+ 38 | pub enum Response {
+    |
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+   --> src/nuvio.rs:210:48
+    |
+210 |             _ => panic!("unexpected responses: {r1:?}, {r2:?}"),
+    |                                                ^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+    = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    |
+ 37 + #[derive(Debug)]
+ 38 | pub enum Response {
+    |
+
+error[E0277]: `nuvio::Response` doesn't implement `std::fmt::Debug`
+   --> src/nuvio.rs:225:47
+    |
+225 |             _ => panic!("unexpected response: {response:?}"),
+    |                                               ^^^^^^^^^^^^ `nuvio::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+    |
+    = help: the trait `std::fmt::Debug` is not implemented for `nuvio::Response`
+    = note: add `#[derive(Debug)]` to `nuvio::Response` or manually `impl std::fmt::Debug for nuvio::Response`
+help: consider annotating `nuvio::Response` with `#[derive(Debug)]`
+    |
+ 37 + #[derive(Debug)]
+ 38 | pub enum Response {
+    |
+
+error[E0277]: `platform::Request` doesn't implement `std::fmt::Debug`
+  --> src/platform.rs:70:18
+   |
+70 |         format!("{self:?}") == format!("{other:?}")
+   |                  ^^^^^^^^ `platform::Request` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+   |
+   = help: the trait `std::fmt::Debug` is not implemented for `platform::Request`
+   = note: add `#[derive(Debug)]` to `platform::Request` or manually `impl std::fmt::Debug for platform::Request`
+   = note: required for `&platform::Request` to implement `std::fmt::Debug`
+help: consider annotating `platform::Request` with `#[derive(Debug)]`
+   |
+48 + #[derive(Debug)]
+49 | pub enum Request {
+   |
+
+error[E0277]: `platform::Request` doesn't implement `std::fmt::Debug`
+  --> src/platform.rs:70:41
+   |
+70 |         format!("{self:?}") == format!("{other:?}")
+   |                                         ^^^^^^^^^ `platform::Request` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+   |
+   = help: the trait `std::fmt::Debug` is not implemented for `platform::Request`
+   = note: add `#[derive(Debug)]` to `platform::Request` or manually `impl std::fmt::Debug for platform::Request`
+   = note: required for `&platform::Request` to implement `std::fmt::Debug`
+help: consider annotating `platform::Request` with `#[derive(Debug)]`
+   |
+48 + #[derive(Debug)]
+49 | pub enum Request {
+   |
+
+error[E0560]: struct `platform::Platform` has no field named `sender`
+   --> src/platform.rs:239:13
+    |
+239 |             sender,
+    |             ^^^^^^ `platform::Platform` does not have this field
+    |
+    = note: available fields are: `requests`
+
+error[E0631]: type mismatch in function arguments
+   --> src/platform.rs:287:28
+    |
+287 |         || !id.bytes().all(u8::is_ascii_digit)
+    |                        --- ^^^^^^^^^^^^^^^^^^
+    |                        |   |
+    |                        |   expected due to this
+    |                        |   found signature defined here
+    |                        required by a bound introduced by this call
+    |
+    = note: expected function signature `fn(_) -> _`
+               found function signature `fn(&_) -> _`
+note: required by a bound in `std::iter::Iterator::all`
+   --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/iter/traits/iterator.rs:2833:4
+help: consider wrapping the function in a closure
+    |
+287 |         || !id.bytes().all(|arg0: u8| u8::is_ascii_digit(&arg0))
+    |                            ++++++++++                   +++++++
+
+error[E0308]: mismatched types
+    --> src/renderer.rs:1457:27
+     |
+1457 |                 if let Ok(Some((path, decoded))) = self.stills.replies.recv() {
+     |                           ^^^^^^^^^^^^^^^^^^^^^    -------------------------- this expression has type `Result<(String, Option<(ImageBuffer<Rgba<u8>, Vec<u8>>, ...)>), ...>`
+     |                           |
+     |                           expected `(String, Option<(..., ...)>)`, found `Option<_>`
+     |
+     = note: expected tuple `(std::string::String, std::option::Option<(ImageBuffer<Rgba<u8>, Vec<u8>>, std::option::Option<ImageBuffer<Rgba<u8>, Vec<u8>>>)>)`
+                 found enum `std::option::Option<_>`
+     = note: the full name for the type has been written to '<repo>/target/debug/deps/luma-ec3c783425f3c18d.long-type-10044644378409407539.txt'
+     = note: consider using `--verbose` to print the full type name to the console
+
+error[E0308]: mismatched types
+    --> src/renderer.rs:1460:55
+     |
+1460 |                         self.apply_still_side_effects(&path, &full, frost.as_ref());
+     |                              ------------------------ ^^^^^ expected `String`, found `&_`
+     |                              |
+     |                              arguments to this method are incorrect
+     |
+     = note: expected struct `std::string::String`
+             found reference `&_`
+note: method defined here
+    --> src/renderer.rs:1510:8
+     |
+1510 |     fn apply_still_side_effects(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^
+1511 |         &mut self,
+1512 |         path: String,
+     |         ------------
+help: consider removing the borrow
+     |
+1460 -                         self.apply_still_side_effects(&path, &full, frost.as_ref());
+1460 +                         self.apply_still_side_effects(path, &full, frost.as_ref());
+     |
+
+error[E0308]: mismatched types
+    --> src/renderer.rs:1517:52
+     |
+1517 |             if let Some(old) = self.cameras.insert(camera, path.clone()) && old != path {
+     |                                             ------ ^^^^^^ expected `String`, found `&str`
+     |                                             |
+     |                                             arguments to this method are incorrect
+     |
+note: method defined here
+    --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/std/src/collections/hash/map.rs:1328:11
+help: try using a conversion method
+     |
+1517 |             if let Some(old) = self.cameras.insert(camera.to_string(), path.clone()) && old != path {
+     |                                                          ++++++++++++
+
+error[E0610]: `usize` is a primitive type and therefore doesn't have fields
+    --> src/state.rs:2208:27
+     |
+2208 |         let shape = stack.shape;
+     |                           ^^^^^
+
+error[E0610]: `usize` is a primitive type and therefore doesn't have fields
+    --> src/state.rs:2226:23
+     |
+2226 |     let shape = stack.shape;
+     |                       ^^^^^
+
+error[E0277]: `platform::Response` doesn't implement `std::fmt::Debug`
+    --> src/tests.rs:3591:62
+     |
+3591 |             response => panic!("unexpected platform response {response:?}"),
+     |                                                              ^^^^^^^^^^^^ `platform::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+     |
+     = help: the trait `std::fmt::Debug` is not implemented for `platform::Response`
+     = note: add `#[derive(Debug)]` to `platform::Response` or manually `impl std::fmt::Debug for platform::Response`
+help: the trait `std::fmt::Debug` is implemented for `std::result::Result<T, E>`
+    --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/result.rs:552:15
+     = note: required for `std::result::Result<platform::Response, std::sync::mpmc::RecvTimeoutError>` to implement `std::fmt::Debug`
+help: consider annotating `platform::Response` with `#[derive(Debug)]`
+    -->  src/platform.rs:74:1
+     |
+  74 + #[derive(Debug)]
+  75 | pub enum Response {
+     |
+
+error[E0277]: `platform::Response` doesn't implement `std::fmt::Debug`
+    --> src/tests.rs:3605:62
+     |
+3605 |             response => panic!("unexpected platform response {response:?}"),
+     |                                                              ^^^^^^^^^^^^ `platform::Response` cannot be formatted using `{:?}` because it doesn't implement `std::fmt::Debug`
+     |
+     = help: the trait `std::fmt::Debug` is not implemented for `platform::Response`
+     = note: add `#[derive(Debug)]` to `platform::Response` or manually `impl std::fmt::Debug for platform::Response`
+help: the trait `std::fmt::Debug` is implemented for `std::result::Result<T, E>`
+    --> /rustc/ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96/library/core/src/result.rs:552:15
+     = note: required for `std::result::Result<platform::Response, std::sync::mpmc::RecvTimeoutError>` to implement `std::fmt::Debug`
+help: consider annotating `platform::Response` with `#[derive(Debug)]`
+    -->  src/platform.rs:74:1
+     |
+  74 + #[derive(Debug)]
+  75 | pub enum Response {
+     |
+
+error[E0599]: no variant, associated function, or constant named `Items` found for enum `platform::Response` in the current scope
+    --> src/tests.rs:3645:33
+     |
+3645 |             Ok(nuvio::Response::Items(index, items)) => {
+     |                                 ^^^^^ variant, associated function, or constant not found in `platform::Response`
+     |
+    ::: src/platform.rs:74:1
+     |
+  74 | pub enum Response {
+     | ----------------- variant, associated function, or constant `Items` not found for this enum
+
+error[E0599]: no variant, associated function, or constant named `Items` found for enum `platform::Response` in the current scope
+    --> src/tests.rs:3666:37
+     |
+3666 |                 Ok(nuvio::Response::Items(0, items)),
+     |                                     ^^^^^ variant, associated function, or constant not found in `platform::Response`
+     |
+    ::: src/platform.rs:74:1
+     |
+  74 | pub enum Response {
+     | ----------------- variant, associated function, or constant `Items` not found for this enum
+
+error[E0599]: no variant, associated function, or constant named `Items` found for enum `platform::Response` in the current scope
+    --> src/tests.rs:3667:37
+     |
+3667 |                 Ok(nuvio::Response::Items(1, _)),
+     |                                     ^^^^^ variant, associated function, or constant not found in `platform::Response`
+     |
+    ::: src/platform.rs:74:1
+     |
+  74 | pub enum Response {
+     | ----------------- variant, associated function, or constant `Items` not found for this enum
+
+error[E0599]: no variant, associated function, or constant named `Items` found for enum `platform::Response` in the current scope
+    --> src/tests.rs:3682:33
+     |
+3682 |             Ok(nuvio::Response::Items(_, items)) => {
+     |                                 ^^^^^ variant, associated function, or constant not found in `platform::Response`
+     |
+    ::: src/platform.rs:74:1
+     |
+  74 | pub enum Response {
+     | ----------------- variant, associated function, or constant `Items` not found for this enum
+
+error[E0063]: missing fields `content_target`, `poster_url`, `progress_permille` and 1 other field in initializer of `stacks::StackItem`
+    --> src/main.rs:2092:20
+     |
+2092 |         let item = stacks::StackItem {
+     |                    ^^^^^^^^^^^^^^^^^ missing `content_target`, `poster_url`, `progress_permille` and 1 other field
+
+error[E0596]: cannot borrow `*self` as mutable, as it is behind a `&` reference
+    --> src/renderer.rs:2533:9
+     |
+2533 |         self.flush_quad_batcher();
+     |         ^^^^ `self` is a `&` reference, so it cannot be borrowed as mutable
+     |
+help: consider changing this to be a mutable reference
+     |
+2480 |     fn draw_mesh(&mut self, program: GLuint, mesh: &vector::Mesh, transform: [f32; 4], tint: Color) {
+     |                   +++
+
+Some errors have detailed explanations: E0063, E0277, E0308, E0425, E0433, E0560, E0596, E0599, E0603...
+For more information about an error, try `rustc --explain E0063`.
+warning: `luma` (bin "luma" test) generated 4 warnings
+error: could not compile `luma` (bin "luma" test) due to 48 previous errors; 4 warnings emitted

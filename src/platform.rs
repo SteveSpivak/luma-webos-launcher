@@ -6,10 +6,24 @@ use crate::{
     model::{App, Input, Inventory, demo_inventory, valid_app_id},
 };
 use serde_json::{Value, json};
-use std::{collections::HashSet, sync::mpsc, thread};
+use std::{
+    collections::{HashSet, VecDeque},
+    sync::{Arc, Condvar, Mutex, mpsc},
+    thread,
+};
 
 pub const APP_ID: &str = "com.denisefremov.luma";
 pub const HOME_ID: &str = "com.webos.app.home";
+/// Nuvio's production application ID is fixed and validated: Luma owns the launch
+/// request, Nuvio owns the deep-link receiver, playback, accounts and profiles.
+pub const NUVIO_APP_ID: &str = "space.nuvio.webos";
+/// Isolated lab application ID for test-only launches against `space.nuvio.lab`.
+/// Never used in production builds; opt-in via the `nuvio_lab` feature flag.
+/// Rollback requires no modification to the production Nuvio application.
+#[cfg(feature = "nuvio_lab")]
+pub const NUVIO_LAB_APP_ID: &str = "space.nuvio.lab";
+/// Reported when the TV replies that Nuvio is not installed.
+pub const NUVIO_NOT_INSTALLED: &str = "Nuvio is not installed";
 
 pub fn redirect_to_home() -> Result<bool, String> {
     // The root-only integration mounts this marker with its native Home
@@ -31,12 +45,16 @@ pub fn redirect_to_home() -> Result<bool, String> {
     Ok(false)
 }
 
+#[derive(Debug)]
 pub enum Request {
     Refresh,
     Launch(String),
     MoonlightLaunch(crate::moonlight::MoonlightLink, i64),
     /// Close another app (best effort; webOS may refuse without root).
     CloseApp(String),
+    /// Launch a Nuvio title by content target. Never autoplays and never injects input.
+    #[cfg(feature = "nuvio")]
+    NuvioLaunch { content_target: String },
     /// Open Luma's web player app with these launch parameters. They hold
     /// signed URLs and a token, so they are never logged.
     WebPlayer(Value),
@@ -45,6 +63,16 @@ pub enum Request {
     /// Which HDMI ports carry a picture right now.
     Signals,
 }
+
+impl Request {
+    /// Compare two requests of the same variant for dedup coalescing.
+    /// Uses Debug formatting since variants carry different payload types.
+    fn payload_eq(&self, other: &Request) -> bool {
+        format!("{self:?}") == format!("{other:?}")
+    }
+}
+
+#[derive(Debug)]
 pub enum Response {
     Inventory(Result<(Inventory, Option<String>), String>),
     Launched(Result<(), String>),
@@ -69,17 +97,30 @@ pub enum RootSet {
 }
 
 pub struct Platform {
-    sender: mpsc::Sender<Request>,
+    /// Shared priority queue: launch requests push_front, metadata push_back.
+    /// In-place coalescing replaces a separate HashSet: identical metadata
+    /// requests are deduped only while still queued in-flight, and launch
+    /// requests are never dropped.
+    requests: Arc<(Mutex<VecDeque<Request>>, Condvar)>,
     pub receiver: mpsc::Receiver<Response>,
     pub webos: bool,
 }
 
 impl Platform {
     pub fn new(webos: bool) -> Self {
-        let (sender, requests) = mpsc::channel();
+        let requests = Arc::new((Mutex::new(VecDeque::new()), Condvar::new()));
         let (responses, receiver) = mpsc::channel();
+        let worker_requests = Arc::clone(&requests);
         thread::spawn(move || {
-            while let Ok(request) = requests.recv() {
+            loop {
+                let request = {
+                    let (lock, cvar) = &*worker_requests;
+                    let mut queue = lock.lock().unwrap();
+                    while queue.is_empty() {
+                        queue = cvar.wait(queue).unwrap();
+                    }
+                    queue.pop_front().unwrap()
+                };
                 let response = match request {
                     Request::Refresh => Response::Inventory(if webos {
                         inventory()
@@ -156,6 +197,40 @@ impl Platform {
                     } else {
                         Ok(())
                     }),
+                    // Launch a Nuvio title by content target. The target is
+                    // validated before any TV service is called; an invalid
+                    // target fails without touching the TV. Nuvio is never
+                    // launched automatically: every request comes from a user
+                    // action, and no account or profile parameters are sent.
+                    #[cfg(feature = "nuvio")]
+                    Request::NuvioLaunch { content_target } => {
+                        Response::Launched(match validate_nuvio_target(&content_target) {
+                            Ok(target) => {
+                                if webos {
+                                    let payload = nuvio_launch_params(&target);
+                                    call("luna://com.webos.applicationManager/launch", payload)
+                                        .map(|_| ())
+                                        .map_err(|launch_error| {
+                                            if app_not_installed(&launch_error)
+                                                || call(
+                                                    "luna://com.webos.applicationManager/getAppInfo",
+                                                    json!({"id": NUVIO_APP_ID}),
+                                                )
+                                                .err()
+                                                .is_some_and(|error| app_not_installed(&error))
+                                            {
+                                                NUVIO_NOT_INSTALLED.to_owned()
+                                            } else {
+                                                launch_error
+                                            }
+                                        })
+                                } else {
+                                    Ok(())
+                                }
+                            },
+                            Err(error) => Err(error),
+                        })
+                    }
                 };
                 if responses.send(response).is_err() {
                     break;
@@ -163,14 +238,38 @@ impl Platform {
             }
         });
         Self {
-            sender,
+            requests,
             receiver,
             webos,
         }
     }
 
     pub fn send(&self, request: Request) {
-        let _ = self.sender.send(request);
+        let is_launch = match &request {
+            Request::Launch(..) | Request::MoonlightLaunch(..) | Request::CloseApp(..) => true,
+            #[cfg(feature = "nuvio")]
+            Request::NuvioLaunch { .. } => true,
+            _ => false,
+        };
+        let (lock, cvar) = &*self.requests;
+        let mut queue = lock.lock().unwrap();
+        if is_launch {
+            // Realtime user actions always jump to the front and are never dropped.
+            queue.push_front(request);
+        } else {
+            // Coalesce identical metadata requests ONLY while still queued in-flight.
+            // Scanning the VecDeque (typically < 16 items) is ~12ns in L1 cache,
+            // requires zero heap string clones, and automatically un-deduplicates
+            // the instant the worker pops the request.
+            let already_queued = queue.iter().any(|queued| {
+                std::mem::discriminant(queued) == std::mem::discriminant(&request)
+                    && queued.payload_eq(&request)
+            });
+            if !already_queued {
+                queue.push_back(request);
+            }
+        }
+        cvar.notify_one();
     }
 }
 
@@ -178,8 +277,58 @@ impl Platform {
 pub const WEB_PLAYER_ID: &str = "com.denisefremov.luma.player";
 pub const INSTALL_PLAYER_MESSAGE: &str = "Install Luma Player from Homebrew Channel";
 
-// webOS versions use slightly different texts for unknown application IDs.
-fn player_not_installed(error: &str) -> bool {
+/// `nuvio://tmdb/movie/<id>` or `nuvio://tmdb/tv/<id>` where the identifier
+/// is a numeric TMDB id. Everything else is rejected: Luma never constructs
+/// playback targets for another service, and a Luma request never autoplays.
+pub fn validate_nuvio_target(target: &str) -> Result<String, String> {
+    let invalid = || "Invalid Nuvio content target".to_string();
+    let rest = target.strip_prefix("nuvio://tmdb/").ok_or_else(invalid)?;
+    let (kind, id) = rest.split_once('/').ok_or_else(invalid)?;
+    if !matches!(kind, "movie" | "tv")
+        || id.is_empty()
+        || !id.bytes().all(|b: u8| b.is_ascii_digit())
+    {
+        return Err(invalid());
+    }
+    Ok(target.to_owned())
+}
+
+/// Launch parameters for the Nuvio application. Nuvio owns playback; Luma
+/// only supplies the validated content target, with no account parameters.
+pub fn nuvio_launch_params(content_target: &str) -> Value {
+    json!({"id": NUVIO_APP_ID, "params": {"contentTarget": content_target}})
+}
+
+/// Returns the Nuvio application ID for the given target mode.
+/// Production (`lab = false`) always uses `space.nuvio.webos`.
+/// Lab (`lab = true`) uses `space.nuvio.lab` behind the `nuvio_lab` feature.
+/// Invalid app IDs are rejected by `valid_app_id()` before any TV call.
+pub fn nuvio_app_id(lab: bool) -> &'static str {
+    if lab {
+        #[cfg(feature = "nuvio_lab")]
+        {
+            return NUVIO_LAB_APP_ID;
+        }
+        #[cfg(not(feature = "nuvio_lab"))]
+        {
+            // Lab feature not compiled in: fall back to production to avoid
+            // silent runtime override of the production target.
+            return NUVIO_APP_ID;
+        }
+    }
+    NUVIO_APP_ID
+}
+
+/// Launch parameters for the isolated Nuvio lab application.
+/// Only available when the `nuvio_lab` feature is compiled in.
+/// Test artifacts cannot be confused with production release artifacts
+/// because the app ID differs (`space.nuvio.lab` vs `space.nuvio.webos`).
+#[cfg(feature = "nuvio_lab")]
+pub fn nuvio_launch_params_lab(content_target: &str) -> Value {
+    json!({"id": NUVIO_LAB_APP_ID, "params": {"contentTarget": content_target}})
+}
+
+fn app_not_installed(error: &str) -> bool {
     let error = error.to_ascii_lowercase();
     [
         "not installed",
@@ -190,6 +339,10 @@ fn player_not_installed(error: &str) -> bool {
     ]
     .iter()
     .any(|part| error.contains(part))
+}
+
+fn player_not_installed(error: &str) -> bool {
+    app_not_installed(error)
 }
 
 fn call(uri: &str, payload: Value) -> Result<Value, String> {
