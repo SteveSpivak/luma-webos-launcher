@@ -1,7 +1,7 @@
 {
   "branch": "arena/5fe14abb-luma-webos-launcher",
-  "head_sha": "f1d895b",
-  "head_short": "f1d895b",
+  "head_sha": "a656c8c",
+  "head_short": "a656c8c",
   "working_tree": "clean",
   "rust_toolchain": "NOT_AVAILABLE",
   "cargo": "NOT_FOUND",
@@ -160,7 +160,7 @@
     },
     "ci_workflow": ".github/workflows/ci.yml - job \"build\" on ubuntu-24.04, dtolnay/rust-toolchain@1.93.0, components: rustfmt clippy, targets: armv7-unknown-linux-gnueabi"
   },
-  "pr_status": "FIXES_APPLIED - awaiting compilation verification",
+  "pr_status": "FIXES_PUSHED - awaiting CI verification",
   "fixes_applied": {
     "platform.rs": [
       "Added #[derive(Debug)] to Request enum",
@@ -210,6 +210,9 @@
     "Run cargo check --features nuvio,nuvio_lab to verify 0 errors",
     "Run cargo test --all-features to verify tests pass",
     "Run cargo clippy --all-targets --all-features -- -D warnings to verify clean",
-    "Run on CI toolchain (Rust 1.93.0) for final validation"
-  ]
+    "Run on CI toolchain (Rust 1.93.0) for final validation",
+    "GitHub Actions CI will run on PR #2 automatically"
+  ],
+  "fixes_committed": true,
+  "commit_sha": "a656c8c"
 }
