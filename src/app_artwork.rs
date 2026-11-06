@@ -8,7 +8,7 @@ use std::{
     cell::RefCell,
     collections::HashMap,
     fs::File,
-    io::{Cursor, Read},
+    io::{Cursor, Read, Write},
     path::{Component, Path, PathBuf},
     sync::{Arc, mpsc},
     thread,
@@ -154,7 +154,7 @@ fn persistent_load(source: &Source, directory: &Path) -> Option<Artwork> {
                 cached.height.into(),
                 cached.data,
             )
-            .ok()?;
+            ?;
             pixels
         }
         PixelFormat::Rgb565 => {
@@ -168,7 +168,7 @@ fn persistent_load(source: &Source, directory: &Path) -> Option<Artwork> {
                 let b = (packed & 0x1F) as u8 * 255 / 31;
                 rgba.extend_from_slice(&[r, g, b, 255]);
             }
-            image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), rgba).ok()?
+            image::RgbaImage::from_vec(cached.width.into(), cached.height.into(), rgba)?
         }
     };
     let color = background(&pixels);

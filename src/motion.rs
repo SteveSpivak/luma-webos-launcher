@@ -280,7 +280,7 @@ mod spring_tests {
     }
 }
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     #[test]
     fn bezier_endpoints_and_monotonic() {

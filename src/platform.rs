@@ -45,6 +45,7 @@ pub fn redirect_to_home() -> Result<bool, String> {
     Ok(false)
 }
 
+#[derive(Debug)]
 pub enum Request {
     Refresh,
     Launch(String),
@@ -71,6 +72,7 @@ impl Request {
     }
 }
 
+#[derive(Debug)]
 pub enum Response {
     Inventory(Result<(Inventory, Option<String>), String>),
     Launched(Result<(), String>),
@@ -195,11 +197,11 @@ impl Platform {
                     } else {
                         Ok(())
                     }),
-                    /// Launch a Nuvio title by content target. The target is
-                    /// validated before any TV service is called; an invalid
-                    /// target fails without touching the TV. Nuvio is never
-                    /// launched automatically: every request comes from a user
-                    /// action, and no account or profile parameters are sent.
+                    // Launch a Nuvio title by content target. The target is
+                    // validated before any TV service is called; an invalid
+                    // target fails without touching the TV. Nuvio is never
+                    // launched automatically: every request comes from a user
+                    // action, and no account or profile parameters are sent.
                     #[cfg(feature = "nuvio")]
                     Request::NuvioLaunch { content_target } => {
                         Response::Launched(match validate_nuvio_target(&content_target) {
@@ -236,7 +238,7 @@ impl Platform {
             }
         });
         Self {
-            sender,
+            requests,
             receiver,
             webos,
         }
@@ -284,7 +286,7 @@ pub fn validate_nuvio_target(target: &str) -> Result<String, String> {
     let (kind, id) = rest.split_once('/').ok_or_else(invalid)?;
     if !matches!(kind, "movie" | "tv")
         || id.is_empty()
-        || !id.bytes().all(u8::is_ascii_digit)
+        || !id.bytes().all(|b: u8| b.is_ascii_digit())
     {
         return Err(invalid());
     }

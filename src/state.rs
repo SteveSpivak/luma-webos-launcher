@@ -2204,8 +2204,8 @@ impl State {
 /// that pressing Down from a deeply scrolled row lands on the visually
 /// aligned card in an unscrolled target row, regardless of scroll depth.
 fn update_corridor(&mut self, row: usize, index: usize) {
-    if let Some(stack) = crate::stacks::row_stack(self, row) {
-        let shape = stack.shape;
+    if let Some(stack_idx) = crate::stacks::row_stack(self, row) {
+        let shape = self.preferences.stacks[stack_idx].shape;
         let (card_w, _) = shape.size();
         let pitch = shape.pitch();
         // Card center in unscrolled row-local coordinates.
@@ -2222,8 +2222,8 @@ fn update_corridor(&mut self, row: usize, index: usize) {
 /// Compute the best card index in `target_row` aligned to the vertical focus
 /// corridor. Falls back to card 0 when no corridor data is usable.
 fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
-    let stack = crate::stacks::row_stack(self, target_row)?;
-    let shape = stack.shape;
+    let stack_idx = crate::stacks::row_stack(self, target_row)?;
+    let shape = self.preferences.stacks[stack_idx].shape;
     let (card_w, _) = shape.size();
     let pitch = shape.pitch();
     // Target rows start at scroll 0 (we don't track per-row scroll). The
@@ -4515,10 +4515,10 @@ fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
             Target::App(id) | Target::Input(id) if !self.launching => {
                 return vec![Effect::Launch(id)];
             }
-            /// Launch a Nuvio title directly into its detail page. Focus is
-            /// left untouched, so Back out of Nuvio returns to Luma with the
-            /// same focus, and a repeated launch while one is in flight is
-            /// ignored by the `!self.launching` guard.
+            // Launch a Nuvio title directly into its detail page. Focus is
+            // left untouched, so Back out of Nuvio returns to Luma with the
+            // same focus, and a repeated launch while one is in flight is
+            // ignored by the `!self.launching` guard.
             #[cfg(feature = "nuvio")]
             Target::NuvioLaunch(ref content_target) if !self.launching => {
                 return vec![Effect::NuvioLaunch {

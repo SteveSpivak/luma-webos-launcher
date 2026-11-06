@@ -159,5 +159,57 @@
       "test": "cargo test --locked --workspace --all-features"
     },
     "ci_workflow": ".github/workflows/ci.yml - job \"build\" on ubuntu-24.04, dtolnay/rust-toolchain@1.93.0, components: rustfmt clippy, targets: armv7-unknown-linux-gnueabi"
-  }
+  },
+  "pr_status": "FIXES_APPLIED - awaiting compilation verification",
+  "fixes_applied": {
+    "platform.rs": [
+      "Added #[derive(Debug)] to Request enum",
+      "Added #[derive(Debug)] to Response enum",
+      "Fixed sender -> requests in Platform::new() constructor",
+      "Fixed u8::is_ascii_digit -> |b: u8| b.is_ascii_digit() closure",
+      "Changed doc comment to plain comment on match arm"
+    ],
+    "app_artwork.rs": [
+      "Added Write to io imports",
+      "Changed .ok()? to ? on Option from image::RgbaImage::from_vec (2 sites)"
+    ],
+    "renderer.rs": [
+      "Fixed recv() pattern: Ok(Some((path, decoded))) -> Ok((path, decoded))",
+      "Changed &path -> path.clone() for apply_still_side_effects",
+      "Changed camera -> camera.to_string() for cameras.insert",
+      "Changed draw_mesh(&self) -> draw_mesh(&mut self)"
+    ],
+    "state.rs": [
+      "Fixed stack.shape -> self.preferences.stacks[stack_idx].shape (2 sites)",
+      "Changed doc comment to plain comment on match arm"
+    ],
+    "main.rs": [
+      "Added missing StackItem fields: content_target, progress_permille, poster_url, still_url",
+      "Removed calls to non-existent motion test functions",
+      "Changed doc comment to plain comment on match arm"
+    ],
+    "motion.rs": [
+      "Made test module pub(crate) instead of private"
+    ],
+    "nuvio.rs": [
+      "Removed unused FastBridgeCard import"
+    ],
+    "tests.rs": [
+      "Added use crate::nuvio::{Command, Response, Service} import",
+      "Fixed nuvio::Service -> Service, nuvio::Command -> Command, nuvio::Response::Items -> Response::Items (4 sites)"
+    ],
+    "Cargo.toml": [
+      "Added tempfile to dev-dependencies"
+    ],
+    "rustfmt.toml": [
+      "Deleted (causes 141 fmt diffs per README)"
+    ]
+  },
+  "still_needed": [
+    "Run cargo fmt --all to fix formatting (no local Rust toolchain)",
+    "Run cargo check --features nuvio,nuvio_lab to verify 0 errors",
+    "Run cargo test --all-features to verify tests pass",
+    "Run cargo clippy --all-targets --all-features -- -D warnings to verify clean",
+    "Run on CI toolchain (Rust 1.93.0) for final validation"
+  ]
 }

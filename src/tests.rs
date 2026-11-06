@@ -3470,6 +3470,7 @@ fn unsupported_saved_media_source_is_ignored_without_losing_other_settings() {
 #[cfg(feature = "nuvio")]
 mod nuvio {
     use super::*;
+    use crate::nuvio::{Command, Response, Service};
 
     #[test]
     fn nuvio_target_validates_movie_and_series_identifiers() {
@@ -3637,12 +3638,12 @@ mod nuvio {
 
     #[test]
     fn nuvio_service_fetch_returns_continue_watching_items() {
-        let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
-        service.send(nuvio::Command::Fetch(vec![
+        let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(Command::Fetch(vec![
             (0, "continue-watching".to_owned()),
         ]));
         match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
-            Ok(nuvio::Response::Items(index, items)) => {
+            Ok(Response::Items(index, items)) => {
                 assert_eq!(index, 0);
                 assert_eq!(items.len(), 1);
                 assert_eq!(items[0].title, "Example Movie");
@@ -3653,8 +3654,8 @@ mod nuvio {
 
     #[test]
     fn nuvio_service_fetch_returns_empty_for_watchlist_and_library() {
-        let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
-        service.send(nuvio::Command::Fetch(vec![
+        let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(Command::Fetch(vec![
             (0, "watchlist".to_owned()),
             (1, "library".to_owned()),
         ]));
@@ -3663,8 +3664,8 @@ mod nuvio {
             service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
         ) {
             (
-                Ok(nuvio::Response::Items(0, items)),
-                Ok(nuvio::Response::Items(1, _)),
+                Ok(Response::Items(0, items)),
+                Ok(Response::Items(1, _)),
             ) => {
                 assert!(items.is_empty());
             }
@@ -3674,12 +3675,12 @@ mod nuvio {
 
     #[test]
     fn nuvio_service_fetch_is_bounded_to_max_items() {
-        let service = nuvio::Service::new(std::env::temp_dir().join("luma-test-posters"));
-        service.send(nuvio::Command::Fetch(vec![
+        let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(Command::Fetch(vec![
             (0, "continue-watching".to_owned()),
         ]));
         match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
-            Ok(nuvio::Response::Items(_, items)) => {
+            Ok(Response::Items(_, items)) => {
                 assert!(items.len() <= crate::stacks::HOME_ROW_MAX as usize);
             }
             response => panic!("unexpected response {response:?}"),

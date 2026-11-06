@@ -269,7 +269,7 @@ fn effects(
                     }
                 }
             }
-            /// Launch a Nuvio title into its detail page. Never autoplays and never injects input.
+            // Launch a Nuvio title into its detail page. Never autoplays and never injects input.
             #[cfg(feature = "nuvio")]
             Effect::NuvioLaunch { content_target } => {
                 if !state.launching {
@@ -1839,9 +1839,7 @@ fn lab_command(module: &str, bench: bool) -> Result<(), String> {
             eprintln!("[lab] motion: spring settling / velocity persistence");
             #[cfg(test)]
             {
-                crate::motion::tests::test_spring1d_settles_to_rest();
-                crate::motion::tests::test_spring1d_preserves_velocity_on_interrupt();
-                crate::motion::tests::test_focus_rect_spring_all_dimensions();
+                // Motion unit tests are run via `cargo test` directly.
             }
             #[cfg(not(test))]
             {
@@ -2096,6 +2094,10 @@ fn run() -> Result<(), String> {
                 .unwrap_or_else(|| "Cyberpunk 2077".into()),
             id: 123,
             poster: None,
+            content_target: String::new(),
+            progress_permille: 0,
+            poster_url: None,
+            still_url: None,
         };
         steam_service().request(item.id, &item.title);
         state.game = Some(state::GameCard::new(

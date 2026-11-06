@@ -19,7 +19,7 @@
 //! Until a Nivío producer contract is authorized, `fetch()` returns synthetic
 //! fixtures so the consumer side can be developed and tested in isolation.
 
-use crate::fast_kv::{default_bridge_path, read_bridge_cards, FastBridgeCard};
+use crate::fast_kv::{default_bridge_path, read_bridge_cards};
 use crate::stacks::StackItem;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};

@@ -1454,10 +1454,10 @@ impl Renderer {
     fn upload_stills(&mut self, wait_for: Option<&str>) {
         if let Some(path) = wait_for {
             if self.stills.pending.contains(path) {
-                if let Ok(Some((path, decoded))) = self.stills.replies.recv() {
+                if let Ok((path, decoded)) = self.stills.replies.recv() {
                     self.stills.pending.remove(&path);
                     if let Some((full, frost)) = decoded {
-                        self.apply_still_side_effects(&path, &full, frost.as_ref());
+                        self.apply_still_side_effects(path.clone(), &full, frost.as_ref());
                         let mut uploaded = texture(full.width(), full.height(), full.as_raw());
                         uploaded.frame = self.frame;
                         self.textures.insert(path, Some(uploaded));
@@ -1514,7 +1514,7 @@ impl Renderer {
         frost: Option<&image::RgbaImage>,
     ) {
         if let Some(camera) = camera_key(&path) {
-            if let Some(old) = self.cameras.insert(camera, path.clone()) && old != path {
+            if let Some(old) = self.cameras.insert(camera.to_string(), path.clone()) && old != path {
                 self.textures.remove(&old);
             }
             self.fresh = true;
@@ -2477,7 +2477,7 @@ impl Renderer {
         }
     }
 
-    fn draw_mesh(&self, program: GLuint, mesh: &vector::Mesh, transform: [f32; 4], tint: Color) {
+    fn draw_mesh(&mut self, program: GLuint, mesh: &vector::Mesh, transform: [f32; 4], tint: Color) {
         let viewport = self.stats.viewport;
         unsafe {
             gl::UseProgram(program);
