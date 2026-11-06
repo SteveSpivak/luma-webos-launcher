@@ -5,7 +5,7 @@ use crate::{
     storage, view,
 };
 #[cfg(feature = "nuvio")]
-use crate::platform::{Platform, Request, Response};
+use crate::platform::{Platform, Request};
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf};
 #[cfg(feature = "nuvio")]
@@ -3470,7 +3470,9 @@ fn unsupported_saved_media_source_is_ignored_without_losing_other_settings() {
 #[cfg(feature = "nuvio")]
 mod nuvio {
     use super::*;
-    use crate::nuvio::{Command, Response, Service};
+    use crate::nuvio::{Command, Service};
+    use crate::nuvio::Response as NuvioResponse;
+    use crate::platform::Response;
 
     #[test]
     fn nuvio_target_validates_movie_and_series_identifiers() {
@@ -3643,7 +3645,7 @@ mod nuvio {
             (0, "continue-watching".to_owned()),
         ]));
         match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
-            Ok(Response::Items(index, items)) => {
+            Ok(NuvioResponse::Items(index, items)) => {
                 assert_eq!(index, 0);
                 assert_eq!(items.len(), 1);
                 assert_eq!(items[0].title, "Example Movie");
@@ -3664,8 +3666,8 @@ mod nuvio {
             service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
         ) {
             (
-                Ok(Response::Items(0, items)),
-                Ok(Response::Items(1, _)),
+                Ok(NuvioResponse::Items(0, items)),
+                Ok(NuvioResponse::Items(1, _)),
             ) => {
                 assert!(items.is_empty());
             }
@@ -3680,7 +3682,7 @@ mod nuvio {
             (0, "continue-watching".to_owned()),
         ]));
         match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
-            Ok(Response::Items(_, items)) => {
+            Ok(NuvioResponse::Items(_, items)) => {
                 assert!(items.len() <= crate::stacks::HOME_ROW_MAX as usize);
             }
             response => panic!("unexpected response {response:?}"),

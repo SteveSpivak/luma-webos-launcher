@@ -1460,7 +1460,7 @@ impl Renderer {
                         self.apply_still_side_effects(path.clone(), &full, frost.as_ref());
                         let mut uploaded = texture(full.width(), full.height(), full.as_raw());
                         uploaded.frame = self.frame;
-                        self.textures.insert(path, Some(uploaded));
+                        self.textures.insert(path.clone(), Some(uploaded));
                         if let Some(frost_img) = frost {
                             let mut frost_uploaded =
                                 texture(frost_img.width(), frost_img.height(), frost_img.as_raw());
@@ -1510,7 +1510,7 @@ impl Renderer {
     fn apply_still_side_effects(
         &mut self,
         path: String,
-        full: &image::RgbaImage,
+        _full: &image::RgbaImage,
         frost: Option<&image::RgbaImage>,
     ) {
         if let Some(camera) = camera_key(&path) {
@@ -2035,8 +2035,9 @@ impl Renderer {
                     && fill_rect == rect
                     && fill_radius == radius
                     && tint[3] >= 0.999
-                    && let Some(source) = opaque_frost(path) =>
+                    && matches!(opaque_frost(path), Some(_)) =>
                 {
+                    let source = opaque_frost(path).expect("checked by matches! guard");
                     self.frost(source, *rect, *radius, *tint, Some(*fill));
                     merged_next = true;
                     continue;
@@ -2477,7 +2478,7 @@ impl Renderer {
         }
     }
 
-    fn draw_mesh(&mut self, program: GLuint, mesh: &vector::Mesh, transform: [f32; 4], tint: Color) {
+    fn draw_mesh(&self, program: GLuint, mesh: &vector::Mesh, transform: [f32; 4], tint: Color) {
         let viewport = self.stats.viewport;
         unsafe {
             gl::UseProgram(program);
@@ -2527,10 +2528,6 @@ impl Renderer {
             );
             gl::DrawArrays(gl::TRIANGLES, 0, mesh.vertices);
         }
-        // Single draw call for all UI quad primitives (focus rings, card
-        // backgrounds, borders, sheens, progress bars) — ~80% fewer GLES2
-        // draw calls per frame on older LG webOS SoCs.
-        self.flush_quad_batcher();
     }
 
     pub fn stats(&self) -> &RenderStats {

@@ -34,6 +34,7 @@ pub enum Command {
     Fetch(Vec<(usize, String)>),
 }
 
+#[derive(Debug)]
 pub enum Response {
     Items(usize, Vec<StackItem>),
 }
