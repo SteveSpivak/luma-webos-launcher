@@ -118,5 +118,46 @@
     "phase_c": "COMPLETE (review only) - LCKV consumer contract verified via code inspection; test execution BLOCKED (no Rust toolchain)",
     "phase_d": "COMPLETE (review only) - lifecycle/resource safety verified via code inspection",
     "phase_e": "BLOCKED - no Rust toolchain in sandbox; requires GitHub Actions with Rust 1.93"
+  },
+  "rust_toolchain_research": {
+    "document": "RESEARCH_RUST_TOOLCHAIN_APPROACHES.md",
+    "environment": {
+      "os": "Debian GNU/Linux 12 (bookworm)",
+      "arch": "x86_64",
+      "root_access": false,
+      "rust_toolchain": "NOT_INSTALLED",
+      "cargo_rustc_rustup": "command not found (exit 127)"
+    },
+    "internet_access": {
+      "allowed_hosts": [
+        "github.com",
+        "codeload.github.com",
+        "api.github.com",
+        "registry.npmjs.org",
+        "pypi.org",
+        "files.pythonhosted.org"
+      ],
+      "static_rust_lang_org": "BLOCKED",
+      "sh_rustup_rs": "BLOCKED",
+      "api_github_com": "ACCESSIBLE",
+      "rust_lang_rust_github_releases": "0 binary assets (toolchains not on GitHub releases)"
+    },
+    "approaches_evaluated": {
+      "1_github_actions_ci": "RECOMMENDED - project-documented path, Rust 1.93.0 via dtolnay/rust-toolchain@1.93.0 on ubuntu-24.04",
+      "2a_rustup_online": "BLOCKED - sh.rustup.rs not reachable",
+      "2b_standalone_tarball": "BLOCKED - static.rust-lang.org not reachable",
+      "2c_apt_install": "BLOCKED - no root access",
+      "2d_github_release_assets": "BLOCKED - no binary assets in rust-lang/rust releases",
+      "2e_rustup_offline": "BLOCKED - no way to obtain toolchain tarball locally",
+      "3_offline_vendored": "REFERENCE ONLY - requires pre-staged files from connected machine",
+      "4_python_validation": "POSSIBLE NOW - can validate FNV-1a constants, LCKV layout, binary format",
+      "5_cross_compile": "REFERENCE ONLY - requires separate machine with Rust"
+    },
+    "ci_commands_from_package_json": {
+      "format_check": "cargo fmt --all -- --check",
+      "clippy": "cargo clippy --locked --workspace --all-targets --all-features -- -D warnings",
+      "test": "cargo test --locked --workspace --all-features"
+    },
+    "ci_workflow": ".github/workflows/ci.yml - job \"build\" on ubuntu-24.04, dtolnay/rust-toolchain@1.93.0, components: rustfmt clippy, targets: armv7-unknown-linux-gnueabi"
   }
 }
