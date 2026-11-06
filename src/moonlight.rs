@@ -1791,7 +1791,9 @@ mod tests {
     #[test]
     fn lan_candidates_exclude_local_and_broadcast() {
         let all = local_subnet_candidates();
-        assert!(all.len() <= 253);
+        // 253 when the host sits inside 1..=254; 254 when its own address ends in .0 or .255,
+        // which happens on wider-than-/24 networks such as CI runners.
+        assert!(all.len() <= 254);
         assert!(!all.iter().any(|s| s.ends_with(".0") || s.ends_with(".255")));
         for ip in &all {
             assert!(ip.parse::<Ipv4Addr>().unwrap().is_private());
