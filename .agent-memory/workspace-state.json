@@ -1,8 +1,113 @@
 {
   "branch": "arena/5fe14abb-luma-webos-launcher",
-  "head_sha": "e33a8e5",
-  "ci_rust": "pending",
-  "ci_docs": "passing",
-  "blocked_on": null,
-  "updated_at": "2026-11-06T05:30:00.000000+00:00"
+  "head_sha": "ce403323d43533cf426f19f4c6d3361924f8e889",
+  "head_short": "ce40332",
+  "working_tree": "clean",
+  "rust_toolchain": "NOT_AVAILABLE",
+  "cargo": "NOT_FOUND",
+  "rustc": "NOT_FOUND",
+  "phase": "B",
+  "updated_at": "2026-11-06T06:45:00.000000+00:00",
+  "phase_a_complete": true,
+  "phase_a_findings": {
+    "head_sha": "ce403323d43533cf426f19f4c6d3361924f8e889",
+    "branch": "arena/5fe14abb-luma-webos-launcher",
+    "working_tree": "clean",
+    "rust_toolchain": "NOT_AVAILABLE",
+    "tv_branch_10f8153": "NOT_FOUND",
+    "fast_kv_lckv": {
+      "header_size": 32,
+      "record_size": 396,
+      "trailer_size": 8,
+      "max_bridge_cards": 40,
+      "max_bridge_bytes": 16384,
+      "exact_length_enforcement": true,
+      "utf8_validation": true,
+      "seq_even_matching": true,
+      "consumer_read_only": true,
+      "unit_tests": 14
+    },
+    "platform": {
+      "nuvio_app_id": "space.nuvio.webos",
+      "validate_nuvio_target": "nuvio://tmdb/{movie|tv}/<digits>",
+      "nuvio_launch_params": "{\"id\": NUVIO_APP_ID, \"params\": {\"contentTarget\": ...}}",
+      "feature_gated": true
+    },
+    "nuvio_service": {
+      "max_items_per_collection": 20,
+      "bridge_items_empty_returns_some_vec": true,
+      "unique_card_id": "fnv1a_64(card_id) masked positive",
+      "synthetic_fallback_on_error": true
+    }
+  },
+  "blocked_items": [
+    "cargo_build_test: no Rust toolchain in sandbox",
+    "tv_branch_10f8153_comparison: branch not found in repo",
+    "ci_native_validation: requires GitHub Actions with Rust 1.93",
+    "phase_c_test_execution: no Rust toolchain available locally"
+  ],
+  "phase_b_complete": true,
+  "phase_b_design": {
+    "cargo_feature": "nuvio_lab = []",
+    "lab_app_id": "space.nuvio.lab",
+    "nuvio_app_id_function": "nuvio_app_id(lab: bool) -> &str",
+    "lab_launch_params": "nuvio_launch_params_lab(content_target) [cfg(feature=nuvio_lab)]",
+    "production_unchanged": true,
+    "silent_runtime_override_prevented": true,
+    "invalid_app_id_rejection": "valid_app_id() covers both IDs",
+    "test_target_visible_in_build_metadata": "Cargo.toml feature flag",
+    "test_artifacts_distinguishable": "Different app ID + PID-scoped temp fixture",
+    "no_extra_media_launcher": true,
+    "no_duplicate_routing": true,
+    "rollback_no_production_modification": true
+  },
+  "phase_c_complete": true,
+  "phase_c_findings": {
+    "canonical_436_byte_fixture": "EXISTS - golden_436_lckv_single_card_round_trip (asserts exactly 436 bytes)",
+    "historical_fixture_compatibility": "EXISTS - round_trip_write_read",
+    "empty_40_byte_tombstone": "EXISTS - tombstone_40_lckv_empty_bridge_round_trip (asserts exactly 40 bytes, empty vec not synthetic)",
+    "wrong_collection": "EXISTS - round_trip_write_read checks wrong collection returns empty",
+    "invalid_utf_8": "EXISTS - rejects_invalid_utf8_in_slot",
+    "truncated_files": "EXISTS - rejects_truncated_file",
+    "oversized_files": "EXISTS - rejects_oversized_count + rejects_exceeds_max_bridge_bytes",
+    "odd_seq": "EXISTS - rejects_odd_seq",
+    "mismatched_seq": "EXISTS - rejects_torn_seq",
+    "seq_zero_accepted": "EXISTS - accepts_seq_zero",
+    "invalid_progress": "EXISTS - rejects_invalid_progress_permille",
+    "reordered_duplicate_identities": "EXISTS - round_trip_write_read with 2 cards different collections",
+    "valid_empty_without_synthetic": "EXISTS - tombstone_40 test confirms empty vec returned",
+    "consumer_read_only": "CONFIRMED - read_bridge_cards takes &path, no write operations in consumer path",
+    "blocked_reason": "No Rust toolchain in sandbox \u2014 cannot run cargo test"
+  },
+  "phase_d_complete": true,
+  "phase_d_findings": {
+    "nuvio_launched_luma_loses_focus": "Focus preserved untouched (Target::NuvioLaunch not changed); Back returns to same focus",
+    "luma_hidden_suspended": "No special Nuvio handling needed \u2014 focus unchanged, renderer continues",
+    "nuvio_returns": "Launch effect handled once; !self.launching guard prevents duplicates",
+    "bridge_file_changes_during_read": "Seqlock: head==tail && even required; torn reads rejected with WouldBlock",
+    "account_empty_producer_unavailable": "bridge_items returns None on read error \u2192 synthetic fallback; empty bridge returns Some(vec![]) \u2192 valid empty",
+    "lab_app_not_installed": "Separate app ID space.nuvio.lab; production Nuvio app untouched",
+    "deterministic_state_transitions": "nuvio_tick uses try_recv() non-blocking; Service on dedicated worker thread",
+    "preserve_textures_animation_focus_renderer": "No texture clearing, no focus changes during Nuvio launch, renderer lifecycle untouched",
+    "no_experimental_vram_clearing": "CONFIRMED ABSENT \u2014 no VRAM clearing code",
+    "no_fixed_decoder_drain_delays": "CONFIRMED ABSENT \u2014 no decoder drain delays",
+    "no_new_memory_governor": "CONFIRMED ABSENT \u2014 no memory governor added"
+  },
+  "phase_e_blocked": true,
+  "phase_e_reason": "No Rust toolchain in sandbox \u2014 cargo/rustc not found (exit 127)",
+  "phase_e_required": [
+    "cargo fmt --check",
+    "cargo check",
+    "cargo test",
+    "cargo check --features nuvio",
+    "cargo test --features nuvio",
+    "cargo clippy --all-targets --all-features -- -D warnings"
+  ],
+  "changes_ready_for_commit": true,
+  "commit_files": [
+    "Cargo.toml",
+    "src/platform.rs",
+    "src/tests.rs",
+    ".agent-memory/workspace-state.json"
+  ]
 }

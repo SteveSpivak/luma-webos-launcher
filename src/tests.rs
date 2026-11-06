@@ -3528,6 +3528,55 @@ mod nuvio {
         );
     }
 
+    /// Lab app ID is distinct from production and passes app-ID validation.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_lab_app_id_is_distinct_and_valid() {
+        assert_eq!(
+            crate::platform::NUVIO_LAB_APP_ID,
+            "space.nuvio.lab"
+        );
+        assert_ne!(
+            crate::platform::NUVIO_LAB_APP_ID,
+            crate::platform::NUVIO_APP_ID
+        );
+        assert!(crate::model::valid_app_id(crate::platform::NUVIO_LAB_APP_ID));
+    }
+
+    /// `nuvio_app_id(false)` always returns production ID.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_app_id_production_returns_webos() {
+        assert_eq!(
+            crate::platform::nuvio_app_id(false),
+            crate::platform::NUVIO_APP_ID
+        );
+    }
+
+    /// `nuvio_app_id(true)` returns lab ID when feature compiled in.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_app_id_lab_returns_lab() {
+        assert_eq!(
+            crate::platform::nuvio_app_id(true),
+            crate::platform::NUVIO_LAB_APP_ID
+        );
+    }
+
+    /// Lab launch params use the lab app ID.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_lab_launch_params_match_contract() {
+        let expected = serde_json::json!({
+            "id": "space.nuvio.lab",
+            "params": {"contentTarget": "nuvio://tmdb/movie/603"},
+        });
+        assert_eq!(
+            crate::platform::nuvio_launch_params_lab("nuvio://tmdb/movie/603"),
+            expected,
+        );
+    }
+
     #[test]
     fn nuvio_launch_routes_through_the_platform_worker() {
         let platform = Platform::new(true);

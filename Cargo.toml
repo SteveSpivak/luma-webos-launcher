@@ -16,6 +16,9 @@ resolver = "3"
 default = []
 # Off by default: Luma only asks Nuvio to open a title when the user opts in.
 nuvio = []
+# Off by default: Isolated lab target for testing against space.nuvio.lab
+# without touching production space.nuvio.webos. Visible in build metadata.
+nuvio_lab = []
 webos = ["dep:libc"]
 
 [dependencies]

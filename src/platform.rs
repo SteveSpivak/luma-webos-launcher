@@ -14,9 +14,14 @@ use std::{
 
 pub const APP_ID: &str = "com.denisefremov.luma";
 pub const HOME_ID: &str = "com.webos.app.home";
-/// Nuvio's application ID is fixed and validated: Luma owns the launch
+/// Nuvio's production application ID is fixed and validated: Luma owns the launch
 /// request, Nuvio owns the deep-link receiver, playback, accounts and profiles.
 pub const NUVIO_APP_ID: &str = "space.nuvio.webos";
+/// Isolated lab application ID for test-only launches against `space.nuvio.lab`.
+/// Never used in production builds; opt-in via the `nuvio_lab` feature flag.
+/// Rollback requires no modification to the production Nuvio application.
+#[cfg(feature = "nuvio_lab")]
+pub const NUVIO_LAB_APP_ID: &str = "space.nuvio.lab";
 /// Reported when the TV replies that Nuvio is not installed.
 pub const NUVIO_NOT_INSTALLED: &str = "Nuvio is not installed";
 
@@ -290,6 +295,35 @@ pub fn validate_nuvio_target(target: &str) -> Result<String, String> {
 /// only supplies the validated content target, with no account parameters.
 pub fn nuvio_launch_params(content_target: &str) -> Value {
     json!({"id": NUVIO_APP_ID, "params": {"contentTarget": content_target}})
+}
+
+/// Returns the Nuvio application ID for the given target mode.
+/// Production (`lab = false`) always uses `space.nuvio.webos`.
+/// Lab (`lab = true`) uses `space.nuvio.lab` behind the `nuvio_lab` feature.
+/// Invalid app IDs are rejected by `valid_app_id()` before any TV call.
+pub fn nuvio_app_id(lab: bool) -> &'static str {
+    if lab {
+        #[cfg(feature = "nuvio_lab")]
+        {
+            return NUVIO_LAB_APP_ID;
+        }
+        #[cfg(not(feature = "nuvio_lab"))]
+        {
+            // Lab feature not compiled in: fall back to production to avoid
+            // silent runtime override of the production target.
+            return NUVIO_APP_ID;
+        }
+    }
+    NUVIO_APP_ID
+}
+
+/// Launch parameters for the isolated Nuvio lab application.
+/// Only available when the `nuvio_lab` feature is compiled in.
+/// Test artifacts cannot be confused with production release artifacts
+/// because the app ID differs (`space.nuvio.lab` vs `space.nuvio.webos`).
+#[cfg(feature = "nuvio_lab")]
+pub fn nuvio_launch_params_lab(content_target: &str) -> Value {
+    json!({"id": NUVIO_LAB_APP_ID, "params": {"contentTarget": content_target}})
 }
 
 fn app_not_installed(error: &str) -> bool {
