@@ -1,7 +1,7 @@
 {
   "branch": "arena/5fe14abb-luma-webos-launcher",
-  "head_sha": "ce403323d43533cf426f19f4c6d3361924f8e889",
-  "head_short": "ce40332",
+  "head_sha": "f1d895b",
+  "head_short": "f1d895b",
   "working_tree": "clean",
   "rust_toolchain": "NOT_AVAILABLE",
   "cargo": "NOT_FOUND",
@@ -41,10 +41,10 @@
     }
   },
   "blocked_items": [
-    "cargo_build_test: no Rust toolchain in sandbox",
+    "cargo_build_test: no Rust toolchain in sandbox (cargo/rustc not found, exit 127)",
     "tv_branch_10f8153_comparison: branch not found in repo",
-    "ci_native_validation: requires GitHub Actions with Rust 1.93",
-    "phase_c_test_execution: no Rust toolchain available locally"
+    "phase_c_test_execution: cannot run cargo test locally",
+    "phase_e_compiler_proof: cargo fmt/check/test/clippy all blocked locally"
   ],
   "phase_b_complete": true,
   "phase_b_design": {
@@ -109,5 +109,14 @@
     "src/platform.rs",
     "src/tests.rs",
     ".agent-memory/workspace-state.json"
-  ]
+  ],
+  "pushed_to_origin": true,
+  "commit_message": "feat: isolated lab app identity for Nuvio test target",
+  "all_phases": {
+    "phase_a": "COMPLETE - source truth established",
+    "phase_b": "COMPLETE - lab app identity design + tests committed",
+    "phase_c": "COMPLETE (review only) - LCKV consumer contract verified via code inspection; test execution BLOCKED (no Rust toolchain)",
+    "phase_d": "COMPLETE (review only) - lifecycle/resource safety verified via code inspection",
+    "phase_e": "BLOCKED - no Rust toolchain in sandbox; requires GitHub Actions with Rust 1.93"
+  }
 }
