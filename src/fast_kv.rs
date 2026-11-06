@@ -21,13 +21,12 @@ const LCKV_MAGIC: [u8; 4] = *b"LCKV";
 const LCKV_VERSION: u8 = 1;
 /// Max bytes per fixed string slot (includes 1-byte length prefix).
 const MAX_SLOT_STR: usize = 96;
-/// Canonical bridge file size cap: 6 Linux 4KB pages = 24,576 bytes.
+/// Canonical bridge file size cap: 4 Linux 4KB pages = 16,384 bytes.
 /// Writer MUST NOT exceed this; reader rejects files larger than this.
-/// Accommodates 20 items per collection × 3 collections (continue-watching,
-/// watchlist, library) = 60 cards: 32 + (60 * 396) + 8 = 23,800 <= 24,576.
-pub const MAX_BRIDGE_BYTES: usize = 24_576;
-/// Maximum 60 cards across all collections: 32 + (60 * 396) + 8 = 23,800 <= 24,576 (6 pages)
-pub const MAX_BRIDGE_CARDS: usize = 60;
+/// Matches Nuvio contract (40 cards max = 15,880 bytes <= 16,384).
+pub const MAX_BRIDGE_BYTES: usize = 16_384;
+/// Maximum 40 cards across all collections: 32 + (40 * 396) + 8 = 15,880 <= 16,384.
+pub const MAX_BRIDGE_CARDS: usize = 40;
 /// Header size: magic(4) + version(1) + padding(3) + count(2) + seq(8) + crc(4) + reserved(12) = 32
 const HEADER_SIZE: usize = 32;
 /// Trailer size: seq(8) — written at EOF for torn-read detection.
@@ -323,16 +322,16 @@ mod tests {
 
     /// Verified FNV-1a-64 constants (offset 0xcbf29ce484222325, prime 0x100000001b3):
     ///   "continue-watching" → 0x01aa2aebbc61d6f6
-    ///   "watchlist"         → 0x5bb28e17f2144504
-    ///   "library"           → 0x064f786c25b1670c
+    ///   "watchlist"         → 0xa05bdde6192df670
+    ///   "library"           → 0xe029b3e5014c2890
     #[test]
     fn fnv1a_known_constants() {
         assert_eq!(
             fnv1a_64(b"continue-watching"),
             0x01aa2aebbc61d6f6u64
         );
-        assert_eq!(fnv1a_64(b"watchlist"), 0x5bb28e17f2144504u64);
-        assert_eq!(fnv1a_64(b"library"), 0x064f786c25b1670cu64);
+        assert_eq!(fnv1a_64(b"watchlist"), 0xa05bdde6192df670u64);
+        assert_eq!(fnv1a_64(b"library"), 0xe029b3e5014c2890u64);
     }
 
     #[test]
@@ -355,7 +354,7 @@ mod tests {
             id: "tt0137523".into(),
             title: "The Matrix".into(),
             subtitle: "1999 · Sci-Fi".into(),
-            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
         }];
 
         write_bridge_cards(&path, 42, &cards).unwrap();
@@ -385,7 +384,7 @@ mod tests {
                 id: "tt0137523".into(),
                 title: "The Matrix".into(),
                 subtitle: "1999 · Sci-Fi".into(),
-                content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+                content_target: "nuvio://tmdb/movie/603".into(),
             },
             FastBridgeCard {
                 collection_hash: fnv1a_64(b"watchlist"),
@@ -394,7 +393,7 @@ mod tests {
                 id: "tt0068646".into(),
                 title: "The Godfather".into(),
                 subtitle: "1972 · Crime".into(),
-                content_target: "nuvio://resume/movie/tt0068646?t=0".into(),
+                content_target: "nuvio://tmdb/movie/603".into(),
             },
         ];
         write_bridge_cards(&path, 42, &cards).unwrap();
@@ -423,7 +422,7 @@ mod tests {
             id: "tt0137523".into(),
             title: "The Matrix".into(),
             subtitle: "1999 · Sci-Fi".into(),
-            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
         }];
         write_bridge_cards(&path, 42, &cards).unwrap();
         let mut buf = std::fs::read(&path).unwrap();
@@ -461,7 +460,7 @@ mod tests {
             id: "tt0137523".into(),
             title: "The Matrix".into(),
             subtitle: "1999 · Sci-Fi".into(),
-            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
         }];
         write_bridge_cards(&path, 42, &cards).unwrap();
         let mut buf = std::fs::read(&path).unwrap();
@@ -488,7 +487,7 @@ mod tests {
             id: "tt0137523".into(),
             title: "The Matrix".into(),
             subtitle: "1999 · Sci-Fi".into(),
-            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
         }];
         write_bridge_cards(&path, 0, &cards).unwrap();
         let result = read_bridge_cards(&path, "continue-watching");
@@ -507,7 +506,7 @@ mod tests {
             id: "tt0137523".into(),
             title: "The Matrix".into(),
             subtitle: "1999 · Sci-Fi".into(),
-            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
         }];
         write_bridge_cards(&path, 42, &cards).unwrap();
         let mut buf = std::fs::read(&path).unwrap();
@@ -533,7 +532,7 @@ mod tests {
             id: "tt0137523".into(),
             title: "The Matrix".into(),
             subtitle: "1999 · Sci-Fi".into(),
-            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
         }];
         write_bridge_cards(&path, 42, &cards).unwrap();
         let mut buf = std::fs::read(&path).unwrap();
@@ -559,7 +558,7 @@ mod tests {
             id: "tt0137523".into(),
             title: "The Matrix".into(),
             subtitle: "1999 · Sci-Fi".into(),
-            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
         }];
         write_bridge_cards(&path, 42, &cards).unwrap();
         let mut buf = std::fs::read(&path).unwrap();
