@@ -1,0 +1,29 @@
+name: Agent evidence contract
+on:
+  pull_request:
+    paths:
+      - AGENTS.md
+      - docs/agent-operations.md
+      - docs/agent-charter.md
+      - docs/agent-profile.json
+      - docs/agent-handoff.template.json
+      - scripts/agent_receipt.py
+      - .github/workflows/agent-evidence.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax
+        run: python3 -m py_compile scripts/agent_receipt.py
+      - name: Unit and mutation checks
+        run: python3 scripts/agent_receipt.py self-test
+      - name: CI capability snapshot (offline)
+        run: python3 scripts/agent_receipt.py snapshot --executor ci

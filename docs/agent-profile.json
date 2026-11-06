@@ -1,0 +1,35 @@
+{
+  "schema": "tv-agent/repository-profile/v2",
+  "repo": "SteveSpivak/luma-webos-launcher",
+  "role": "rust-launcher",
+  "canonical_branch": "main",
+  "contract_owner": "Luma consumer/launcher",
+  "visibility_at_review": {
+    "value": "public",
+    "date": "2026-11-06",
+    "source": "authorized GitHub repository metadata",
+    "not_a_permission_grant": true
+  },
+  "agent_access_policy": {
+    "arena": "current supplied checkout and authorized public sources; other private repositories inaccessible by default",
+    "local": "only locally readable checkouts and explicitly configured credentials",
+    "chatgpt": "only repositories available to active connected GitHub permissions",
+    "ci": "only checked-out repository and explicitly authorized dependencies"
+  },
+  "read_only_default": true,
+  "required_gates": [
+    "rustfmt",
+    "cargo-check",
+    "cargo-test",
+    "lckv-consumer-contract",
+    "launch-target-validation"
+  ],
+  "dangerous_actions": [
+    "tv-install",
+    "tv-root",
+    "production-bridge-write",
+    "release-publish"
+  ],
+  "evidence_verifier": "python3 scripts/agent_receipt.py",
+  "device_access_default": "NOT_PROBED"
+}
