@@ -1,8 +1,8 @@
 {
   "branch": "arena/5fe14abb-luma-webos-launcher",
-  "head_sha": "cd5dfaa",
-  "ci_rust": "failing",
+  "head_sha": "ff99c1edea192240fd8ae5e40a05b226b47fa747",
+  "ci_rust": "pending",
   "ci_docs": "passing",
-  "blocked_on": "nuvio-producer-api",
-  "updated_at": "2026-11-05T23:04:00.704479+00:00"
+  "blocked_on": null,
+  "updated_at": "2026-11-06T00:00:00.000000+00:00"
 }

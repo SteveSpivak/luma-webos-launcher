@@ -242,7 +242,8 @@ impl Platform {
             Request::Launch(..)
                 | Request::MoonlightLaunch(..)
                 | Request::CloseApp(..)
-                | Request::NuvioLaunch { .. }
+            #[cfg(feature = "nuvio")]
+            | Request::NuvioLaunch { .. }
         );
         let (lock, cvar) = &*self.requests;
         let mut queue = lock.lock().unwrap();

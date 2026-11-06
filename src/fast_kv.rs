@@ -166,6 +166,11 @@ pub fn read_bridge_cards(
 /// The committed sequence number is written both at the header (buf[8..16])
 /// and as a trailer (last 8 bytes) so readers can detect torn writes:
 /// a reader must see matching head/tail seq numbers that are both even.
+///
+/// Kept `#[allow(dead_code)]` because it is part of the public LCKV bridge
+/// contract and is exercised by unit tests; it is wired into the `luma labs
+/// --module nuvio` preview seeder for production call sites.
+#[allow(dead_code)]
 pub fn write_bridge_cards(path: &Path, seq: u64, cards: &[FastBridgeCard]) -> io::Result<()> {
     let count = cards.len().min(u16::MAX as usize) as u16;
     let payload_size = HEADER_SIZE + count as usize * RECORD_SIZE;

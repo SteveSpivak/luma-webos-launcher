@@ -270,6 +270,7 @@ fn effects(
                 }
             }
             /// Launch a Nuvio title into its detail page. Never autoplays and never injects input.
+            #[cfg(feature = "nuvio")]
             Effect::NuvioLaunch { content_target } => {
                 if !state.launching {
                     if platform.webos {
@@ -1871,6 +1872,38 @@ fn lab_command(module: &str, bench: bool) -> Result<(), String> {
             eprintln!("  HashSet<(uri,payload)> dedup of identical pending pairs");
             if bench {
                 eprintln!("  bench: dedup check = O(1), push_front/push_back = O(1)");
+            }
+        }
+        "nuvio" => {
+            eprintln!("[lab] nuvio: LCKV binary bridge card writer");
+            eprintln!("  Path: /tmp/nuvio_stacks.lckv (or LUMA_NUVIO_BRIDGE_PATH)");
+            eprintln!("  Layout: 32B header + count * 396B records + 8B even-seq trailer");
+            eprintln!("  Writer: space.nuvio.webos.service (mode 0o644, atomic rename)");
+            eprintln!("  Reader: Luma consumer (O_RDONLY, seqlock head==tail && even)");
+            if bench {
+                eprintln!("  bench: write_bridge_cards = O(cards), read_bridge_cards = O(count)");
+            }
+            #[cfg(feature = "nuvio")]
+            {
+                use crate::fast_kv::{default_bridge_path, write_bridge_cards, FastBridgeCard};
+                let path = default_bridge_path();
+                let cards = vec![FastBridgeCard {
+                    collection_hash: crate::fast_kv::fnv1a_64(b"continue-watching"),
+                    progress_permille: 645,
+                    ambient_rgb565: 0x18E3,
+                    id: "tt0137523".into(),
+                    title: "The Matrix".into(),
+                    subtitle: "1999 · Sci-Fi".into(),
+                    content_target: "nuvio://tmdb/movie/603".into(),
+                }];
+                match write_bridge_cards(&path, 42, &cards) {
+                    Ok(()) => eprintln!("  wrote bridge card to {}", path.display()),
+                    Err(e) => eprintln!("  bridge write failed: {e}"),
+                }
+            }
+            #[cfg(not(feature = "nuvio"))]
+            {
+                eprintln!("  (recompile with --features nuvio to exercise write_bridge_cards)");
             }
         }
         _ => return Err(format!("Unknown lab module: {module}")),

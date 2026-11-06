@@ -3796,6 +3796,7 @@ fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
                 }
                 let items = self.stack_items.get(stack).map_or(&[][..], Vec::as_slice);
                 // Nivío stack cards carry a content_target; launch via Phase 1.
+                #[cfg(feature = "nuvio")]
                 if self.preferences.stacks[stack].source == "nuvio" {
                     if let Some(item) = items.get(index) {
                         if !item.content_target.is_empty() {
