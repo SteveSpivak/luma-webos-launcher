@@ -9,7 +9,11 @@ Checks:
   3. Dead-code detector: finds `fn name(` definitions and verifies call count >= 2
   4. Call-Graph Reverse Census: asserts every Phase 2/3 feature symbol has >=1
      production call site outside its own definition and #[cfg(test)] blocks
-  5. Mathematical verification of Spring1D convergence & .ltex header packing
+  5a. Structural match-arm syntax check (bare statements between arms)
+  5b. Draw::Shape(_) arity check on 4-tuple variant (E0023)
+  5c. Deserialize used without `use serde` import check
+  6. Lesson L-042 Enum Raiser Census (brace-balanced enum parser)
+  7. Mathematical verification of Spring1D convergence & .ltex header packing
 """
 import glob
 import math
@@ -86,11 +90,10 @@ for module, feature, symbol in REQUIRED_LIVE_CALLS:
             f"{max(0, count - 1)} production call site(s) (hollow/unwired feature)!"
         )
 
-# 5. Structural Rust Syntax Check: Catch bare statements placed between `match`
-#    arms. A closing `}` of a match arm followed directly by `self.foo();` and
-#    then `Variant =>` is a hard Rust syntax error (council finding V-01).
-#    Simple line-based scan: a line ending with `}` (match arm close) followed
-#    by a line with a function call `;` followed by a line with `=>` is an error.
+# 5. Structural Rust Syntax Checks:
+#    5a. Catch bare statements placed between `match` arms.
+#    5b. Catch `Draw::Shape(_)` on the 4-tuple variant (should be `Draw::Shape(..)`).
+#    5c. Catch `Deserialize` referenced without `use serde` import.
 for path, content in all_files.items():
     lines = content.splitlines()
     for i in range(len(lines) - 2):
@@ -102,29 +105,58 @@ for path, content in all_files.items():
             errors.append(
                 f"{path}:{i + 1}: SYNTAX ERROR: bare statement between `match` arms!"
             )
+    for m in re.finditer(r"Draw::Shape\(\s*_\s*\)", content):
+        lineno = content[: m.start()].count("\n") + 1
+        errors.append(
+            f"{path}:{lineno}: E0023 ARITY ERROR: `Draw::Shape(_)` used on 4-tuple variant "
+            f"(use `Draw::Shape(..)`)"
+        )
+    # Flag bare `Deserialize` (not `serde::Deserialize`) without a serde import.
+    if re.search(r"(?<!serde::)\bDeserialize\b", content) and "use serde" not in content:
+        errors.append(
+            f"{path}: COMPILE ERROR: `Deserialize` referenced without `use serde` import"
+        )
 
 # 6. Lesson L-042 ("Census the raiser, not the handler"):
 #    Every variant of `enum Effect` in src/state.rs must be constructed
 #    (>= 2 occurrences: >=1 raiser and >=1 handler) in production code.
+#    Uses brace-balanced extraction to handle struct variants like
+#    `NuvioLaunch { content_target: String }` correctly.
 state_path = "src/state.rs"
 if state_path in all_files:
     state_content = all_files[state_path]
-    effect_match = re.search(r"pub enum Effect\s*\{([^}]+)\}", state_content)
-    if effect_match:
-        for line in effect_match.group(1).splitlines():
-            code = line.split("//")[0].strip()
-            if not code or code.startswith("#["):
-                continue
-            variant = re.split(r"[\s({,]", code)[0]
-            if variant and variant[0].isupper():
-                refs = len(
-                    re.findall(rf"\bEffect::{re.escape(variant)}\b", prod_corpus)
-                )
-                if refs < 2:
-                    errors.append(
-                        f"L-042 RAISER CENSUS FAILURE: `Effect::{variant}` has "
-                        f"{refs} production reference(s) (needs >=1 raiser + >=1 handler)!"
+    effect_start = state_content.find("pub enum Effect")
+    if effect_start != -1:
+        brace_open = state_content.find("{", effect_start)
+        depth = 0
+        brace_close = -1
+        for idx in range(brace_open, len(state_content)):
+            if state_content[idx] == "{":
+                depth += 1
+            elif state_content[idx] == "}":
+                depth -= 1
+                if depth == 0:
+                    brace_close = idx
+                    break
+        if brace_close != -1:
+            effect_body = state_content[brace_open + 1 : brace_close]
+            # Strip inner `{ ... }` or `( ... )` payloads so we only parse
+            # top-level variant names.
+            top_level = re.sub(r"\{[^}]*\}|\([^)]*\)", "", effect_body)
+            for raw_line in top_level.splitlines():
+                line = raw_line.split("//")[0].strip().rstrip(",")
+                if not line or line.startswith("#["):
+                    continue
+                variant = line.strip()
+                if re.match(r"^[A-Z][A-Za-z0-9_]*$", variant):
+                    refs = len(
+                        re.findall(rf"\bEffect::{re.escape(variant)}\b", prod_corpus)
                     )
+                    if refs < 2:
+                        errors.append(
+                            f"L-042 RAISER CENSUS FAILURE: `Effect::{variant}` has "
+                            f"{refs} production reference(s) (needs >=1 raiser + >=1 handler)!"
+                        )
 
 # 7. Mathematical Verification of Spring1D & Viewport Focus Corridor
 def verify_math_models():

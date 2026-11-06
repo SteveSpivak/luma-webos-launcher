@@ -13,8 +13,8 @@ members = ["vector-geometry", "tools/vector-assets"]
 resolver = "3"
 
 [features]
-default = ["nuvio"]
-# Nuvio continue-watching stack integration via LCKV binary bridge.
+default = []
+# Off by default: Luma only asks Nuvio to open a title when the user opts in.
 nuvio = []
 webos = ["dep:libc"]
 
