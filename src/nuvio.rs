@@ -129,15 +129,13 @@ fn bridge_items(bridge_path: &PathBuf, collection: &str) -> Option<Vec<StackItem
     Some(
         cards
             .into_iter()
-            .enumerate()
-            .map(|(seq, c)| StackItem {
+            .map(|c| StackItem {
                 title: c.title,
                 poster: None,
                 // Deterministic per-item identity: FNV-1a-64 of the card's
-                // unique id, mixed with its sequence position so two cards
-                // with the same id in different collections never collide,
-                // and two cards in the same collection always differ.
-                id: unique_card_id(&c.id, &c.content_target, seq),
+                // id mixed with its content target. Never derived from list
+                // index, so IDs are stable across collection changes.
+                id: unique_card_id(&c.id, &c.content_target),
                 content_target: c.content_target,
                 progress_permille: c.progress_permille,
                 poster_url: metahub_poster_url(&c.id),
@@ -150,14 +148,10 @@ fn bridge_items(bridge_path: &PathBuf, collection: &str) -> Option<Vec<StackItem
 /// Derives a deterministic positive i64 identity for a single bridge card.
 /// Uses FNV-1a-64 of the card id mixed with the content target and sequence
 /// position, so every card in a collection has a unique id.
-fn unique_card_id(card_id: &str, content_target: &str, seq: usize) -> i64 {
-    let mut h = crate::fast_kv::fnv1a_64(card_id.as_bytes());
-    h ^= crate::fast_kv::fnv1a_64(content_target.as_bytes()).rotate_left(13);
-    h = h.wrapping_add(seq as u64);
-    // Keep strictly positive i64 (> 0)
-    let positive = (h & 0x7FFF_FFFF_FFFF_FFC0) | ((seq as u64) & 0x3F);
-    positive.max(1) as i64
-}
+fn unique_card_id(card_id: &str, content_target: &str) -> i64 {
+    let key = if !card_id.is_empty() { card_id } else { content_target };
+    let h = crate::fast_kv::fnv1a_64(key.as_bytes()) & 0x7FFF_FFFF_FFFF_FFFF;
+    h.max(1) as i64
 }
 
 /// Synthetic Continue Watching items — replaced by real Nivío producer API.

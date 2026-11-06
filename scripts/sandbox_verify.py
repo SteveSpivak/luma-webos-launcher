@@ -5,7 +5,9 @@ scripts/sandbox_verify.py — Offline Rust Static Analyzer (rustfmt + dead_code 
 
 Checks:
   1. Trailing whitespace & hard tabs (instant rustfmt failure)
-  2. 100-column max_width on non-string, non-comment code lines
+  2. 100-column max_width on non-string, non-comment code lines (INCLUDING quoted lines)
+  2b. Brace / paren / bracket balance per file (catches extra `}`)
+  2c. Module-scope `&self` / `&mut self` detector (catches method outside `impl`)
   3. Dead-code detector: finds `fn name(` definitions and verifies call count >= 2
   4. Call-Graph Reverse Census: asserts every Phase 2/3 feature symbol has >=1
      production call site outside its own definition and #[cfg(test)] blocks
@@ -40,18 +42,81 @@ for path, content in all_files.items():
         if "\t" in line:
             errors.append(f"{path}:{lineno}: tab character")
 
-        # 2. 100-col check on non-string, non-comment code lines
+        # 2. Strict 100-col check INCLUDING code lines with string arguments.
+        #    Strip comments and string literals to measure actual Rust code width.
         if len(line) > MAX_WIDTH:
             s = line.strip()
-            if not (s.startswith("//") or '"' in s):
+            # Only exempt pure comment lines or lines where a single unbroken
+            # string literal exceeds 80 chars (can't be wrapped by rustfmt).
+            long_string = any(
+                len(m.group(0)) > 80
+                for m in re.finditer(r'"(?:\\.|[^"\\])*"', s)
+            )
+            if not s.startswith("//") and not long_string:
                 errors.append(
                     f"{path}:{lineno}: width {len(line)} > {MAX_WIDTH}: {s[:55]}..."
                 )
 
+    # 2b. Brace / paren / bracket balance per file (catches extra `}`).
+    #     Strip comments and string literals first so braces inside them
+    #     don't inflate the count. Handles raw strings (r"..." / r#"..."#),
+    #     byte strings (b"..."), and char literals ('x').
+    stripped = re.sub(
+        r'//[^\n]*|/\*[\s\S]*?\*/|r#*"[^#]*?"#|r"[^"]*"|b"[^"]*"|"(?:\\.|[^"\\])*"|\'[^\']\'',
+        '',
+        content,
+    )
+    open_braces = stripped.count("{")
+    close_braces = stripped.count("}")
+    if open_braces != close_braces:
+        errors.append(
+            f"{path}: SYNTAX ERROR: unbalanced curly braces: "
+            f"'{{'={open_braces} vs '}}'={close_braces}"
+        )
+    open_parens = stripped.count("(")
+    close_parens = stripped.count(")")
+    if open_parens != close_parens:
+        errors.append(
+            f"{path}: SYNTAX ERROR: unbalanced parens: "
+            f"'('={open_parens} vs ')'={close_parens}"
+        )
+    open_brackets = stripped.count("[")
+    close_brackets = stripped.count("]")
+    if open_brackets != close_brackets:
+        errors.append(
+            f"{path}: SYNTAX ERROR: unbalanced brackets: "
+            f"'['={open_brackets} vs ']'={close_brackets}"
+        )
+
+    # 2c. Module-scope `&self` / `&mut self` detector (catches method
+    #     defined outside `impl`). Walk brace depth and flag `fn ...(&self`
+    #     or `fn ...(&mut self)` at depth 0.
+    depth = 0
+    for lineno, raw_line in enumerate(stripped.splitlines(), start=1):
+        if depth == 0 and re.search(
+            r"\bfn\s+[a-zA-Z0-9_]+\s*\(\s*&(?:mut\s+)?self\b", raw_line
+        ):
+            errors.append(
+                f"{path}:{lineno}: SCOPE ERROR: method with `self` receiver "
+                f"defined at module scope (outside `impl`)!"
+            )
+        depth += raw_line.count("{") - raw_line.count("}")
+        if depth < 0:
+            errors.append(
+                f"{path}:{lineno}: SYNTAX ERROR: unmatched closing brace `}}` "
+                f"(depth < 0)!"
+            )
+            depth = 0
+
     # 3. Dead-code detector: find `fn name(` definitions and verify call count >= 2 in corpus
-    for m in re.finditer(r"\b(?:pub\s+)?(?:const\s+)?fn\s+([a-zA-Z0-9_]+)\s*[<(]", content):
+    for m in re.finditer(
+        r"\b(?:pub\s+)?(?:const\s+)?fn\s+([a-zA-Z0-9_]+)\s*[<(]", content
+    ):
         fn_name = m.group(1)
-        if fn_name in ("main", "new", "default", "fmt", "drop", "eq", "partial_cmp", "cmp", "hash"):
+        if fn_name in (
+            "main", "new", "default", "fmt", "drop", "eq", "partial_cmp",
+            "cmp", "hash",
+        ):
             continue
         occurrences = len(re.findall(rf"\b{re.escape(fn_name)}\b", full_corpus))
         if occurrences < 2:

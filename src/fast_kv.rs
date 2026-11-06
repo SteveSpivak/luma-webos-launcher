@@ -239,7 +239,17 @@ pub fn read_bridge_cards(
 /// --module nuvio` preview seeder for production call sites.
 #[allow(dead_code)]
 pub fn write_bridge_cards(path: &Path, seq: u64, cards: &[FastBridgeCard]) -> io::Result<()> {
-    let count = cards.len().min(u16::MAX as usize) as u16;
+    let count = cards.len();
+    if count > MAX_BRIDGE_CARDS {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!(
+                "card count {} exceeds MAX_BRIDGE_CARDS {}",
+                count, MAX_BRIDGE_CARDS
+            ),
+        ));
+    }
+    let count = count as u16;
     let payload_size = HEADER_SIZE + count as usize * RECORD_SIZE;
     let mut buf = vec![0u8; payload_size + TRAILER_SIZE];
 
@@ -363,21 +373,34 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("truncated.lckv");
 
-        // Write a valid header claiming 2 records but only provide 1 record's bytes.
-        let count: u16 = 2;
-        let mut buf = Vec::new();
-        buf.extend_from_slice(b"LCKV");
-        buf.push(1); // version
-        buf.extend_from_slice(&[0u8, 0u8]); // padding
-        buf.extend_from_slice(&count.to_le_bytes());
-        buf.extend_from_slice(&42u64.to_le_bytes()); // seq head
-        buf.extend_from_slice(&0u64.to_le_bytes()); // reserved
-        buf.extend_from_slice(&0u32.to_le_bytes()); // crc
-        buf.extend_from_slice(&[0u8; 12]); // reserved
-        // Only 1 record (396 bytes) instead of 2
-        buf.extend_from_slice(&[0u8; 396]);
-        // Trailer
-        buf.extend_from_slice(&42u64.to_le_bytes());
+        // Build a valid 2-card file via write_bridge_cards, then truncate
+        // the trailer + part of the last record while keeping count=2.
+        let cards = vec![
+            FastBridgeCard {
+                collection_hash: fnv1a_64(b"continue-watching"),
+                progress_permille: 645,
+                ambient_rgb565: 0x18E3,
+                id: "tt0137523".into(),
+                title: "The Matrix".into(),
+                subtitle: "1999 · Sci-Fi".into(),
+                content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+            },
+            FastBridgeCard {
+                collection_hash: fnv1a_64(b"watchlist"),
+                progress_permille: 100,
+                ambient_rgb565: 0x0000,
+                id: "tt0068646".into(),
+                title: "The Godfather".into(),
+                subtitle: "1972 · Crime".into(),
+                content_target: "nuvio://resume/movie/tt0068646?t=0".into(),
+            },
+        ];
+        write_bridge_cards(&path, 42, &cards).unwrap();
+        let mut buf = std::fs::read(&path).unwrap();
+        // Truncate last 10 bytes: removes trailer (8) + 2 bytes of last record.
+        buf.truncate(buf.len() - 10);
+        // Patch count to still claim 2 records → expected_len > actual len.
+        buf[6..8].copy_from_slice(&2u16.to_le_bytes());
         std::fs::write(&path, &buf).unwrap();
 
         let result = read_bridge_cards(&path, "continue-watching");
@@ -390,17 +413,19 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("oversized.lckv");
 
-        // Header claims MAX_BRIDGE_CARDS + 1 records → must reject.
-        let count: u16 = (MAX_BRIDGE_CARDS + 1) as u16;
-        let mut buf = Vec::new();
-        buf.extend_from_slice(b"LCKV");
-        buf.push(1);
-        buf.extend_from_slice(&[0u8, 0u8]);
-        buf.extend_from_slice(&count.to_le_bytes());
-        buf.extend_from_slice(&42u64.to_le_bytes());
-        buf.extend_from_slice(&0u64.to_le_bytes());
-        buf.extend_from_slice(&0u32.to_le_bytes());
-        buf.extend_from_slice(&[0u8; 12]);
+        // Write a valid 1-card file, then patch count to MAX_BRIDGE_CARDS + 1.
+        let cards = vec![FastBridgeCard {
+            collection_hash: fnv1a_64(b"continue-watching"),
+            progress_permille: 645,
+            ambient_rgb565: 0x18E3,
+            id: "tt0137523".into(),
+            title: "The Matrix".into(),
+            subtitle: "1999 · Sci-Fi".into(),
+            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+        }];
+        write_bridge_cards(&path, 42, &cards).unwrap();
+        let mut buf = std::fs::read(&path).unwrap();
+        buf[6..8].copy_from_slice(&(MAX_BRIDGE_CARDS as u16 + 1).to_le_bytes());
         std::fs::write(&path, &buf).unwrap();
 
         let result = read_bridge_cards(&path, "continue-watching");
@@ -425,34 +450,120 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("bad_utf8.lckv");
 
-        // Build a valid 1-record file where the "id" slot contains invalid UTF-8.
-        let count: u16 = 1;
-        let mut buf = Vec::new();
-        buf.extend_from_slice(b"LCKV");
-        buf.push(1);
-        buf.extend_from_slice(&[0u8, 0u8]);
-        buf.extend_from_slice(&count.to_le_bytes());
-        buf.extend_from_slice(&42u64.to_le_bytes());
-        buf.extend_from_slice(&0u64.to_le_bytes());
-        buf.extend_from_slice(&0u32.to_le_bytes());
-        buf.extend_from_slice(&[0u8; 12]);
+        // Build a valid 1-card file via write_bridge_cards, then inject
+        // invalid UTF-8 (0xFF) as the first content byte of the id slot.
+        let cards = vec![FastBridgeCard {
+            collection_hash: fnv1a_64(b"continue-watching"),
+            progress_permille: 645,
+            ambient_rgb565: 0x18E3,
+            id: "tt0137523".into(),
+            title: "The Matrix".into(),
+            subtitle: "1999 · Sci-Fi".into(),
+            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+        }];
+        write_bridge_cards(&path, 42, &cards).unwrap();
+        let mut buf = std::fs::read(&path).unwrap();
+        // id slot starts at HEADER_SIZE + 12, byte 1 is the first content byte.
+        let id_slot_content_start = HEADER_SIZE + 12 + 1;
+        buf[id_slot_content_start] = 0xFF;
+        std::fs::write(&path, &buf).unwrap();
 
-        // Record: collection_hash(8) + progress(2) + ambient(2) + 4 slots(384)
-        let col_hash = fnv1a_64(b"continue-watching");
-        buf.extend_from_slice(&col_hash.to_le_bytes());
-        buf.extend_from_slice(&645u16.to_le_bytes());
-        buf.extend_from_slice(&0x18E3u16.to_le_bytes());
-        // Slot 0 (id): length byte = 3, then invalid UTF-8 bytes 0xFF 0xFE
-        let mut slot = [0u8; MAX_SLOT_STR];
-        slot[0] = 3;
-        slot[1] = 0xFF;
-        slot[2] = 0xFE;
-        slot[3] = 0x00;
-        buf.extend_from_slice(&slot);
-        // Slots 1-3: empty
-        buf.extend_from_slice(&[0u8; MAX_SLOT_STR * 3]);
-        // Trailer
-        buf.extend_from_slice(&42u64.to_le_bytes());
+        let result = read_bridge_cards(&path, "continue-watching");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().kind(), io::ErrorKind::InvalidData);
+    }
+
+    #[test]
+    fn accepts_seq_zero() {
+        // seq == 0 is valid (even, head==tail). Only odd seq or mismatch
+        // should be rejected.
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("seq_zero.lckv");
+        let cards = vec![FastBridgeCard {
+            collection_hash: fnv1a_64(b"continue-watching"),
+            progress_permille: 645,
+            ambient_rgb565: 0x18E3,
+            id: "tt0137523".into(),
+            title: "The Matrix".into(),
+            subtitle: "1999 · Sci-Fi".into(),
+            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+        }];
+        write_bridge_cards(&path, 0, &cards).unwrap();
+        let result = read_bridge_cards(&path, "continue-watching");
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 1);
+    }
+
+    #[test]
+    fn rejects_odd_seq() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("odd_seq.lckv");
+        let cards = vec![FastBridgeCard {
+            collection_hash: fnv1a_64(b"continue-watching"),
+            progress_permille: 645,
+            ambient_rgb565: 0x18E3,
+            id: "tt0137523".into(),
+            title: "The Matrix".into(),
+            subtitle: "1999 · Sci-Fi".into(),
+            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+        }];
+        write_bridge_cards(&path, 42, &cards).unwrap();
+        let mut buf = std::fs::read(&path).unwrap();
+        // Set both head and tail seq to odd (3).
+        buf[8..16].copy_from_slice(&3u64.to_le_bytes());
+        let tail_start = buf.len() - TRAILER_SIZE;
+        buf[tail_start..tail_start + 8].copy_from_slice(&3u64.to_le_bytes());
+        std::fs::write(&path, &buf).unwrap();
+
+        let result = read_bridge_cards(&path, "continue-watching");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().kind(), io::ErrorKind::WouldBlock);
+    }
+
+    #[test]
+    fn rejects_torn_seq() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("torn_seq.lckv");
+        let cards = vec![FastBridgeCard {
+            collection_hash: fnv1a_64(b"continue-watching"),
+            progress_permille: 645,
+            ambient_rgb565: 0x18E3,
+            id: "tt0137523".into(),
+            title: "The Matrix".into(),
+            subtitle: "1999 · Sci-Fi".into(),
+            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+        }];
+        write_bridge_cards(&path, 42, &cards).unwrap();
+        let mut buf = std::fs::read(&path).unwrap();
+        // Head seq = 2, tail seq = 4 (mismatch → torn write).
+        buf[8..16].copy_from_slice(&2u64.to_le_bytes());
+        let tail_start = buf.len() - TRAILER_SIZE;
+        buf[tail_start..tail_start + 8].copy_from_slice(&4u64.to_le_bytes());
+        std::fs::write(&path, &buf).unwrap();
+
+        let result = read_bridge_cards(&path, "continue-watching");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().kind(), io::ErrorKind::WouldBlock);
+    }
+
+    #[test]
+    fn rejects_invalid_progress_permille() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("bad_progress.lckv");
+        let cards = vec![FastBridgeCard {
+            collection_hash: fnv1a_64(b"continue-watching"),
+            progress_permille: 645,
+            ambient_rgb565: 0x18E3,
+            id: "tt0137523".into(),
+            title: "The Matrix".into(),
+            subtitle: "1999 · Sci-Fi".into(),
+            content_target: "nuvio://resume/movie/tt0137523?t=1420".into(),
+        }];
+        write_bridge_cards(&path, 42, &cards).unwrap();
+        let mut buf = std::fs::read(&path).unwrap();
+        // progress_permille is at HEADER_SIZE + 8, 2 bytes.
+        let prog_offset = HEADER_SIZE + 8;
+        buf[prog_offset..prog_offset + 2].copy_from_slice(&1001u16.to_le_bytes());
         std::fs::write(&path, &buf).unwrap();
 
         let result = read_bridge_cards(&path, "continue-watching");

@@ -1885,8 +1885,14 @@ fn lab_command(module: &str, bench: bool) -> Result<(), String> {
             }
             #[cfg(feature = "nuvio")]
             {
-                use crate::fast_kv::{default_bridge_path, write_bridge_cards, FastBridgeCard};
-                let path = default_bridge_path();
+                use crate::fast_kv::{write_bridge_cards, FastBridgeCard};
+                // Write only to a PID-scoped temp fixture — NEVER to
+                // default_bridge_path() (/tmp/nuvio_stacks.lckv), which is
+                // owned by the NuvioTV producer.
+                let path = std::env::temp_dir().join(format!(
+                    "luma_lab_fixture_{}.lckv",
+                    std::process::id()
+                ));
                 let cards = vec![FastBridgeCard {
                     collection_hash: crate::fast_kv::fnv1a_64(b"continue-watching"),
                     progress_permille: 645,
@@ -1897,7 +1903,17 @@ fn lab_command(module: &str, bench: bool) -> Result<(), String> {
                     content_target: "nuvio://tmdb/movie/603".into(),
                 }];
                 match write_bridge_cards(&path, 42, &cards) {
-                    Ok(()) => eprintln!("  wrote bridge card to {}", path.display()),
+                    Ok(()) => {
+                        eprintln!("  wrote lab fixture to {}", path.display());
+                        // Verify round-trip read, then self-delete the temp fixture.
+                        match crate::fast_kv::read_bridge_cards(&path, "continue-watching") {
+                            Ok(read_cards) => {
+                                eprintln!("  round-trip read OK: {} cards", read_cards.len());
+                            }
+                            Err(e) => eprintln!("  round-trip read failed: {e}"),
+                        }
+                        let _ = std::fs::remove_file(&path);
+                    }
                     Err(e) => eprintln!("  bridge write failed: {e}"),
                 }
             }
@@ -2701,10 +2717,6 @@ fn run() -> Result<(), String> {
     let mut last_minute = None;
     let mut frame = 0u64;
     let mut visible = true;
-    /// True when Luma's window is occluded by a background video player
-    /// (Hidden/Minimized/FocusLost). While true, we skip render+swap and
-    /// shed GPU textures so webOS memorymanager does not kill/refresh Luma.
-    let mut is_backgrounded = false;
     let mut last_ha_view: Option<HaView> = None;
     let mut last_ha_connect = false;
     // Starfish requires a fully displayed/foreground native Wayland window.
@@ -3320,20 +3332,6 @@ fn run() -> Result<(), String> {
                     let _ = x;
                 }
                 Event::Quit { .. } => running = false,
-                // webOS sends AppLowMemory when memorymanager is under pressure.
-                // Shed VRAM immediately to avoid being killed/refreshing.
-                Event::AppLowMemory { .. } => {
-                    is_backgrounded = true;
-                    renderer.shed_replaceable_vram();
-                }
-                Event::AppDidEnterBackground { .. } => {
-                    is_backgrounded = true;
-                    renderer.shed_replaceable_vram();
-                }
-                Event::AppWillEnterForeground { .. } => {
-                    is_backgrounded = false;
-                    state.dirty = true;
-                }
                 Event::Window {
                     window_id,
                     win_event,
@@ -3341,25 +3339,16 @@ fn run() -> Result<(), String> {
                 } if window_id == window.id() => match win_event {
                     WindowEvent::Hidden | WindowEvent::Minimized => {
                         visible = false;
-                        is_backgrounded = true;
                         press = None;
                         drag = None;
                         if matches!(state.overlay, Some(Overlay::SystemKeyboard)) {
                             pending = state.finish_text_input();
                         }
                         profile.pause();
-                        // Shed replaceable GPU textures so webOS memorymanager
-                        // does not kill/refresh Luma while a video plays.
-                        renderer.shed_replaceable_vram();
                     }
-                    WindowEvent::FocusLost => {
-                        press = None;
-                        is_backgrounded = true;
-                        renderer.shed_replaceable_vram();
-                    }
+                    WindowEvent::FocusLost => press = None,
                     WindowEvent::Shown | WindowEvent::Restored | WindowEvent::FocusGained => {
                         visible = true;
-                        is_backgrounded = false;
                         state.dirty = true;
                         // Double Start+Select on a TV gamepad (pad_watch): close the game.
                         let quit = std::fs::remove_file(pad_watch::FLAG).is_ok();
@@ -4118,7 +4107,7 @@ fn run() -> Result<(), String> {
             assets.text_pct.set(state.preferences.text_size_pct);
             scene = compose(&mut state, &assets, pill, pill_width, now);
             let (width, height) = window.drawable_size();
-            if width > 0 && height > 0 && !is_backgrounded {
+            if width > 0 && height > 0 {
                 if final_frame && let Some(path) = &options.screenshot {
                     captured = Some(renderer.capture(
                         &scene.draw,
