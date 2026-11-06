@@ -3,7 +3,6 @@
 //! process trying to impersonate its application identity.
 use crate::{
     app_artwork,
-    fast_kv::{default_bridge_path, write_bridge_cards, FastBridgeCard},
     model::{App, Input, Inventory, demo_inventory, valid_app_id},
 };
 use serde_json::{Value, json};
@@ -49,15 +48,6 @@ pub enum Request {
     CloseApp(String),
     /// Launch a Nuvio title by content target. Never autoplays and never injects input.
     NuvioLaunch { content_target: String },
-    /// NivíoTV producer hook `lumaStacksExport`: NuvioTV pushes stack cards
-    /// (continue-watching, watchlist, library) which Luma writes to the LCKV
-    /// binary bridge for the consumer service to read. Cards are passed as
-    /// JSON and converted to `FastBridgeCard` by the caller.
-    NuvioStacksExport { seq: u64, cards: Value },
-    /// NivíoTV deep-link consumer hook `lumaDeepLinkLaunch`: NuvioTV asks Luma
-    /// to launch a title by content target. Validated before any action; never
-    /// autoplays and never injects input.
-    NuvioDeepLinkLaunch { content_target: String },
     /// Open Luma's web player app with these launch parameters. They hold
     /// signed URLs and a token, so they are never logged.
     WebPlayer(Value),
@@ -230,40 +220,6 @@ impl Platform {
                                     Ok(())
                                 }
                             },
-                            Err(error) => Err(error),
-                        })
-                    }
-                    /// NivíoTV producer hook `lumaStacksExport`: write stack cards
-                    /// to the LCKV binary bridge so Luma's consumer service can
-                    /// read them. Cards arrive as JSON from NuvioTV's JS bridge.
-                    #[cfg(feature = "nuvio")]
-                    Request::NuvioStacksExport { seq, cards } => {
-                        let cards: Result<Vec<FastBridgeCard>, _> =
-                            serde_json::from_value(cards);
-                        match cards {
-                            Ok(cards) => {
-                                let path = default_bridge_path();
-                                match write_bridge_cards(&path, seq, &cards) {
-                                    Ok(()) => Response::Launched(Ok(())),
-                                    Err(e) => Response::Launched(Err(format!("{e}"))),
-                                }
-                            }
-                            Err(e) => {
-                                Response::Launched(Err(format!("Invalid cards JSON: {e}")))
-                            }
-                        }
-                    }
-                    /// NivíoTV deep-link consumer hook `lumaDeepLinkLaunch`:
-                    /// NuvioTV asks Luma to launch a title by content target.
-                    /// Validated before any action; never autoplays.
-                    #[cfg(feature = "nuvio")]
-                    Request::NuvioDeepLinkLaunch { content_target } => {
-                        Response::Launched(match validate_nuvio_target(&content_target) {
-                            Ok(_target) => {
-                                // The launch is handled by main.rs via Effect::NuvioLaunch;
-                                // platform just acknowledges the deep-link request.
-                                Ok(())
-                            }
                             Err(error) => Err(error),
                         })
                     }

@@ -283,37 +283,6 @@ fn effects(
                     }
                 }
             }
-            /// NivíoTV producer hook `lumaStacksExport`: write stack cards to
-            /// the LCKV binary bridge for Luma's consumer service.
-            #[cfg(feature = "nuvio")]
-            Effect::NuvioStacksExport { seq, cards } => {
-                if platform.webos {
-                    let cards_value: serde_json::Value =
-                        serde_json::from_str(&cards).unwrap_or(serde_json::Value::Null);
-                    platform.send(Request::NuvioStacksExport { seq, cards: cards_value });
-                } else {
-                    state.notify("Nuvio bridge export: desktop preview only");
-                }
-            }
-            /// NivíoTV deep-link consumer hook `lumaDeepLinkLaunch`: NuvioTV
-            /// asks Luma to launch a title by content target.
-            #[cfg(feature = "nuvio")]
-            Effect::NuvioDeepLinkLaunch { content_target } => {
-                if !state.launching {
-                    state.launching = true;
-                    if platform.webos {
-                        platform.send(Request::NuvioDeepLinkLaunch {
-                            content_target: content_target.clone(),
-                        });
-                    } else {
-                        state.notify(state.preferences.language.format(
-                            "desktopPreview",
-                            &[("app", "Nuvio")],
-                        ));
-                        state.launching = false;
-                    }
-                }
-            }
             Effect::Quit => return false,
             Effect::Weather(command) => weather.send(command),
             Effect::HomeAssistant(command) => home.send(command),

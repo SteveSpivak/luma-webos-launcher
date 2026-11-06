@@ -27,7 +27,7 @@ const TRAILER_SIZE: usize = 8;
 const RECORD_SIZE: usize = 396;
 
 /// One continue-watching / watchlist / library card in the binary bridge.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize)]
 pub struct FastBridgeCard {
     /// FNV-1a 64-bit hash of the collection id (e.g. "continue-watching").
     pub collection_hash: u64,
@@ -109,8 +109,19 @@ pub fn read_bridge_cards(
     let count = u16::from_le_bytes([buf[6], buf[7]]) as usize;
     let target_hash = fnv1a_64(target_collection.as_bytes());
 
+    let record_size = 12 + (MAX_SLOT_STR * 4); // 396 bytes
+    let payload_and_trailer = count * record_size + 8;
+
+    // Auto-detect 32-byte header (Nuvio producer spec) vs 16-byte header
+    // based on total file geometry, so producer and consumer can never
+    // misalign regardless of header size.
+    let mut offset = if buf.len() >= 32 + payload_and_trailer {
+        32
+    } else {
+        16
+    };
+
     let mut out = Vec::new();
-    let mut offset = HEADER_SIZE;
 
     for _ in 0..count {
         if offset + RECORD_SIZE > buf.len() {

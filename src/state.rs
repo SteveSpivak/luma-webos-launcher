@@ -372,16 +372,10 @@ pub enum Effect {
     /// Look the game up on Steam for its card (id, title).
     GameInfo(i64, String),
     /// Launch a Nuvio title by content target (feature `nuvio`, default off).
+    /// Raised by `Target::StackCard` when clicking a Nuvio card; handled in
+    /// `main.rs` → `platform.send(Request::NuvioLaunch { .. })`.
     #[cfg(feature = "nuvio")]
     NuvioLaunch { content_target: String },
-    /// NivíoTV producer hook `lumaStacksExport`: NuvioTV pushed stack cards
-    /// which Luma writes to the LCKV binary bridge (feature `nuvio`, default off).
-    #[cfg(feature = "nuvio")]
-    NuvioStacksExport { seq: u64, cards: String },
-    /// NivíoTV deep-link consumer hook `lumaDeepLinkLaunch`: NuvioTV asks Luma
-    /// to launch a title by content target (feature `nuvio`, default off).
-    #[cfg(feature = "nuvio")]
-    NuvioDeepLinkLaunch { content_target: String },
     /// Songs and cover of a Jellyfin album card.
     AlbumDetails(i64),
     /// Play an album from this song, in order or shuffled.

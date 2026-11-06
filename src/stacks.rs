@@ -284,7 +284,10 @@ pub struct StackItem {
     /// Watch progress in permille (0..1000; 645 = 64.5% watched). Forwarded
     /// from the LCKV binary bridge via `nuvio::bridge_items()`.
     pub progress_permille: u16,
-    /// Metahub CDN artwork URL, derived from a "tt" (IMDb) id in
-    /// `nuvio::bridge_items()`. Empty when no artwork URL is available.
+    /// Metahub CDN poster URL (2:3 vertical), derived from a "tt" (IMDb) id
+    /// in `nuvio::bridge_items()`. Empty when no artwork URL is available.
     pub poster_url: Option<String>,
+    /// Metahub CDN still URL (16:9 landscape), derived from a "tt" (IMDb) id
+    /// in `nuvio::bridge_items()`. Used for Continue Watching card backgrounds.
+    pub still_url: Option<String>,
 }

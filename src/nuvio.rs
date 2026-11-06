@@ -89,13 +89,28 @@ fn fetch(reply: &mpsc::Sender<Response>, stacks: Vec<(usize, String)>) {
     }
 }
 
-/// Derives a Metahub CDN artwork URL from a "tt" (IMDb) id.
-/// Returns `None` when the id is not a "tt" prefixed identifier.
-fn metahub_artwork_url(id: &str) -> Option<String> {
-    if let Some(tt_id) = id.strip_prefix("tt") {
-        if tt_id.bytes().all(u8::is_ascii_digit) && !tt_id.is_empty() {
-            return Some(format!("https://artwork.metahub.tv/{id}.jpg"));
-        }
+/// Extracts the bare "tt" IMDb id (e.g. "tt0137523") from a card id that
+/// may include episode suffixes (e.g. "tt0137523:1:2").
+fn imdb_id(id: &str) -> &str {
+    id.split(':').next().unwrap_or(id).trim()
+}
+
+/// Derives a Stremio Metahub CDN poster URL (2:3 vertical) from a "tt" id.
+/// Live domain: https://images.metahub.space/poster/medium/{tt}/img
+fn metahub_poster_url(id: &str) -> Option<String> {
+    let base = imdb_id(id);
+    if base.starts_with("tt") && base.len() >= 7 && base[2..].chars().all(|c| c.is_ascii_digit()) {
+        return Some(format!("https://images.metahub.space/poster/medium/{base}/img"));
+    }
+    None
+}
+
+/// Derives a Stremio Metahub CDN still URL (16:9 landscape) from a "tt" id.
+/// Live domain: https://images.metahub.space/background/medium/{tt}/img
+fn metahub_still_url(id: &str) -> Option<String> {
+    let base = imdb_id(id);
+    if base.starts_with("tt") && base.len() >= 7 && base[2..].chars().all(|c| c.is_ascii_digit()) {
+        return Some(format!("https://images.metahub.space/background/medium/{base}/img"));
     }
     None
 }
@@ -117,7 +132,8 @@ fn bridge_items(bridge_path: &PathBuf, collection: &str) -> Option<Vec<StackItem
                 id: c.collection_hash as i64,
                 content_target: c.content_target,
                 progress_permille: c.progress_permille,
-                poster_url: metahub_artwork_url(&c.id),
+                poster_url: metahub_poster_url(&c.id),
+                still_url: metahub_still_url(&c.id),
             })
             .collect(),
     )
@@ -133,6 +149,7 @@ fn continue_watching_items() -> Vec<StackItem> {
         content_target: String::new(),
         progress_permille: 0,
         poster_url: None,
+        still_url: None,
     }]
 }
 

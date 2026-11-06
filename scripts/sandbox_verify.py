@@ -86,7 +86,47 @@ for module, feature, symbol in REQUIRED_LIVE_CALLS:
             f"{max(0, count - 1)} production call site(s) (hollow/unwired feature)!"
         )
 
-# 5. Mathematical Verification of Spring1D & Viewport Focus Corridor
+# 5. Structural Rust Syntax Check: Catch bare statements placed between `match`
+#    arms. A closing `}` of a match arm followed directly by `self.foo();` and
+#    then `Variant =>` is a hard Rust syntax error (council finding V-01).
+#    Simple line-based scan: a line ending with `}` (match arm close) followed
+#    by a line with a function call `;` followed by a line with `=>` is an error.
+for path, content in all_files.items():
+    lines = content.splitlines()
+    for i in range(len(lines) - 2):
+        if (
+            lines[i].rstrip().endswith("}")
+            and re.search(r"[a-zA-Z_][a-zA-Z0-9_.]*\s*\([^)]*\);\s*$", lines[i + 1])
+            and re.search(r"[A-Z][a-zA-Z0-9_]*(::[A-Z][a-zA-Z0-9_]*)*\s*=>", lines[i + 2])
+        ):
+            errors.append(
+                f"{path}:{i + 1}: SYNTAX ERROR: bare statement between `match` arms!"
+            )
+
+# 6. Lesson L-042 ("Census the raiser, not the handler"):
+#    Every variant of `enum Effect` in src/state.rs must be constructed
+#    (>= 2 occurrences: >=1 raiser and >=1 handler) in production code.
+state_path = "src/state.rs"
+if state_path in all_files:
+    state_content = all_files[state_path]
+    effect_match = re.search(r"pub enum Effect\s*\{([^}]+)\}", state_content)
+    if effect_match:
+        for line in effect_match.group(1).splitlines():
+            code = line.split("//")[0].strip()
+            if not code or code.startswith("#["):
+                continue
+            variant = re.split(r"[\s({,]", code)[0]
+            if variant and variant[0].isupper():
+                refs = len(
+                    re.findall(rf"\bEffect::{re.escape(variant)}\b", prod_corpus)
+                )
+                if refs < 2:
+                    errors.append(
+                        f"L-042 RAISER CENSUS FAILURE: `Effect::{variant}` has "
+                        f"{refs} production reference(s) (needs >=1 raiser + >=1 handler)!"
+                    )
+
+# 7. Mathematical Verification of Spring1D & Viewport Focus Corridor
 def verify_math_models():
     # Test Critically Damped Spring analytical convergence & elastic edge bump
     pos, vel, target, omega = 0.0, 0.0, 100.0, 26.0

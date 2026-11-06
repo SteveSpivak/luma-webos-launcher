@@ -2060,6 +2060,20 @@ impl Renderer {
                 }
                 _ => {}
             }
+
+            // P0 fix: Flush any batched Shape quads BEFORE drawing any
+            // non-Shape command (Text, Image, Clip, etc.) so card
+            // backgrounds paint BEHIND text/icons — preserving the
+            // Painter's Algorithm Z-order. This guard sits outside the
+            // `match` arms to avoid the bare-statement-between-arms
+            // syntax error.
+            if !matches!(command, Draw::Shape(..))
+                && self.quad_batcher.triangle_vertex_count() > 0
+            {
+                self.flush_quad_batcher();
+                self.quad_batcher.clear();
+            }
+
             match command {
                 Draw::Shape(rect, radius, border, color) => {
                     self.quad_batcher.push_rounded_quad(
@@ -2116,13 +2130,6 @@ impl Renderer {
                     *color,
                     self.white.id,
                 ),
-                // P0 fix: flush all buffered Shape quads BEFORE any Text/Image
-                // draw so cards/backgrounds paint BEHIND text/icons, not on top.
-                // Clear so they aren't re-drawn by the end-of-render flush
-                // (late Shapes after Text/Image still get flushed at the end,
-                // painting on top — correct Z-order per command sequence).
-                self.flush_quad_batcher();
-                self.quad_batcher.clear();
                 Draw::Text(text, rect, size, color, centered) => {
                     self.text(text, *rect, *size, *color, *centered)
                 }
