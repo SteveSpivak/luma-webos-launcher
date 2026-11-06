@@ -34,3 +34,24 @@ Example receipt schema: `tv-agent/gate-receipt/v1` with repo, branch, head_sha (
 Use docs/architecture/component-map.md to identify canonical owners before editing Rust state, renderer or platform services. Rustfmt, cargo check, cargo test, feature matrix and CI are authoritative for compilation; scripts/sandbox_verify.py is heuristic supplementary evidence only.
 
 Luma consumes Nuvio's bridge; do not write the production LCKV bridge, including from labs/seeding tools. Verify strict parser limits, exact bytes, hashes, stable card IDs, tombstone semantics and accepted Nuvio deep links with producer-owned fixtures. Keep device deploy separate from compiler-ready and integration-ready gates. Memory/renderer changes need baseline and lifecycle telemetry, not arbitrary glFlush/malloc_trim delays.
+
+## Agent access boundaries and private-repository isolation (mandatory)
+
+Repository visibility and agent credentials are independent facts. Never infer access from a URL, a repo name, a task description, an assistant's prior success, or another agent's permissions. Discover capabilities at task start with a read-only probe and record the result for EACH repository as `READABLE`, `DENIED`, `NOT_FOUND`, or `NOT_PROBED`; a failure is not permission to attempt bypasses.
+
+| Executor | Authorized working scope | Cross-repository behavior |
+| --- | --- | --- |
+| ChatGPT (connected GitHub) | Repositories granted to the active connection; may include private repositories | Inspect only through authorized connector permissions; prepare sanitized cross-repo handoffs when needed |
+| Local Claude, Codex, Kimi, Agy or other local CLI models | Checked-out worktrees and remotes accessible through that machine's credentials | May compile and verify across authorized local clones; never assume every model/process shares credentials or filesystem access |
+| Arena cloud agent | Its explicitly provided working repository and other *public* accessible sources, subject to actual sandbox permissions | Treat unrelated private repositories as `DENIED` by default. Do not fetch, enumerate, guess URLs, ask for credentials, or claim cross-repo verification |
+| CI runners | Checked-out repository and explicitly authorized artifacts/dependencies | Run only declared contracts and artifact checks; permission failures are `BLOCKED` |
+
+**Visibility-sensitive workspace notes:** LG-TV and nuvio-perf-lab are private in the reviewed GitHub state; luma-webos-launcher is public. Visibility may change, so treat these as observations, not a timeless policy.
+
+**Safe work allocation:** Private-repo inspection, cross-repo diffs, source-integrity checks and end-to-end integration are owned by an authorized local agent or ChatGPT connector. Arena works on its current repository only and may validate a *sanitized, intentionally exported* contract packet. Do not give Arena raw private source trees, logs containing tokens, device addresses, account identifiers, or unrestricted GitHub credentials.
+
+**Handoff boundary:** The owner of a private repository exports the minimum nonsecret interface contract or test vector needed by the receiving agent, accompanied by source provenance (repo identifier if acceptable to disclose, pinned SHA, contract version, SHA-256, permitted use, and redaction review). The public repository must only receive explicitly approved public contract material. Do not publish private commits, confidential paths, private code, device telemetry or raw account state through a public PR merely to help an agent.
+
+**Inaccessible dependency:** Mark dependent gates `BLOCKED` with reason `REPOSITORY_ACCESS_DENIED` and name the authorized verifier. Never convert an agent's inability to check a private repository into PASS, assume another agent's conclusions are current, or repeatedly retry a denied endpoint. A signed-off local receipt may be consumed as evidence of what THAT verifier ran; it is not a substitute for the Arena agent personally reading the source.
+
+**Operational flow:** 1) discover current working repo and available permissions; 2) work within that boundary; 3) request a scoped, sanitized contract packet from the authorized local owner when necessary; 4) publish branch-local evidence; 5) let the authorized integration verifier independently check both repositories and decide promotion. No parallel shared-branch writes.
