@@ -55,3 +55,11 @@ Repository visibility and agent credentials are independent facts. Never infer a
 **Inaccessible dependency:** Mark dependent gates `BLOCKED` with reason `REPOSITORY_ACCESS_DENIED` and name the authorized verifier. Never convert an agent's inability to check a private repository into PASS, assume another agent's conclusions are current, or repeatedly retry a denied endpoint. A signed-off local receipt may be consumed as evidence of what THAT verifier ran; it is not a substitute for the Arena agent personally reading the source.
 
 **Operational flow:** 1) discover current working repo and available permissions; 2) work within that boundary; 3) request a scoped, sanitized contract packet from the authorized local owner when necessary; 4) publish branch-local evidence; 5) let the authorized integration verifier independently check both repositories and decide promotion. No parallel shared-branch writes.
+
+## Executable access and handoff addendum (v2)
+
+Do not confuse repository visibility with provider permission. Run `python3 scripts/agent_receipt.py snapshot --executor <arena|local|chatgpt|ci>` first. Its capability record proves only the current checkout; cross-repository and network access remain NOT_PROBED until independently observed. The script never probes a remote or TV. Treat private dependencies as BLOCKED when denied and never attempt permission bypass.
+
+Use [agent-charter.md](agent-charter.md) for responsibility, phase gates, privacy and approvals; use [agent-handoff.template.json](agent-handoff.template.json) for a scoped work order. The template contains placeholders, never actual authorized SHAs. Never paste private source into a public repository as a workaround for Arena access. A public sanitized contract packet needs explicit approval and provenance.
+
+`python3 scripts/agent_receipt.py verify <receipt.json>` validates structure, exit-code declaration and local artifact SHA-256. It cannot prove that the exit code represents a real executed command; require the raw/test log and an independent verifier for high-risk claims. Status transitions are evidence-driven, not permanently pinned to NOT_RUN.

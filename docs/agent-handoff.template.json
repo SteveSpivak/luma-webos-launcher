@@ -1,0 +1,32 @@
+{
+  "schema": "tv-agent/work-order/v1",
+  "id": "EXAMPLE-REPLACE-WITH-TASK-ID",
+  "objective": "Replace with one bounded, verifiable objective",
+  "owner": "assigned-authorized-agent",
+  "execution_environment": "local",
+  "source_lock": {
+    "this_repository": "PIN-40-CHAR-COMMIT-SHA",
+    "dependencies": []
+  },
+  "access": {
+    "current_checkout": "READABLE",
+    "other_repositories": "NOT_PROBED",
+    "network": "NOT_PROBED"
+  },
+  "allowed_actions": [
+    "read",
+    "edit-owned-branch",
+    "run-offline-tests"
+  ],
+  "forbidden_actions": [
+    "tv-install",
+    "force-push",
+    "private-to-public-source-copy",
+    "production-bridge-write"
+  ],
+  "contract_versions": [],
+  "acceptance_gates": [],
+  "known_baseline_failures": [],
+  "handoff_artifacts": [],
+  "next_action": "Discover current SHAs, validate scope and execute the smallest proof"
+}

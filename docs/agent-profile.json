@@ -1,9 +1,21 @@
 {
-  "schema": "tv-agent/repository-profile/v1",
+  "schema": "tv-agent/repository-profile/v2",
   "repo": "SteveSpivak/luma-webos-launcher",
   "role": "rust-launcher",
   "canonical_branch": "main",
   "contract_owner": "Luma consumer/launcher",
+  "visibility_at_review": {
+    "value": "public",
+    "date": "2026-11-06",
+    "source": "authorized GitHub repository metadata",
+    "not_a_permission_grant": true
+  },
+  "agent_access_policy": {
+    "arena": "current supplied checkout and authorized public sources; other private repositories inaccessible by default",
+    "local": "only locally readable checkouts and explicitly configured credentials",
+    "chatgpt": "only repositories available to active connected GitHub permissions",
+    "ci": "only checked-out repository and explicitly authorized dependencies"
+  },
   "read_only_default": true,
   "required_gates": [
     "rustfmt",
@@ -18,6 +30,6 @@
     "production-bridge-write",
     "release-publish"
   ],
-  "local_agent_command": "python3 scripts/agent_receipt.py snapshot",
-  "note": "Profile documents ownership and gates; it does not authorize device mutation."
+  "evidence_verifier": "python3 scripts/agent_receipt.py",
+  "device_access_default": "NOT_PROBED"
 }

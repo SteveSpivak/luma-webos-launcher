@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Deterministic local evidence capture and validation. Python 3 stdlib only.
+"""Offline, standard-library-only agent context and evidence checks.
 
-Usage:
-  python3 scripts/agent_receipt.py snapshot --out /tmp/agent-snapshot.json
-  python3 scripts/agent_receipt.py verify path/to/gate-receipt.json
+Commands:
+  python3 scripts/agent_receipt.py snapshot [--out FILE] [--executor arena|local|chatgpt|ci]
+  python3 scripts/agent_receipt.py verify RECEIPT.json
   python3 scripts/agent_receipt.py self-test
-Never executes a build, device command, or network request.
+
+Does not probe GitHub, grant access, run remote tests or contact the TV.
 """
 import argparse
 import hashlib
@@ -14,123 +15,178 @@ import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SHA40 = re.compile(r"^[0-9a-f]{40}$")
+PROFILE = ROOT / "docs" / "agent-profile.json"
+SHA40 = re.compile(r"[0-9a-f]{40}\Z")
+SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 STATUSES = {"PASS", "FAIL", "BLOCKED", "NOT_RUN"}
-EVIDENCE = {"PROVEN_CODE", "TESTED_OFFLINE", "COMPILED", "MEASURED_DEVICE", "INFERRED", "PROPOSED", "UNKNOWN", "NOT_RUN"}
+LEVELS = {"PROVEN_CODE", "TESTED_OFFLINE", "COMPILED", "MEASURED_DEVICE",
+          "INFERRED", "PROPOSED", "UNKNOWN", "NOT_RUN"}
+EXECUTORS = {"arena", "local", "chatgpt", "ci"}
 
 def git(*args):
-    p = subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True, check=False)
+    p = subprocess.run(["git", "-C", str(ROOT), *args],
+                       capture_output=True, text=True, check=False)
     if p.returncode:
-        raise RuntimeError("git " + " ".join(args) + ": " + p.stderr.strip())
+        raise RuntimeError("git " + " ".join(args) + " failed: " + p.stderr.strip())
     return p.stdout.strip()
 
-def digest(path):
+def sha256(path):
     h = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(65536), b""):
-            h.update(chunk)
+    with path.open("rb") as f:
+        for part in iter(lambda: f.read(65536), b""):
+            h.update(part)
     return h.hexdigest()
 
-def safe_path(rel):
-    if not isinstance(rel, str) or not rel or pathlib.Path(rel).is_absolute():
-        raise ValueError("evidence path must be a relative nonempty string")
-    resolved = (ROOT / rel).resolve()
-    if not resolved.is_relative_to(ROOT):
-        raise ValueError("evidence path escapes repository")
-    if not resolved.is_file():
-        raise ValueError("evidence file missing: " + rel)
-    return resolved
+def artifact_path(name, root=ROOT):
+    if not isinstance(name, str) or not name or pathlib.Path(name).is_absolute():
+        raise ValueError("path must be relative and nonempty")
+    path = root.joinpath(name).resolve()
+    if not path.is_relative_to(root.resolve()) or not path.is_file():
+        raise ValueError("path escapes repository or file is missing")
+    return path
 
-def validate(doc):
-    errors = []
+def validate(doc, root=ROOT):
+    problems = []
+    if not isinstance(doc, dict):
+        return ["receipt must be a JSON object"]
     if doc.get("schema") != "tv-agent/gate-receipt/v1":
-        errors.append("wrong schema")
-    for key in ("repo", "branch", "head_sha", "gate_id", "command", "status", "evidence_level"):
-        if not isinstance(doc.get(key), str) or not doc[key]:
-            errors.append("missing/invalid " + key)
-    if not SHA40.fullmatch(doc.get("head_sha", "")):
-        errors.append("head_sha must be full lowercase 40-hex")
+        problems.append("unsupported schema")
+    for key in ("repo", "branch", "gate_id", "command"):
+        if not isinstance(doc.get(key), str) or not doc[key].strip():
+            problems.append("invalid " + key)
+    if not isinstance(doc.get("head_sha"), str) or not SHA40.fullmatch(doc["head_sha"]):
+        problems.append("head_sha must be a full 40-hex commit")
     if doc.get("status") not in STATUSES:
-        errors.append("invalid status")
-    if doc.get("evidence_level") not in EVIDENCE:
-        errors.append("invalid evidence_level")
+        problems.append("invalid status")
+    if doc.get("evidence_level") not in LEVELS:
+        problems.append("invalid evidence_level")
+    exit_code = doc.get("exit_code")
+    if exit_code is not None and (type(exit_code) is not int or exit_code < 0):
+        problems.append("exit_code must be a nonnegative integer or null")
     artifacts = doc.get("artifacts", [])
     if not isinstance(artifacts, list):
-        errors.append("artifacts must be list")
+        problems.append("artifacts must be a list")
         artifacts = []
-    if doc.get("status") == "PASS" and not artifacts:
-        errors.append("PASS requires at least one independently inspectable artifact")
-    if doc.get("status") == "NOT_RUN" and doc.get("evidence_level") != "NOT_RUN":
-        errors.append("NOT_RUN status must use NOT_RUN evidence level")
-    for i, item in enumerate(artifacts):
+    if doc.get("status") == "PASS":
+        if not artifacts:
+            problems.append("PASS requires an inspectable artifact")
+        if exit_code != 0:
+            problems.append("PASS requires exit_code=0")
+        if doc.get("evidence_level") in {"UNKNOWN", "INFERRED", "PROPOSED", "NOT_RUN"}:
+            problems.append("PASS requires executed or inspected evidence")
+    if doc.get("status") == "NOT_RUN":
+        if doc.get("evidence_level") != "NOT_RUN" or exit_code is not None:
+            problems.append("NOT_RUN requires level NOT_RUN and exit_code null")
+    if doc.get("status") == "BLOCKED" and not doc.get("blocker"):
+        problems.append("BLOCKED requires blocker")
+    seen = set()
+    for i, entry in enumerate(artifacts):
         try:
-            path = safe_path(item["path"])
-            expected = item["sha256"]
-            if not re.fullmatch(r"[0-9a-f]{64}", expected):
+            if not isinstance(entry, dict):
+                raise ValueError("artifact must be object")
+            p = artifact_path(entry["path"], root)
+            if entry["path"] in seen:
+                raise ValueError("duplicate artifact")
+            seen.add(entry["path"])
+            h = entry["sha256"]
+            if not isinstance(h, str) or not SHA256.fullmatch(h):
                 raise ValueError("invalid sha256")
-            if digest(path) != expected:
+            if sha256(p) != h:
                 raise ValueError("sha256 mismatch")
-        except (KeyError, TypeError, ValueError) as exc:
-            errors.append("artifact " + str(i) + ": " + str(exc))
-    return errors
+        except (KeyError, ValueError, TypeError) as e:
+            problems.append("artifact %d: %s" % (i, e))
+    return problems
 
-def snapshot(output):
-    doc = {
-        "schema": "tv-agent/snapshot/v1",
-        "repo": ROOT.name,
+def snapshot(executor, output):
+    profile = json.loads(PROFILE.read_text(encoding="utf-8"))
+    if profile.get("schema") != "tv-agent/repository-profile/v2":
+        raise ValueError("profile schema mismatch")
+    if executor not in EXECUTORS:
+        raise ValueError("unsupported executor")
+    actual_repo = profile["repo"]
+    boundary = {
+        "arena": "CURRENT_CHECKOUT_PLUS_AUTHORIZED_PUBLIC_DATA_ONLY",
+        "local": "PRESENT_CHECKOUTS_AND_LOCALLY_AUTHORIZED_CREDENTIALS_ONLY",
+        "chatgpt": "ACTIVE_CONNECTED_GITHUB_PERMISSIONS_ONLY",
+        "ci": "EXPLICIT_RUNNER_CHECKOUT_AND_DEPENDENCIES_ONLY"
+    }[executor]
+    result = {
+        "schema": "tv-agent/capability-snapshot/v2",
+        "executor": executor,
+        "repo": actual_repo,
         "branch": git("branch", "--show-current"),
         "head_sha": git("rev-parse", "HEAD"),
         "dirty": bool(git("status", "--porcelain")),
-        "remotes": git("remote").splitlines(),
-        "limits": {"offline_only": True, "device_mutations": False},
+        "known_repo_visibility_at_review": profile["visibility_at_review"],
+        "access": {"current_checkout": "READABLE", "other_repositories": "NOT_PROBED",
+                   "network_permission": "NOT_PROBED", "scope": boundary},
+        "owner_gated_actions": profile["dangerous_actions"],
+        "device_access": "NOT_PROBED",
+        "warning": "This is local observation, never an authorization grant or a remote access proof"
     }
+    raw = json.dumps(result, indent=2) + "\n"
     if output:
-        pathlib.Path(output).write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps(doc, indent=2))
+        pathlib.Path(output).write_text(raw, encoding="utf-8")
+    print(raw, end="")
     return 0
 
 def self_test():
-    fixture = {
-        "schema":"tv-agent/gate-receipt/v1", "repo":"example",
-        "branch":"test", "head_sha":"a"*40, "gate_id":"sample",
-        "command":"not-run", "status":"NOT_RUN", "evidence_level":"NOT_RUN",
-        "artifacts":[],
-    }
-    assert validate(fixture) == []
-    fixture["status"] = "PASS"
-    assert any("PASS requires" in e for e in validate(fixture))
-    fixture["status"] = "NOT_RUN"
-    fixture["head_sha"] = "bad"
-    assert any("head_sha" in e for e in validate(fixture))
-    print("agent_receipt self-test: PASS (3 vectors)")
+    with tempfile.TemporaryDirectory() as temp:
+        root = pathlib.Path(temp)
+        sample = root / "proof.txt"
+        sample.write_text("known bytes\n", encoding="utf-8")
+        fixture = {"schema": "tv-agent/gate-receipt/v1", "repo": "test/repo",
+                   "branch": "test", "head_sha": "a" * 40, "gate_id": "G1",
+                   "command": "python test.py", "status": "PASS",
+                   "evidence_level": "TESTED_OFFLINE", "exit_code": 0,
+                   "artifacts": [{"path": "proof.txt", "sha256": sha256(sample)}]}
+        assert validate(fixture, root) == []
+        fixture["artifacts"][0]["sha256"] = "0" * 64
+        assert any("sha256 mismatch" in s for s in validate(fixture, root))
+        fixture["artifacts"][0]["sha256"] = sha256(sample)
+        fixture["status"] = "NOT_RUN"
+        assert validate(fixture, root)
+        fixture["evidence_level"], fixture["exit_code"] = "NOT_RUN", None
+        assert validate(fixture, root) == []
+        fixture["status"], fixture["evidence_level"], fixture["exit_code"] = "BLOCKED", "UNKNOWN", None
+        assert validate(fixture, root)
+        fixture["blocker"] = "REPOSITORY_ACCESS_DENIED"
+        assert validate(fixture, root) == []
+        fixture["status"], fixture["evidence_level"], fixture["exit_code"] = "PASS", "TESTED_OFFLINE", 0
+        fixture["artifacts"][0]["path"] = "../proof.txt"
+        assert validate(fixture, root)
+        assert validate([], root)
+    print("agent_receipt self-test: PASS (8 assertions, positive and mutation cases)")
     return 0
 
 def main():
-    parser = argparse.ArgumentParser()
-    subs = parser.add_subparsers(dest="cmd", required=True)
-    snap = subs.add_parser("snapshot")
-    snap.add_argument("--out")
-    check = subs.add_parser("verify")
-    check.add_argument("receipt")
+    ap = argparse.ArgumentParser()
+    subs = ap.add_subparsers(dest="action", required=True)
+    p = subs.add_parser("snapshot")
+    p.add_argument("--out")
+    p.add_argument("--executor", choices=sorted(EXECUTORS), default="local")
+    p = subs.add_parser("verify")
+    p.add_argument("receipt")
     subs.add_parser("self-test")
-    args = parser.parse_args()
-    if args.cmd == "snapshot":
-        return snapshot(args.out)
-    if args.cmd == "self-test":
-        return self_test()
+    args = ap.parse_args()
     try:
-        doc = json.loads(pathlib.Path(args.receipt).read_text(encoding="utf-8"))
-        errors = validate(doc)
-    except (OSError, ValueError, TypeError) as exc:
-        errors = [str(exc)]
-    for error in errors:
-        print("FAIL: " + error, file=sys.stderr)
-    if errors:
-        return 1
-    print("receipt verified: PASS")
-    return 0
+        if args.action == "self-test":
+            return self_test()
+        if args.action == "snapshot":
+            return snapshot(args.executor, args.out)
+        problems = validate(json.loads(pathlib.Path(args.receipt).read_text(encoding="utf-8")))
+        if problems:
+            for problem in problems:
+                print("FAIL:", problem, file=sys.stderr)
+            return 1
+        print("receipt verified: PASS (schema + local file hashes; NOT test execution)")
+        return 0
+    except (OSError, ValueError, RuntimeError) as e:
+        print("FAIL:", e, file=sys.stderr)
+        return 2
 
 if __name__ == "__main__":
     sys.exit(main())
