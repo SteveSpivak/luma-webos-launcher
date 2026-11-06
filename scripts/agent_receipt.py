@@ -59,9 +59,9 @@ def validate(doc, root=ROOT):
             problems.append("invalid " + key)
     if not isinstance(doc.get("head_sha"), str) or not SHA40.fullmatch(doc["head_sha"]):
         problems.append("head_sha must be a full 40-hex commit")
-    if doc.get("status") not in STATUSES:
+    if not isinstance(doc.get("status"), str) or doc["status"] not in STATUSES:
         problems.append("invalid status")
-    if doc.get("evidence_level") not in LEVELS:
+    if not isinstance(doc.get("evidence_level"), str) or doc["evidence_level"] not in LEVELS:
         problems.append("invalid evidence_level")
     exit_code = doc.get("exit_code")
     if exit_code is not None and (type(exit_code) is not int or exit_code < 0):
@@ -159,7 +159,9 @@ def self_test():
         fixture["artifacts"][0]["path"] = "../proof.txt"
         assert validate(fixture, root)
         assert validate([], root)
-    print("agent_receipt self-test: PASS (8 assertions, positive and mutation cases)")
+        fixture["status"] = []
+        assert "invalid status" in validate(fixture, root)
+    print("agent_receipt self-test: PASS (9 assertions, positive and mutation cases)")
     return 0
 
 def main():
