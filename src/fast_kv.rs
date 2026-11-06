@@ -1,10 +1,14 @@
 //! Zero-copy binary KV & stack bridge between Luma and NuvioTV.
 //!
-//! Format: `LCKV` — a fixed-layout little-endian binary file (16 KB, 4 Linux
-//! 4KB pages) that can be memory-mapped or read with zero deserialization.
-//! Uses a 64-bit seqlock for lock-free cross-process consistency:
-//!   - Writer: increments seq to odd, writes payload, increments seq to even
-//!   - Reader: checks seq is even before reading; retry if odd or changed
+//! Format: `LCKV` — a fixed-layout little-endian binary file that can be
+//! read with zero deserialization. Uses a committed even sequence number
+//! written at both the header (offset 8) and trailer (last 8 bytes) for
+//! torn-read detection: a reader accepts the file only when head and tail
+//! sequence numbers match and are both even.
+//!
+//! Layout: 32-byte header + count * 396-byte records + 8-byte trailer.
+//! No 16 KB cap is enforced by the writer; callers must size their own
+//! fixtures within whatever limit the producer contract allows.
 //!
 //! Compatible with any language: Rust reads via zero-copy slicing,
 //! TypeScript/JS reads via a single `DataView` over an `ArrayBuffer`.
@@ -17,7 +21,9 @@ const LCKV_MAGIC: [u8; 4] = *b"LCKV";
 const LCKV_VERSION: u8 = 1;
 /// Max bytes per fixed string slot (includes 1-byte length prefix).
 const MAX_SLOT_STR: usize = 96;
-/// Total bridge file size (4 Linux 4KB pages).
+/// Nominal bridge file size (4 Linux 4KB pages). Not enforced by the
+/// writer; kept as a documentation constant for the canonical contract.
+#[allow(dead_code)]
 const LCKV_SIZE: usize = 16384;
 /// Header size: magic(4) + version(1) + padding(3) + count(2) + seq(8) + crc(4) + reserved(12) = 32
 const HEADER_SIZE: usize = 32;
@@ -55,10 +61,15 @@ pub const fn fnv1a_64(bytes: &[u8]) -> u64 {
 }
 
 /// Packs a Rust string into a fixed-size slot: [len: u8][bytes...][0-padding].
+/// Backs up `len` to a UTF-8 character boundary so multibyte codepoints are
+/// never split mid-codepoint at slot edges.
 fn pack_fixed_str(dst: &mut [u8; MAX_SLOT_STR], s: &str) {
     dst.fill(0);
     let b = s.as_bytes();
-    let len = b.len().min(MAX_SLOT_STR - 1);
+    let mut len = b.len().min(MAX_SLOT_STR - 1);
+    while len > 0 && !s.is_char_boundary(len) {
+        len -= 1;
+    }
     dst[0] = len as u8;
     dst[1..=len].copy_from_slice(&b[..len]);
 }
@@ -69,8 +80,9 @@ fn unpack_fixed_str(src: &[u8; MAX_SLOT_STR]) -> String {
     String::from_utf8_lossy(&src[1..=len]).into_owned()
 }
 
-/// Reads the binary bridge snapshot with seqlock consistency verification.
-/// Returns `Err(WouldBlock)` if a write is in progress (odd seq number).
+/// Reads the binary bridge snapshot with torn-read verification.
+/// Returns `Err(WouldBlock)` if head/tail sequence numbers mismatch or
+/// are odd (a write may be in progress or the file was torn).
 pub fn read_bridge_cards(
     path: &Path,
     target_collection: &str,
@@ -86,9 +98,9 @@ pub fn read_bridge_cards(
         ));
     }
 
-    // Seqlock invariant: header + trailer must match and be even.
-    // A torn write (partial write, crash mid-update) will produce mismatched
-    // head/tail seq numbers or an odd seq number.
+    // Torn-read invariant: header + trailer sequence numbers must match
+    // and be even. A torn write (partial write, crash mid-update) will
+    // produce mismatched head/tail seq numbers or an odd seq number.
     if buf.len() < HEADER_SIZE + TRAILER_SIZE {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
@@ -110,16 +122,32 @@ pub fn read_bridge_cards(
     let target_hash = fnv1a_64(target_collection.as_bytes());
 
     let record_size = 12 + (MAX_SLOT_STR * 4); // 396 bytes
-    let payload_and_trailer = count * record_size + 8;
 
     // Canonical LCKV layout: 32B header + count * 396B records + 8B even-seq trailer.
+    // No 16 KB cap is enforced; callers must size fixtures within their
+    // own producer contract limits.
+    // The file must be exactly this size; any shorter or longer file is corruption.
+    let expected_len = HEADER_SIZE + count * record_size + TRAILER_SIZE;
+    if buf.len() != expected_len {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!(
+                "LCKV file length mismatch: expected {expected_len}, got {}",
+                buf.len()
+            ),
+        ));
+    }
+
     let mut offset = HEADER_SIZE;
 
     let mut out = Vec::new();
 
     for _ in 0..count {
         if offset + RECORD_SIZE > buf.len() {
-            break;
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "LCKV record truncated mid-file",
+            ));
         }
         let col_hash = u64::from_le_bytes(buf[offset..offset + 8].try_into().unwrap());
         if col_hash == target_hash {
@@ -162,10 +190,10 @@ pub fn read_bridge_cards(
 
 /// Atomically writes cards to the binary bridge file.
 /// Writes to a temp file then renames for POSIX atomicity.
-///
-/// The committed sequence number is written both at the header (buf[8..16])
-/// and as a trailer (last 8 bytes) so readers can detect torn writes:
-/// a reader must see matching head/tail seq numbers that are both even.
+/// The committed sequence number (always even) is written both at the
+/// header (buf[8..16]) and as a trailer (last 8 bytes) so readers can
+/// detect torn writes: a reader must see matching head/tail seq numbers
+/// that are both even.
 ///
 /// Kept `#[allow(dead_code)]` because it is part of the public LCKV bridge
 /// contract and is exercised by unit tests; it is wired into the `luma labs

@@ -229,6 +229,11 @@ pub enum Target {
     PlayerNextEpisode,
     PlayerClose,
     PlayerPanelClose,
+    /// Launch a Nuvio title by content target (feature `nuvio`, default off).
+    /// Raised when clicking a Nuvio card; handled in `main.rs` →
+    /// `platform.send(Request::NuvioLaunch { .. })`.
+    #[cfg(feature = "nuvio")]
+    NuvioLaunch(String),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]

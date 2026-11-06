@@ -11,8 +11,9 @@
 //!
 //! Data sources (in priority order):
 //!   1. LCKV binary bridge file (`LUMA_NUVIO_BRIDGE_PATH`, default
-//!      `/tmp/nuvio_stacks.lckv`) — zero-copy, sub-0.1ms read, written by
-//!      NuvioTV via `write_bridge_cards`.
+//!      `/tmp/nuvio_stacks.lckv`) — zero-copy read, written by a
+//!      NuvioTV-side producer (not yet confirmed in the inspected Nuvio
+//!      repository; see cross-repo forensic review).
 //!   2. Synthetic fixtures — used when the bridge file is absent, so the
 //!      consumer side can be developed and tested in isolation.
 //! Until a Nivío producer contract is authorized, `fetch()` returns synthetic
@@ -116,20 +117,27 @@ fn metahub_still_url(id: &str) -> Option<String> {
 }
 
 /// Reads cards from the LCKV binary bridge for a collection, converting them
-/// to `StackItem`s. Returns `None` if the bridge file is missing, unreadable,
-/// or contains no items for the collection (caller falls back to synthetic).
+/// to `StackItem`s. Returns `None` only if the bridge file is missing or
+/// unreadable (caller falls back to synthetic). Returns `Some(vec![])` when
+/// the bridge exists but contains no items for the collection — a valid empty
+/// snapshot means show nothing, not synthetic demo content.
 fn bridge_items(bridge_path: &PathBuf, collection: &str) -> Option<Vec<StackItem>> {
-    let cards = read_bridge_cards(bridge_path, collection).ok()?;
-    if cards.is_empty() {
-        return None;
-    }
+    let cards = match read_bridge_cards(bridge_path, collection) {
+        Ok(cards) => cards,
+        Err(_) => return None,
+    };
     Some(
         cards
             .into_iter()
-            .map(|c| StackItem {
+            .enumerate()
+            .map(|(seq, c)| StackItem {
                 title: c.title,
                 poster: None,
-                id: c.collection_hash as i64,
+                // Deterministic per-item identity: collection hash XOR'd with
+                // the item's sequence position within the collection. Never
+                // the raw collection hash (which is identical for every card
+                // in the same collection).
+                id: (c.collection_hash.wrapping_mul(31).wrapping_add(seq as u64)) as i64,
                 content_target: c.content_target,
                 progress_permille: c.progress_permille,
                 poster_url: metahub_poster_url(&c.id),

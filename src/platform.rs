@@ -47,6 +47,7 @@ pub enum Request {
     /// Close another app (best effort; webOS may refuse without root).
     CloseApp(String),
     /// Launch a Nuvio title by content target. Never autoplays and never injects input.
+    #[cfg(feature = "nuvio")]
     NuvioLaunch { content_target: String },
     /// Open Luma's web player app with these launch parameters. They hold
     /// signed URLs and a token, so they are never logged.
@@ -237,14 +238,12 @@ impl Platform {
     }
 
     pub fn send(&self, request: Request) {
-        let is_launch = matches!(
-            request,
-            Request::Launch(..)
-                | Request::MoonlightLaunch(..)
-                | Request::CloseApp(..)
+        let is_launch = match &request {
+            Request::Launch(..) | Request::MoonlightLaunch(..) | Request::CloseApp(..) => true,
             #[cfg(feature = "nuvio")]
-            | Request::NuvioLaunch { .. }
-        );
+            Request::NuvioLaunch { .. } => true,
+            _ => false,
+        };
         let (lock, cvar) = &*self.requests;
         let mut queue = lock.lock().unwrap();
         if is_launch {
