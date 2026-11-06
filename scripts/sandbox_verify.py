@@ -62,7 +62,7 @@ for path, content in all_files.items():
     #     don't inflate the count. Handles raw strings (r"..." / r#"..."#),
     #     byte strings (b"..."), and char literals ('x').
     stripped = re.sub(
-        r'//[^\n]*|/\*[\s\S]*?\*/|r#*"[^#]*?"#|r"[^"]*"|b"[^"]*"|"(?:\\.|[^"\\])*"|\'[^\']\'',
+        r'//[^\n]*|/\*[\s\S]*?\*/|r#+"[\s\S]*?"#+|r"[^"]*"|b"[^"]*"|"(?:\\.|[^"\\])*"|\'(?:\\x[0-9a-fA-F]{2}|\\u\{[0-9a-fA-F_]+\}|\\.|[^\'\\])\'',
         '',
         content,
     )

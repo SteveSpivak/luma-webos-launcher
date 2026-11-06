@@ -21,11 +21,13 @@ const LCKV_MAGIC: [u8; 4] = *b"LCKV";
 const LCKV_VERSION: u8 = 1;
 /// Max bytes per fixed string slot (includes 1-byte length prefix).
 const MAX_SLOT_STR: usize = 96;
-/// Canonical bridge file size cap: 4 Linux 4KB pages = 16,384 bytes.
+/// Canonical bridge file size cap: 6 Linux 4KB pages = 24,576 bytes.
 /// Writer MUST NOT exceed this; reader rejects files larger than this.
-pub const MAX_BRIDGE_BYTES: usize = 16_384;
-/// Maximum 40 cards across all collections: 32 + (40 * 396) + 8 = 15,880 <= 16,384.
-pub const MAX_BRIDGE_CARDS: usize = 40;
+/// Accommodates 20 items per collection × 3 collections (continue-watching,
+/// watchlist, library) = 60 cards: 32 + (60 * 396) + 8 = 23,800 <= 24,576.
+pub const MAX_BRIDGE_BYTES: usize = 24_576;
+/// Maximum 60 cards across all collections: 32 + (60 * 396) + 8 = 23,800 <= 24,576 (6 pages)
+pub const MAX_BRIDGE_CARDS: usize = 60;
 /// Header size: magic(4) + version(1) + padding(3) + count(2) + seq(8) + crc(4) + reserved(12) = 32
 const HEADER_SIZE: usize = 32;
 /// Trailer size: seq(8) — written at EOF for torn-read detection.
@@ -569,6 +571,64 @@ mod tests {
         let result = read_bridge_cards(&path, "continue-watching");
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().kind(), io::ErrorKind::InvalidData);
+    }
+
+    #[test]
+    fn golden_436_lckv_single_card_round_trip() {
+        // Golden fixture: 1 card, seq=2, collection="continue-watching",
+        // id="tt0133093", content_target="nuvio://tmdb/movie/603".
+        // Exact size: 32 header + 396 record + 8 trailer = 436 bytes.
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("golden-436.lckv");
+
+        let cards = vec![FastBridgeCard {
+            collection_hash: 0x01aa2aebbc61d6f6u64,
+            progress_permille: 645,
+            ambient_rgb565: 0x18E3,
+            id: "tt0133093".into(),
+            title: "The Matrix".into(),
+            subtitle: "1999 · Sci-Fi".into(),
+            content_target: "nuvio://tmdb/movie/603".into(),
+        }];
+
+        write_bridge_cards(&path, 2, &cards).unwrap();
+
+        // Exact byte-length assertion.
+        let buf = std::fs::read(&path).unwrap();
+        assert_eq!(buf.len(), 436, "golden-436.lckv must be exactly 436 bytes");
+
+        // Round-trip decode must recover the card exactly.
+        let read = read_bridge_cards(&path, "continue-watching").unwrap();
+        assert_eq!(read.len(), 1);
+        assert_eq!(read[0].collection_hash, 0x01aa2aebbc61d6f6u64);
+        assert_eq!(read[0].progress_permille, 645);
+        assert_eq!(read[0].ambient_rgb565, 0x18E3);
+        assert_eq!(read[0].id, "tt0133093");
+        assert_eq!(read[0].title, "The Matrix");
+        assert_eq!(read[0].subtitle, "1999 · Sci-Fi");
+        assert_eq!(read[0].content_target, "nuvio://tmdb/movie/603");
+    }
+
+    #[test]
+    fn tombstone_40_lckv_empty_bridge_round_trip() {
+        // Tombstone fixture: 0 cards, seq=4 — valid empty bridge (authoritative empty state).
+        // Exact size: 32 header + 0 records + 8 trailer = 40 bytes.
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("tombstone-40.lckv");
+
+        write_bridge_cards(&path, 4, &[]).unwrap();
+
+        // Exact byte-length assertion.
+        let buf = std::fs::read(&path).unwrap();
+        assert_eq!(buf.len(), 40, "tombstone-40.lckv must be exactly 40 bytes");
+
+        // Round-trip decode must return empty vec (valid empty snapshot, not synthetic fallback).
+        let read = read_bridge_cards(&path, "continue-watching").unwrap();
+        assert_eq!(read.len(), 0);
+
+        // Any other collection on an empty bridge also returns empty.
+        let read_wl = read_bridge_cards(&path, "watchlist").unwrap();
+        assert_eq!(read_wl.len(), 0);
     }
 
     #[test]
