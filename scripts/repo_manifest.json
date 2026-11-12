@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-05T00:00:00Z",
+  "generated_utc": "2026-11-12T16:36:52.994891+00:00",
   "description": "Multi-repo registry for Council-driven patch alignment across the Luma webOS launcher ecosystem.",
   "repos": {
     "steve_spivak_luma_webos_launcher": {
@@ -9,11 +9,11 @@
       "remote": "https://github.com/SteveSpivak/luma-webos-launcher.git",
       "branch": "arena/5fe14abb-luma-webos-launcher",
       "base_commit": "40994fc144b5af481056d14e2fb93304aa1e2c82",
-      "current_head": "1dc0ff694076899279cd05714099500c7d5de903",
+      "current_head": "ae1425e614e2d5e5fbce8244312ddc6ff33e5b5c",
       "pr_number": 2,
       "pr_status": "pr_open",
       "language": "Rust",
-      "notes": "Arena working branch. PR #2 blocked on Rust compilation gates (no Rust toolchain in sandbox). Council framework applied (arena_guard, omni_cortex, docs/xray KB)."
+      "notes": "Arena working branch. PR #2 blocked on Rust compilation gates (no Rust toolchain in sandbox). Council framework applied (arena_guard, omni_cortex, evo_cortex, nexus_agent_os, tool_latent_codec, aegis_bug_hunter, docs/xray KB)."
     },
     "funnymataleao_luma_webos_launcher": {
       "alias": "funny",
@@ -34,7 +34,81 @@
       "last_known_commit": "25d342a7153c39a54d8a52c78cd0c2e50fbf6ca9",
       "tag_date_utc": "2026-11-11T18:30:00Z",
       "language": "TypeScript / Web",
-      "notes": "Original upstream Luma project (LG webOS TV launcher with live video wallpapers, widgets, Jellyfin, Moonlight, Home Assistant). Releases: v2.19.0 latest, v2.18.1, v2.18.0, v2.17.0 tracked."
+      "notes": "Original upstream Luma project (LG webOS TV launcher with live video wallpapers, widgets, Jellyfin, Moonlight, Home Assistant). Releases: v2.19.0 latest, v2.18.1, v2.18.0, v2.17.0 tracked.",
+      "release_comparison": {
+        "v2.19_manifest": {
+          "id": "com.ecklf.luma",
+          "version": "2.19.0",
+          "type": "native",
+          "title": "Luma",
+          "appDescription": "A remote-first native webOS launcher.",
+          "rootRequired": true,
+          "ipkHash_sha256": "7bfb9d9a82037098df09faa513eea6f0d556fbc4f1244e8cc5d2f6f99199fb77",
+          "ipkSize_bytes": 42074766,
+          "ipkUrl": "https://github.com/ecklf/lg-luma/releases/download/v2.19.0/com.ecklf.luma_2.19.0_arm.ipk",
+          "sourceUrl": "https://github.com/ecklf/lg-luma"
+        },
+        "v2.19_features": [
+          "per-input SVG icon picker (#234)",
+          "Catalan i18n translation (#231)",
+          "open Luma Home early on webOS 5/6 cold boot (#88)",
+          "fix smoke navigation and retry (#239)",
+          "fix failed release checks (#237)"
+        ],
+        "v2.18_1_features": [
+          "publish standalone manifest for Homebrew repository (#229)"
+        ],
+        "v2.18_0_features": [
+          "fit up to four HDMI inputs on one Home row (#213)",
+          "highlight hovered navigation tab for pointer input (#202)",
+          "keep SDL text input off until needed (webOS)"
+        ]
+      },
+      "drift_findings": {
+        "app_id_divergence": {
+          "ecklf": "com.ecklf.luma",
+          "steve_lab_target": "space.nuvio.lab",
+          "steve_production": "space.nuvio.webos (never modify)",
+          "divergence": "naming convention differs; no direct conflict but different app-id scheme",
+          "action": "keep space.nuvio.lab isolated; never adopt com.ecklf.luma for production target"
+        },
+        "feature_gating_divergence": {
+          "ecklf": "feature flags via TypeScript/web build; no Rust feature flags",
+          "steve": "nuvio_lab Cargo feature gate for isolated test target",
+          "divergence": "different feature-gating mechanism (web build vs Cargo feature)",
+          "action": "no patch port required; document mechanism difference"
+        },
+        "stack_item_field_divergence": {
+          "ecklf": "TypeScript stack-item schema (not directly comparable)",
+          "steve": "Rust StackItem struct",
+          "divergence": "different language/schema; no 1:1 field mapping",
+          "action": "no patch port required"
+        },
+        "renderer_iflet_guard_divergence": {
+          "ecklf": "TypeScript renderer; no Rust if-let guards",
+          "steve": "Rust renderer with if-let guard pattern (blocked on Rust 1.93 CI pin)",
+          "divergence": "language-specific; no direct comparison",
+          "action": "no patch port required; Rust CI toolchain gate remains blocked"
+        },
+        "lckv_seqlock_divergence": {
+          "ecklf": "no Rust LC-KV seq-lock (TypeScript/web)",
+          "steve": "LC-KV consumer read-only with strict header/card/trailer/enforcement",
+          "divergence": "language-specific concurrency primitive",
+          "action": "no patch port required"
+        },
+        "launch_guard_divergence": {
+          "ecklf": "webOS native launcher (rootRequired: true)",
+          "steve": "isolated lab target space.nuvio.lab; no root; no production modification",
+          "divergence": "ecklf requires root; steve explicitly forbids root and production modification",
+          "action": "fundamental architectural divergence; do not port launch guard"
+        },
+        "ci_rust_toolchain_divergence": {
+          "ecklf": "TypeScript/web CI (no Rust toolchain)",
+          "steve": "Rust CI; pin may be too old (1.93 fails on if-let guards, needs 1.96+)",
+          "divergence": "ecklf has no Rust CI; steve blocked on Rust gates",
+          "action": "no patch port required; Rust compilation gates pending local macOS agent"
+        }
+      }
     }
   },
   "alignment_rules": {
@@ -54,5 +128,49 @@
     "lckv_seqlock_divergence",
     "launch_guard_divergence",
     "ci_rust_toolchain_divergence"
-  ]
+  ],
+  "fix_provenance": {
+    "EL-006": {
+      "what": "Evo-Cortex CLI (sense/index/slice/ghost-collect/evolve) with Kleene telemetry, SQLite Datalog+FTS5, Symbolic Ghost Virtualizer, autopoietic genome ratchet",
+      "where": "scripts/evo_cortex.py, docs/xray/09_EVO_CORTEX_SPEC.md, labs/10_evo_cortex/",
+      "why": "Council hyper-runner acceptance on Virtual Linux VM; all 5 subcommands verified with RCPT receipts",
+      "how": "Implemented and verified on Virtual Linux VM; exit 0 for all subcommands; genome generation 2, W*=2, batch=15"
+    },
+    "EL-004": {
+      "what": "Omni-Cortex CLI with 6 subcommands (telemetry, triage-suite, merkle-map, ncd-clones, topology, run-guarded)",
+      "where": "scripts/omni_cortex.py, docs/xray/07_OMNI_CORTEX_SPEC.md, labs/05-08/",
+      "why": "Council framework acceptance on Virtual Linux VM",
+      "how": "Implemented and verified via arena_guard exec with RCPT receipts RCPT-05C5A037500B through RCPT-813895B37608"
+    },
+    "WU-001": {
+      "what": "Council framework closeout (M1 citation integrity, M2 hotspot recall, M4 BLUF compliance, mermaid 15/15 valid, 0 placeholders)",
+      "where": "docs/work-units/WU-001-council-framework.md, docs/xray/",
+      "why": "All gates 100%; MANIFEST.sha256 integrity verified",
+      "how": "verify_kb.py all gates 100%; citation integrity M1=55/55=100%"
+    },
+    "WU-002": {
+      "what": "Omni-Cortex closeout with platform labs (Linux sandbox, macOS M1 Pro telemetry, LG webOS lab contract)",
+      "where": "docs/work-units/WU-002-omni-cortex.md, labs/04_platform_hardware/",
+      "why": "Omni-Cortex acceptance met on Virtual Linux VM; macOS M1 Pro validation pending",
+      "how": "7 platform lab entries; metrics/ledger.jsonl appended 7 WU-002 entries"
+    },
+    "NX-001": {
+      "what": "Nexus Agent OS fresh-eyes forensics CLI (sync/read/diagnose-setup/state-lineage/checkpoint/bench)",
+      "where": "scripts/nexus_agent_os.py, labs/11_nexus_forensics/",
+      "why": "6 missing links from fresh-eyes audit; O(Δ) wait-free indexer, focal AST reader, setup diagnostician, state-channel lineage, git ODB shadow checkpoints, MAD+Hodges-Lehmann benchmark",
+      "how": "Pure stdlib Python 3.11; verified via arena_guard exec RCPT-B4D1617030D7 through RCPT-D8BBC72DF1B8 (exit 0)"
+    },
+    "TL-001": {
+      "what": "Tool Latent Codec (HSLC) symbolic-latent tool compression (run/deref/bench-compression)",
+      "where": "scripts/tool_latent_codec.py, labs/12_testing_quality/",
+      "why": "Compresses tool output (pytest/git/linter stdout) into 100%-lossless @H-XXXX handles; quotient-graph folding + surprisal-weighted elision",
+      "how": "Bench: 356,175 raw tokens -> 545 digest tokens (653x), 4/4 root-cause classes, 100% coordinate recall, ~316ms CPU; verified via arena_guard RCPT-CD400712C1DF/RCPT-E6A5EC1AD3CF/RCPT-39D7B86A7233/RCPT-A74B15829342 (exit 0)"
+    },
+    "AG-001": {
+      "what": "Aegis Bug Hunter forensic CLI & zero-regression patch verifier (hunt/review/forensics/dylib-audit/verify-fix)",
+      "where": "scripts/aegis_bug_hunter.py",
+      "why": "Engler deviance mining, PVS-Studio AST patterns, AST-SZZ bug genealogy, native binary audit, Separation-Logic Frame Rule verification",
+      "how": "hunt: 187ms, 214 funcs, 3262 call sites, 3 anomalies; verify-fix SAFE_TO_SHIP; verified via arena_guard RCPT-626C7119EC88 through RCPT-E8019E9701A3 (exit 0)"
+    }
+  }
 }

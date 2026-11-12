@@ -1441,5 +1441,260 @@
     "exit_code": 0,
     "duration_ms": 86.02,
     "output_preview": "{\n  \"verified_file\": \"scripts/hyper_runner.py\",\n  \"separation_logic_frame_safe\": true,\n  \"liskov_contract_violations\": [],\n  \"anomalies_in_patched_file\": [],\n  \"verdict\": \"SAFE_TO_SHIP\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-92C73CDB2223",
+    "timestamp_utc": "2026-11-12T16:36:50.184899+00:00",
+    "environment": "repo_sync_drift",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "generated_utc": "2026-11-12T16:36:50.184367+00:00",
+      "local_drift_markers": {
+        "app_id_production": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.webos"
+        ],
+        "app_id_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.lab"
+        ],
+        "feature_nuvio_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab"
+        ],
+        "stackitem_fields": [
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos"
+        ],
+        "renderer_iflet_guard": [
+          "scripts/repo_sync.py:if let.*guard",
+          "scripts/repo_sync.py:if let .* else",
+          "scripts/repo_sync.py:if let"
+        ],
+        "lckv_seqlock": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:even, head==tail",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:even.*head.*tail"
+        ],
+        "launch_guard": [
+          "scripts/repo_sync.py:duplicate.*launch"
+        ],
+        "ci_rust_toolchain": [
+          "tools/generate_doc_inventory.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:toolchain",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:toolchain",
+          "scripts/sandbox_verify.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:rust-",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/xray/scan_repo.py:toolchain"
+        ]
+      },
+      "tracked_repos": {
+        "steve_spivak_luma_webos_launcher": "1dc0ff694076899279cd05714099500c7d5de903",
+        "funnymataleao_luma_webos_launcher": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "ecklf_lg_luma": "v2.19.0"
+      },
+      "drift_categories": [
+        "app_id_divergence",
+        "feature_gating_divergence",
+        "stack_item_field_divergence",
+        "renderer_iflet_guard_divergence",
+        "lckv_seqlock_divergence",
+        "launch_guard_divergence",
+        "ci_rust_toolchain_divergence"
+      ],
+      "alignment_rules": {
+        "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+        "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+        "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+        "rollback_safe": "Rollback requires no production Nuvio application modification",
+        "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+        "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+        "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-0AA1645D8C3D",
+    "timestamp_utc": "2026-11-12T16:36:52.995349+00:00",
+    "environment": "repo_sync_drift",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "generated_utc": "2026-11-12T16:36:52.994891+00:00",
+      "local_drift_markers": {
+        "app_id_production": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.webos"
+        ],
+        "app_id_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.lab"
+        ],
+        "feature_nuvio_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab"
+        ],
+        "stackitem_fields": [
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos"
+        ],
+        "renderer_iflet_guard": [
+          "scripts/repo_sync.py:if let.*guard",
+          "scripts/repo_sync.py:if let .* else",
+          "scripts/repo_sync.py:if let"
+        ],
+        "lckv_seqlock": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:even, head==tail",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:even.*head.*tail"
+        ],
+        "launch_guard": [
+          "scripts/repo_sync.py:duplicate.*launch"
+        ],
+        "ci_rust_toolchain": [
+          "tools/generate_doc_inventory.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:toolchain",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:toolchain",
+          "scripts/sandbox_verify.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:rust-",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/xray/scan_repo.py:toolchain"
+        ]
+      },
+      "tracked_repos": {
+        "steve_spivak_luma_webos_launcher": "1dc0ff694076899279cd05714099500c7d5de903",
+        "funnymataleao_luma_webos_launcher": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "ecklf_lg_luma": "v2.19.0"
+      },
+      "drift_categories": [
+        "app_id_divergence",
+        "feature_gating_divergence",
+        "stack_item_field_divergence",
+        "renderer_iflet_guard_divergence",
+        "lckv_seqlock_divergence",
+        "launch_guard_divergence",
+        "ci_rust_toolchain_divergence"
+      ],
+      "alignment_rules": {
+        "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+        "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+        "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+        "rollback_safe": "Rollback requires no production Nuvio application modification",
+        "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+        "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+        "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-304A69EFFCCA",
+    "timestamp_utc": "2026-11-12T16:37:38.335297+00:00",
+    "environment": "repo_sync_drift",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "generated_utc": "2026-11-12T16:37:38.334737+00:00",
+      "local_drift_markers": {
+        "app_id_production": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.webos"
+        ],
+        "app_id_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.lab"
+        ],
+        "feature_nuvio_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab"
+        ],
+        "stackitem_fields": [
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos"
+        ],
+        "renderer_iflet_guard": [
+          "scripts/repo_sync.py:if let.*guard",
+          "scripts/repo_sync.py:if let .* else",
+          "scripts/repo_sync.py:if let"
+        ],
+        "lckv_seqlock": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:even, head==tail",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:even.*head.*tail"
+        ],
+        "launch_guard": [
+          "scripts/repo_sync.py:duplicate.*launch"
+        ],
+        "ci_rust_toolchain": [
+          "tools/generate_doc_inventory.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:toolchain",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:toolchain",
+          "scripts/sandbox_verify.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:rust-",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/xray/scan_repo.py:toolchain"
+        ]
+      },
+      "tracked_repos": {
+        "steve_spivak_luma_webos_launcher": "ae1425e614e2d5e5fbce8244312ddc6ff33e5b5c",
+        "funnymataleao_luma_webos_launcher": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "ecklf_lg_luma": "v2.19.0"
+      },
+      "drift_categories": [
+        "app_id_divergence",
+        "feature_gating_divergence",
+        "stack_item_field_divergence",
+        "renderer_iflet_guard_divergence",
+        "lckv_seqlock_divergence",
+        "launch_guard_divergence",
+        "ci_rust_toolchain_divergence"
+      ],
+      "alignment_rules": {
+        "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+        "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+        "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+        "rollback_safe": "Rollback requires no production Nuvio application modification",
+        "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+        "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+        "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+      }
+    }
   }
 ]

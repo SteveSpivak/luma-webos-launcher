@@ -126,6 +126,42 @@
       ],
       "recorded_utc": "2026-11-12T16:02:23.959683+00:00",
       "receipt": "RCPT-344E59E89267"
+    },
+    "NX-001": {
+      "fix_id": "NX-001",
+      "what": "Nexus Agent OS fresh-eyes forensics CLI (sync/read/diagnose-setup/state-lineage/checkpoint/bench)",
+      "where": "scripts/nexus_agent_os.py",
+      "why": "6 missing links from fresh-eyes audit: O(delta) wait-free indexer, focal AST reader, setup diagnostician, state-channel lineage, git ODB shadow checkpoints, MAD+Hodges-Lehmann benchmark",
+      "how": "Pure stdlib Python 3.11; verified via arena_guard exec RCPT-B4D1617030D7 through RCPT-D8BBC72DF1B8 (exit 0)",
+      "repos_affected": [
+        "steve"
+      ],
+      "recorded_utc": "2026-11-12T16:37:32.559100+00:00",
+      "receipt": "RCPT-B4D1617030D7"
+    },
+    "TL-001": {
+      "fix_id": "TL-001",
+      "what": "Tool Latent Codec (HSLC) symbolic-latent tool compression (run/deref/bench-compression)",
+      "where": "scripts/tool_latent_codec.py",
+      "why": "Compresses tool output into 100%-lossless @H-XXXX handles; quotient-graph folding + surprisal-weighted elision",
+      "how": "Bench: 356,175 raw -> 545 digest tokens (653x), 4/4 root-cause classes, 100% coordinate recall",
+      "repos_affected": [
+        "steve"
+      ],
+      "recorded_utc": "2026-11-12T16:37:34.438260+00:00",
+      "receipt": "RCPT-CD400712C1DF"
+    },
+    "AG-001": {
+      "fix_id": "AG-001",
+      "what": "Aegis Bug Hunter forensic CLI & zero-regression patch verifier (hunt/review/forensics/dylib-audit/verify-fix)",
+      "where": "scripts/aegis_bug_hunter.py",
+      "why": "Engler deviance mining, PVS-Studio AST patterns, AST-SZZ bug genealogy, native binary audit, Separation-Logic Frame Rule verification",
+      "how": "hunt: 187ms, 214 funcs, 3262 call sites, 3 anomalies; verify-fix SAFE_TO_SHIP",
+      "repos_affected": [
+        "steve"
+      ],
+      "recorded_utc": "2026-11-12T16:37:35.751496+00:00",
+      "receipt": "RCPT-626C7119EC88"
     }
   },
   "patches": {},
