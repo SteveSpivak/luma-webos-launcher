@@ -51,5 +51,196 @@
     "exit_code": 0,
     "duration_ms": 39.27,
     "output_preview": "{\n  \"files_audited\": 9,\n  \"M1_citation_integrity_pct\": 100.0,\n  \"M2_top15_hotspot_recall_pct\": 100.0,\n  \"M4_bluf_header_compliance_pct\": 100.0,\n  \"mermaid_diagrams_valid\": \"10/10 (100.0%)\",\n  \"adhd_wall_of_text_violations\": 0,\n  \"unfinished_placeholders\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-05C5A037500B",
+    "timestamp_utc": "2026-11-12T15:53:48.489553+00:00",
+    "environment": "Linux-x86_64",
+    "command": "omni_cortex telemetry",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "timestamp_utc": "2026-11-12T15:53:48.489158+00:00",
+      "platform": "Linux",
+      "release": "6.1.158+",
+      "machine": "x86_64",
+      "python": "3.11.2",
+      "cpu": {
+        "logical_cpus": 2,
+        "affinity_count": 2,
+        "cgroup": {
+          "source": null,
+          "raw": null,
+          "cores": null
+        }
+      },
+      "memory": {
+        "rss_current_bytes": null,
+        "rss_peak_bytes": null,
+        "cgroup": {
+          "source": null,
+          "limit_bytes": null,
+          "current_bytes": null
+        },
+        "vmpeak_bytes": 23953408,
+        "vmrss_bytes": 17850368,
+        "vmswap_bytes": 0,
+        "threads_bytes": 1024,
+        "rusage_self_maxrss_bytes": 17850368,
+        "rusage_children_maxrss_bytes": 0
+      },
+      "pressure": {
+        "cpu": null,
+        "memory": null,
+        "io": null
+      },
+      "rusage": {
+        "user_cpu_sec": 0.039123,
+        "sys_cpu_sec": 0.0,
+        "maxrss_bytes": 17850368,
+        "minor_page_faults": 2284,
+        "major_page_faults": 2,
+        "voluntary_ctx_switches": 2,
+        "involuntary_ctx_switches": 0,
+        "block_input_ops": 40,
+        "block_output_ops": 120
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-24A9D6DF7FD2",
+    "timestamp_utc": "2026-11-12T15:53:48.448340+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/omni_cortex.py telemetry",
+    "exit_code": 0,
+    "duration_ms": 47.12,
+    "output_preview": "\"threads_bytes\": 1024,\n      \"rusage_self_maxrss_bytes\": 17850368,\n      \"rusage_children_maxrss_bytes\": 0\n    },\n    \"pressure\": {\n      \"cpu\": null,\n      \"memory\": null,\n      \"io\": null\n    },\n    \"rusage\": {\n      \"user_cpu_sec\": 0.039123,\n      \"sys_cpu_sec\": 0.0,\n      \"maxrss_bytes\": 17850368,\n      \"minor_page_faults\": 2284,\n      \"major_page_faults\": 2,\n      \"voluntary_ctx_switches\": 2,\n      \"involuntary_ctx_switches\": 0,\n      \"block_input_ops\": 40,\n      \"block_output_ops\": 120\n    }\n  }\n}\n\n[ARENA RECEIPT] RCPT-05C5A037500B \u2014 telemetry snapshot issued (read-only, no fabrication)"
+  },
+  {
+    "receipt_id": "RCPT-F35276D3DC3E",
+    "timestamp_utc": "2026-11-12T15:53:51.073947+00:00",
+    "environment": "Linux",
+    "command": "omni_cortex triage-suite --path .",
+    "exit_code": 0,
+    "duration_ms": 4.97,
+    "telemetry": {
+      "tests_scanned": 2,
+      "runnable": 2,
+      "blocked": 0
+    }
+  },
+  {
+    "receipt_id": "RCPT-5ECC93D0D408",
+    "timestamp_utc": "2026-11-12T15:53:51.037080+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/omni_cortex.py triage-suite --path .",
+    "exit_code": 0,
+    "duration_ms": 41.91,
+    "output_preview": "{\n  \"scan_duration_ms\": 4.97,\n  \"total_test_files\": 2,\n  \"runnable_now\": 2,\n  \"blocked_at_collection\": 0,\n  \"syntax_errors\": 0,\n  \"ochiai_root_cause_blockers\": [],\n  \"sample_runnable\": [\n    \"tools/test_validate_docs.py\",\n    \"labs/01_smoke_and_invariants/test_smoke.py\"\n  ],\n  \"sample_blocked\": [],\n  \"sample_syntax_errors\": [],\n  \"receipt_id\": \"RCPT-F35276D3DC3E\"\n}\n\n[ARENA RECEIPT] RCPT-F35276D3DC3E \u2014 Ochiai root-cause triage complete in 4.97 ms"
+  },
+  {
+    "receipt_id": "RCPT-4AAE5D456998",
+    "timestamp_utc": "2026-11-12T15:53:53.384423+00:00",
+    "environment": "Linux",
+    "command": "omni_cortex merkle-map --path .",
+    "exit_code": 0,
+    "duration_ms": 51.17,
+    "telemetry": {
+      "symbols_hashed": 118
+    }
+  },
+  {
+    "receipt_id": "RCPT-E1109F5AA2C7",
+    "timestamp_utc": "2026-11-12T15:53:53.290430+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/omni_cortex.py merkle-map --path .",
+    "exit_code": 0,
+    "duration_ms": 101.02,
+    "output_preview": "ile\": \"scripts/arena_guard.py\",\n      \"symbol\": \"cmd_ship\",\n      \"lineno\": 213,\n      \"loc\": 65,\n      \"merkle_ast\": \"637d659ef9c56ab9\"\n    },\n    {\n      \"qualname\": \"scripts.arena_guard::main\",\n      \"file\": \"scripts/arena_guard.py\",\n      \"symbol\": \"main\",\n      \"lineno\": 280,\n      \"loc\": 18,\n      \"merkle_ast\": \"22eaba38ee3c067b\"\n    },\n    {\n      \"qualname\": \"scripts.hyper_runner::enforce_native_apple_silicon\",\n      \"file\": \"scripts/hyper_runner.py\",\n      \"symbol\": \"enforce_native_apple_silicon\",\n      \"lineno\": 57,\n      \"loc\": 25,\n      \"merkle_ast\": \"26c25c372804b946\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-2380EE02553E",
+    "timestamp_utc": "2026-11-12T15:53:53.957473+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/omni_cortex.py ncd-clones --path . --min-loc 15 --threshold 0.25",
+    "exit_code": 1,
+    "duration_ms": 51.51,
+    "output_preview": "s.min_loc, threshold=args.threshold)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/luma-webos-launcher/scripts/lib/ncd_clones.py\", line 114, in find_clones\n    recs = [r for r in extract_symbols(root, min_loc) if r[\"loc\"] >= min_loc]\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/luma-webos-launcher/scripts/lib/ncd_clones.py\", line 72, in extract_symbols\n    if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):\n                             ^^^\nNameError: name 'ast' is not defined"
+  },
+  {
+    "receipt_id": "RCPT-CE7D5046A48A",
+    "timestamp_utc": "2026-11-12T15:53:54.650374+00:00",
+    "environment": "Linux",
+    "command": "omni_cortex topology --path .",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "vertices": 22,
+      "edges": 0,
+      "betti1": 0,
+      "sccs": 0
+    }
+  },
+  {
+    "receipt_id": "RCPT-5A544010FF1B",
+    "timestamp_utc": "2026-11-12T15:53:54.573456+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/omni_cortex.py topology --path .",
+    "exit_code": 0,
+    "duration_ms": 82.53,
+    "output_preview": "cd_clones.py\",\n      0.006818\n    ],\n    [\n      \"scripts/lib/receipts.py\",\n      0.006818\n    ],\n    [\n      \"scripts/lib/scheduler.py\",\n      0.006818\n    ],\n    [\n      \"scripts/lib/telemetry.py\",\n      0.006818\n    ],\n    [\n      \"scripts/lib/topology.py\",\n      0.006818\n    ],\n    [\n      \"scripts/omni_cortex.py\",\n      0.006818\n    ],\n    [\n      \"scripts/sandbox_verify.py\",\n      0.006818\n    ],\n    [\n      \"scripts/xray/scan_repo.py\",\n      0.006818\n    ],\n    [\n      \"scripts/xray/verify_kb.py\",\n      0.006818\n    ]\n  ],\n  \"fiedler_lambda2\": 0.0,\n  \"receipt_id\": \"RCPT-CE7D5046A48A\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-B3AA2A74A831",
+    "timestamp_utc": "2026-11-12T15:54:02.374455+00:00",
+    "environment": "Linux",
+    "command": "omni_cortex ncd-clones --path . --min-loc 15 --threshold 0.25",
+    "exit_code": 0,
+    "duration_ms": 171.32,
+    "telemetry": {
+      "functions_compared": 60,
+      "clones_found": 0
+    }
+  },
+  {
+    "receipt_id": "RCPT-DB55A72A0B63",
+    "timestamp_utc": "2026-11-12T15:54:02.170439+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/omni_cortex.py ncd-clones --path . --min-loc 15 --threshold 0.25",
+    "exit_code": 0,
+    "duration_ms": 210.0,
+    "output_preview": "{\n  \"scan_duration_ms\": 171.32,\n  \"functions_compared\": 60,\n  \"threshold\": 0.25,\n  \"min_loc\": 15,\n  \"clones_found\": 0,\n  \"clones\": [],\n  \"receipt_id\": \"RCPT-B3AA2A74A831\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-42FF4835097F",
+    "timestamp_utc": "2026-11-12T15:54:02.951551+00:00",
+    "environment": "Linux-x86_64",
+    "command": "omni_cortex run-guarded --path labs/01_smoke_and_invariants --batch-size 5",
+    "exit_code": 1,
+    "duration_ms": 15.0,
+    "telemetry": {
+      "workers": 1,
+      "batches": 1,
+      "passed": 0,
+      "failed": 1
+    }
+  },
+  {
+    "receipt_id": "RCPT-813895B37608",
+    "timestamp_utc": "2026-11-12T15:54:02.898891+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/omni_cortex.py run-guarded --path labs/01_smoke_and_invariants --batch-size 5",
+    "exit_code": 1,
+    "duration_ms": 58.61,
+    "output_preview": "\"memory\": null,\n      \"io\": null\n    },\n    \"rusage\": {\n      \"user_cpu_sec\": 0.045158,\n      \"sys_cpu_sec\": 0.007237,\n      \"maxrss_bytes\": 18350080,\n      \"minor_page_faults\": 3339,\n      \"major_page_faults\": 0,\n      \"voluntary_ctx_switches\": 4,\n      \"involuntary_ctx_switches\": 0,\n      \"block_input_ops\": 0,\n      \"block_output_ops\": 0\n    }\n  },\n  \"batch_trace\": [\n    {\n      \"batch\": 0,\n      \"files\": 1,\n      \"exit_code\": 1,\n      \"wall_sec\": 0.015,\n      \"cpu_sec\": 0.015,\n      \"kappa\": 0.0,\n      \"major_faults_delta\": 0,\n      \"maxrss_mb\": 17.5,\n      \"throttled\": false\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-F2729A2DE889",
+    "timestamp_utc": "2026-11-12T15:56:29.561563+00:00",
+    "git_head": "f43b67a",
+    "command": "python3 scripts/xray/verify_kb.py",
+    "exit_code": 0,
+    "duration_ms": 53.37,
+    "output_preview": "{\n  \"files_audited\": 10,\n  \"M1_citation_integrity_pct\": 100.0,\n  \"M2_top15_hotspot_recall_pct\": 100.0,\n  \"M4_bluf_header_compliance_pct\": 100.0,\n  \"mermaid_diagrams_valid\": \"11/11 (100.0%)\",\n  \"adhd_wall_of_text_violations\": 0,\n  \"unfinished_placeholders\": 0\n}"
   }
 ]

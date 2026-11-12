@@ -164,6 +164,9 @@ rate 60–85%, doc freshness 100%, mirror integrity 100%, work preservation 100%
 | xray CLI | `scripts/xray/xray_cli.py` | impact/review/status/hotspots/branches |
 | Arena Guard | `scripts/arena_guard.py` | init/exec/audit/ship with receipt ledger |
 | Hyper-Runner | `scripts/hyper_runner.py` | Merkle-AST skip + LPT scheduler + RAM scratchpad + receipts |
+| Omni-Cortex | `scripts/omni_cortex.py` | 6 subcommands: telemetry, triage-suite, merkle-map, ncd-clones, topology, run-guarded |
+| Support libs | `scripts/lib/{telemetry,receipts,scheduler,ast_probe,ncd_clones,topology}.py` | stdlib-only libs for Omni-Cortex |
 | RAM workspace | `scripts/ram_workspace.sh` | /dev/shm (Linux) / APFS RAM Disk (macOS M1 Pro) |
 | Receipts ledger | `docs/xray/_data/execution_receipts.json` | tamper-evident execution receipts |
 | Hyper-Runner spec | `docs/xray/04_HYPER_RUNNER_SPEC.md` | BLUF, ASCII, Mermaid, math, scorecard |
+| Omni-Cortex spec | `docs/xray/07_OMNI_CORTEX_SPEC.md` | BLUF, ASCII, Mermaid, math, subcommand reference |

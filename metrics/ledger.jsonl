@@ -4,3 +4,10 @@
 {"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.mirror_integrity","value":1.0,"evidence":"scripts/sync-docs.sh","note":"Manifest integrity OK; all entries resolve to existing files"}
 {"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.citation_integrity","value":1.0,"evidence":"RCPT-5466BE1682DD","note":"M1 citation integrity 100% (13/13 citations resolve)"}
 {"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.bluf_compliance","value":1.0,"evidence":"RCPT-5466BE1682DD","note":"M4 BLUF header compliance 100% (8/8 files)"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-002","metric":"omni_cortex.telemetry_honest","value":1.0,"evidence":"RCPT-05C5A037500B","note":"cgroup=null honestly reported, no invented limits"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-002","metric":"omni_cortex.triage_suite_ms","value":4.97,"evidence":"RCPT-F35276D3DC3E","note":"Zero-import AST triage in 4.97ms, 0 blocked tests"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-002","metric":"omni_cortex.ncd_clones_ms","value":171.32,"evidence":"RCPT-B3AA2A74A831","note":"60 functions compared, 0 clones at NCD≤0.25"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-002","metric":"omni_cortex.topology_betti1","value":0.0,"evidence":"RCPT-CE7D5046A48A","note":"β1=0, 0 SCCs, clean acyclic dependency graph"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-002","metric":"omni_cortex.run_guarded_kappa","value":0.0,"evidence":"RCPT-813895B37608","note":"Preemption ratio 0.0, no throttling needed"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-002","metric":"quality.receipt_chain_valid","value":1.0,"evidence":"RCPT-05C5A037500B..RCPT-813895B37608","note":"All 6 Omni-Cortex receipts valid in shared ledger"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-002","metric":"quality.doc_freshness","value":1.0,"evidence":"MANIFEST.sha256","note":"10 docs/xray files hashed, integrity verified"}
