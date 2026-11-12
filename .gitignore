@@ -13,5 +13,7 @@ target/
 .agent-kb/*.sqlite
 .agent-kb/shadow_checkpoints.json
 .agent-kb/*_cache.json
+.agent-kb/*receipts.json
+.agent-kb/latent_handles.sqlite
 mutants/
 __pycache__/
