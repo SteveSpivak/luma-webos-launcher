@@ -89,18 +89,28 @@ def fetch_remote_tags(remote):
     return tags
 
 
+DRIFT_SOURCE_EXTENSIONS = {".py", ".rs", ".ts", ".tsx", ".js", ".jsx", ".toml", ".json"}
+
+
 def detect_drift_locally():
-    """Scan local repo for drift markers against known patterns."""
+    """Scan local repo for drift markers against known patterns.
+
+    Scans all source-language files (not just Python) so drift in the
+    primarily-Rust target application is not missed.
+    """
     findings = {}
     for cat, pat in DRIFT_PATTERNS.items():
         hits = []
-        for py_file in list(REPO_ROOT.rglob("*.py"))[:50]:
-            if ".git" in str(py_file) or "node_modules" in str(py_file):
+        source_files = []
+        for ext in DRIFT_SOURCE_EXTENSIONS:
+            source_files.extend(REPO_ROOT.rglob(f"*{ext}"))
+        for src_file in sorted(source_files)[:200]:
+            if ".git" in str(src_file) or "node_modules" in str(src_file):
                 continue
             try:
-                txt = py_file.read_text(errors="ignore")
+                txt = src_file.read_text(errors="ignore")
                 for m in pat.finditer(txt):
-                    hits.append(f"{py_file.relative_to(REPO_ROOT)}:{m.group(0)[:60]}")
+                    hits.append(f"{src_file.relative_to(REPO_ROOT)}:{m.group(0)[:60]}")
             except OSError:
                 pass
         if hits:

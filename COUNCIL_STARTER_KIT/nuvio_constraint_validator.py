@@ -55,16 +55,19 @@ def validate_nuvio_target(target: str) -> str:
 # --- nuvio_app_id (mirrored from src/platform.rs) ---
 def nuvio_app_id(lab: bool, feature_nuvio_lab: bool) -> str:
     """Return the Nuvio app ID for the given target mode.
-    
-    If lab=True but feature_nuvio_lab=False, fall back to production
-    to prevent silent runtime override.
+
+    Fails closed: when lab=True but feature_nuvio_lab=False, raises
+    ValueError instead of silently falling back to the production app ID.
+    This enforces "no silent override" — lab mode requires the feature gate.
     """
     if lab:
         if feature_nuvio_lab:
             return NUVIO_LAB_APP_ID
-        else:
-            # Lab feature not compiled in: fall back to production
-            return NUVIO_APP_ID
+        raise ValueError(
+            "nuvio_app_id: lab=True but nuvio_lab feature not enabled — "
+            "refusing to silently fall back to production app ID "
+            f"({NUVIO_APP_ID})"
+        )
     return NUVIO_APP_ID
 
 
@@ -155,7 +158,12 @@ check(nuvio_app_id(False, True) == NUVIO_APP_ID, "lab=False, feature=nuvio_lab �
 # --- Test 4: nuvio_app_id lab ---
 print("\n--- Test 4: nuvio_app_id returns lab ID ---")
 check(nuvio_app_id(True, True) == NUVIO_LAB_APP_ID, "lab=True, feature=nuvio_lab → lab ID")
-check(nuvio_app_id(True, False) == NUVIO_APP_ID, "lab=True, no feature → production (no silent override)")
+
+try:
+    nuvio_app_id(True, False)
+    check(False, "lab=True, no feature → should raise ValueError (fail closed, no silent override)")
+except ValueError:
+    check(True, "lab=True, no feature → raises ValueError (fail closed, no silent override)")
 
 # --- Test 5: Launch params ---
 print("\n--- Test 5: Launch params build correct JSON ---")
