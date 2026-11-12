@@ -912,6 +912,285 @@ def cmd_verify_fix(args) -> int:
 
 
 # ---------------------------------------------------------------------------
+# 6. CFG — Control Flow Graph Reverse Engineering (objdump-based)
+# ---------------------------------------------------------------------------
+# x86-64 / aarch64 branch instructions that terminate a basic block
+TERMINATOR_OPCODES = {
+    # x86-64 unconditional jumps
+    "jmp", "ret", "call",
+    # x86-64 conditional jumps
+    "je", "jne", "jz", "jnz", "js", "jns", "jg", "jge", "jl", "jle",
+    "ja", "jae", "jb", "jbe", "jcxz", "jecxz", "jrcxz",
+    # x86-64 indirect
+    "jmp*", "call*",
+    # aarch64
+    "b", "bl", "blr", "ret", "cbz", "cbnz", "tbz", "tbnz", "b.eq", "b.ne",
+    "b.cs", "b.cc", "b.mi", "b.pl", "b.vs", "b.vc", "b.hi", "b.ls",
+    "b.ge", "b.lt", "b.gt", "b.le",
+}
+
+
+def _is_terminator(mnemonic: str) -> bool:
+    m = mnemonic.lower().strip()
+    # Strip size suffixes (e.g., "jmp.q" -> "jmp", "b.eq" -> "b.eq")
+    base = m.split(".")[0]
+    # Handle indirect call/jmp with *
+    if base.endswith("*"):
+        base = base[:-1]
+    return base in TERMINATOR_OPCODES or any(
+        m.startswith(t) for t in TERMINATOR_OPCODES
+    )
+
+
+def _extract_branch_target(operand: str) -> str | None:
+    """Extract a branch target address from an operand string."""
+    o = operand.strip()
+    # Direct label: <func+0x123> or 0x1234 or label
+    if "<" in o and ">" in o:
+        inner = o[o.index("<") + 1:o.index(">")]
+        # Extract offset like func+0x123
+        if "+" in inner:
+            return inner.split("+")[-1].strip()
+        return inner
+    # Hex address
+    if o.startswith("0x"):
+        return o
+    # Register indirect (can't resolve statically)
+    if o.startswith("%") or o.startswith("x") or o.startswith("w"):
+        return None
+    return None
+
+
+def _disassemble_binary(path: Path) -> str:
+    """Disassemble a binary using objdump. Returns raw assembly text."""
+    if not HAS_OBJDUMP:
+        return ""
+    try:
+        res = subprocess.run(
+            ["objdump", "-d", "-M", "intel", str(path)],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            text=True, timeout=30,
+        )
+        return res.stdout
+    except (subprocess.TimeoutExpired, OSError):
+        return ""
+
+
+def _parse_basic_blocks(asm_text: str) -> list[dict]:
+    """Parse objdump output into basic blocks with terminators.
+
+    A basic block is a maximal sequence of instructions with one entry
+    point (first instruction) and one exit point (last instruction, a
+    terminator).
+    """
+    blocks: list[dict] = []
+    current_block: list[dict] = []
+    current_addr: str | None = None
+
+    for line in asm_text.splitlines():
+        # Match instruction lines:  0000000000401000 <func>:
+        # or:  401000:   48 83 ec 08   sub    rsp, 0x8
+        addr_match = re.match(r"^\s*([0-9a-fA-F]+):\s+([0-9a-fA-F]{2}\s+)+(.*)$", line)
+        if not addr_match:
+            # Could be a label line: 0000000000401000 <main>:
+            label_match = re.match(r"^\s*([0-9a-fA-F]+)\s+<([^>]+)>:", line)
+            if label_match:
+                # If we have an open block, close it
+                if current_block:
+                    blocks.append({
+                        "start_addr": current_addr,
+                        "instructions": current_block,
+                        "terminator": current_block[-1] if current_block else None,
+                    })
+                    current_block = []
+                    current_addr = None
+                # Start a new block at the label
+                current_addr = label_match.group(1)
+                current_block = [{
+                    "addr": label_match.group(1),
+                    "mnemonic": "<label>",
+                    "operand": label_match.group(2),
+                    "raw": line.strip(),
+                }]
+            continue
+
+        if addr_match:
+            addr = addr_match.group(1)
+            rest = addr_match.group(3)
+            # Parse mnemonic and operand
+            parts = rest.split(None, 1)
+            mnemonic = parts[0] if parts else ""
+            operand = parts[1] if len(parts) > 1 else ""
+
+            # If we don't have a current block, start one
+            if current_addr is None:
+                current_addr = addr
+                current_block = []
+
+            current_block.append({
+                "addr": addr,
+                "mnemonic": mnemonic,
+                "operand": operand,
+                "raw": line.strip(),
+            })
+
+            # If this is a terminator, close the block
+            if _is_terminator(mnemonic):
+                blocks.append({
+                    "start_addr": current_addr,
+                    "instructions": current_block,
+                    "terminator": current_block[-1],
+                })
+                current_block = []
+                current_addr = None
+
+    # Flush any remaining block
+    if current_block:
+        blocks.append({
+            "start_addr": current_addr,
+            "instructions": current_block,
+            "terminator": current_block[-1] if current_block else None,
+        })
+
+    return blocks
+
+
+def _build_cfg(blocks: list[dict]) -> dict:
+    """Build a control flow graph from basic blocks.
+
+    Returns nodes (blocks) and edges (control flow transitions).
+    Edges are determined by terminator instructions:
+    - ret: no outgoing edges (block ends)
+    - jmp <target>: edge to target
+    - jcc <target>: edge to target + fall-through edge to next block
+    - call <target>: edge to call target + fall-through edge to next block
+    """
+    # Index blocks by start address
+    addr_to_block: dict[str, int] = {}
+    for i, b in enumerate(blocks):
+        addr_to_block[b["start_addr"]] = i
+
+    nodes = []
+    edges: list[dict] = []
+
+    for i, b in enumerate(blocks):
+        term = b["terminator"]
+        if not term:
+            continue
+        mnemonic = term["mnemonic"].lower()
+        operand = term.get("operand", "")
+        target = _extract_branch_target(operand)
+
+        node_id = f"B{b['start_addr']}"
+        nodes.append({
+            "id": node_id,
+            "start_addr": b["start_addr"],
+            "instruction_count": len(b["instructions"]),
+            "terminator": f"{mnemonic} {operand}".strip(),
+        })
+
+        # Determine fall-through target (next block in address order)
+        fallthrough_idx = None
+        if i + 1 < len(blocks):
+            fallthrough_idx = i + 1
+
+        if mnemonic == "ret":
+            # No outgoing edges
+            pass
+        elif mnemonic == "jmp":
+            if target:
+                target_idx = addr_to_block.get(target)
+                if target_idx is not None:
+                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "unconditional"})
+                else:
+                    edges.append({"from": node_id, "to": f"external:{target}", "type": "unconditional"})
+        elif mnemonic == "call":
+            if target:
+                target_idx = addr_to_block.get(target)
+                if target_idx is not None:
+                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "call"})
+                else:
+                    edges.append({"from": node_id, "to": f"external:{target}", "type": "call"})
+            # Fall through after call
+            if fallthrough_idx is not None:
+                edges.append({"from": node_id, "to": f"B{blocks[fallthrough_idx]['start_addr']}", "type": "fallthrough"})
+        else:
+            # Conditional branch: taken + fall-through
+            if target:
+                target_idx = addr_to_block.get(target)
+                if target_idx is not None:
+                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "branch_taken"})
+                else:
+                    edges.append({"from": node_id, "to": f"external:{target}", "type": "branch_taken"})
+            # Fall-through
+            if fallthrough_idx is not None:
+                edges.append({"from": node_id, "to": f"B{blocks[fallthrough_idx]['start_addr']}", "type": "fallthrough"})
+
+    return {"nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges)}
+
+
+def cmd_cfg(args) -> int:
+    """Extract a control flow graph from a native binary using objdump.
+
+    Disassembles the binary, partitions into basic blocks, and builds
+    a CFG with nodes (blocks) and edges (control flow transitions).
+    """
+    target_p = Path(args.binary)
+    if not target_p.is_absolute():
+        target_p = REPO_ROOT / target_p
+
+    if not target_p.exists():
+        print(f"ERROR: Binary '{target_p}' not found.", file=sys.stderr)
+        return 1
+
+    if not HAS_OBJDUMP:
+        print("ERROR: objdump not available — cannot disassemble.", file=sys.stderr)
+        return 1
+
+    asm_text = _disassemble_binary(target_p)
+    if not asm_text:
+        print(f"ERROR: Failed to disassemble '{target_p}'.", file=sys.stderr)
+        return 1
+
+    blocks = _parse_basic_blocks(asm_text)
+    cfg = _build_cfg(blocks)
+
+    try:
+        binary_display = str(target_p.relative_to(REPO_ROOT))
+    except ValueError:
+        binary_display = str(target_p)
+
+    # Filter to specific function if requested
+    if args.function:
+        # Find blocks belonging to the function
+        func_blocks = []
+        in_func = False
+        for line in asm_text.splitlines():
+            label_match = re.match(r"^\s*[0-9a-fA-F]+\s+<([^>]+)>:", line)
+            if label_match:
+                func_name = label_match.group(1)
+                in_func = (func_name == args.function or func_name.endswith(f".{args.function}"))
+            if in_func and re.match(r"^\s*[0-9a-fA-F]+:", line):
+                func_blocks.append(line.strip())
+
+        output = {
+            "binary": binary_display,
+            "function": args.function,
+            "cfg": cfg,
+            "disassembly_lines": len(func_blocks),
+        }
+    else:
+        output = {
+            "binary": binary_display,
+            "cfg": cfg,
+            "total_blocks": len(blocks),
+        }
+
+    print(json.dumps(output, indent=2))
+    return 0
+
+
+# ---------------------------------------------------------------------------
 # CLI entry point
 # ---------------------------------------------------------------------------
 def main() -> int:
@@ -947,6 +1226,13 @@ def main() -> int:
     )
     dy.add_argument("--path", default=".")
 
+    cg = sub.add_parser(
+        "cfg",
+        help="Control Flow Graph reverse engineering via objdump disassembly",
+    )
+    cg.add_argument("binary", help="Path to native binary (.so / .dylib / executable)")
+    cg.add_argument("--function", help="Filter to specific function name")
+
     vf = sub.add_parser(
         "verify-fix",
         help="Separation-Logic Frame Rule & Liskov Call-Site Patch Verifier",
@@ -967,6 +1253,8 @@ def main() -> int:
     if args.cmd == "dylib-audit":
         cmd_dylib_audit(args)
         return 0
+    if args.cmd == "cfg":
+        return cmd_cfg(args)
     if args.cmd == "verify-fix":
         return cmd_verify_fix(args)
     return 1

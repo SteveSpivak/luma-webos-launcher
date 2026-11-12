@@ -180,4 +180,4 @@ rate 60–85%, doc freshness 100%, mirror integrity 100%, work preservation 100%
 | Nexus Agent OS | `scripts/nexus_agent_os.py` | 6-subcommand fresh-eyes forensics: sync/read/diagnose-setup/state-lineage/checkpoint/bench; --workers parallel sync + symbol dedup cache (15x speedup on cached runs) |
 | Tool Latent Codec | `scripts/tool_latent_codec.py` | HSLC symbolic-latent tool compression: run/deref/bench-compression/batch-compress (@H handles, quotient folding, surprisal elision, 653x on stress test) |
 | Latent Handle DB | `.agent-kb/latent_handles.sqlite` | content-addressed @H-XXXXXXXX handle store (gitignored runtime artifact) |
-| Aegis Bug Hunter | `scripts/aegis_bug_hunter.py` | 5-subcommand bug forensics & zero-regression patch verifier: hunt/review/forensics/dylib-audit/verify-fix; reverse engineering via nm/strings/ldd/readelf (symbol tables, dep graphs, arch-mismatch hazards) |
+| Aegis Bug Hunter | `scripts/aegis_bug_hunter.py` | 6-subcommand bug forensics & zero-regression patch verifier: hunt/review/forensics/dylib-audit/cfg/verify-fix; reverse engineering via nm/strings/ldd/readelf/objdump (symbol tables, dep graphs, CFG, arch-mismatch hazards) |

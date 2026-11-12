@@ -2221,5 +2221,319 @@
     "exit_code": 0,
     "duration_ms": 2350.41,
     "output_preview": "[ARENA AUDIT PASSED] BLUF, ASCII, Citation, Secret, and Doc-Sync checks verified.\n[ARENA SHIP VERIFIED] Branch 'arena/5fe14abb-luma-webos-launcher' pushed to GitHub origin. SHA Parity Confirmed: 90469a45f29caed44c621ea13a368e74f793e934"
+  },
+  {
+    "receipt_id": "RCPT-03BF7DF4F018",
+    "timestamp_utc": "2026-11-12T17:17:15.141271+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 135.78,
+    "output_preview": "cept guard, violating repo norm (7/8 sites guard it, z=2.12).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"scripts/xray/scan_repo.py:L129\",\n      \"detail\": \"Call to 'sh()' discards return value, violating repo invariant (15/16 callers check it, z=3.5).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tools/generate_doc_inventory.py:L159\",\n      \"detail\": \"Call to 'dump()' discards return value, violating repo invariant (10/11 callers check it, z=2.71).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-98D9D4FD8A62",
+    "timestamp_utc": "2026-11-12T17:17:15.702002+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py cfg /bin/true --function _start",
+    "exit_code": 0,
+    "duration_ms": 101.21,
+    "output_preview": "\"B5d18\",\n        \"to\": \"external:0x3a69\",\n        \"type\": \"branch_taken\"\n      },\n      {\n        \"from\": \"B5d18\",\n        \"to\": \"B5d25\",\n        \"type\": \"fallthrough\"\n      },\n      {\n        \"from\": \"B5d25\",\n        \"to\": \"external:0x3a39\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d30\",\n        \"to\": \"external:setlocale@plt\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d37\",\n        \"to\": \"external:__cxa_atexit@plt\",\n        \"type\": \"unconditional\"\n      }\n    ],\n    \"node_count\": 899,\n    \"edge_count\": 1400\n  },\n  \"disassembly_lines\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-242407AC14C6",
+    "timestamp_utc": "2026-11-12T17:17:16.301554+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py dylib-audit",
+    "exit_code": 0,
+    "duration_ms": 49.73,
+    "output_preview": "{\n  \"host_os\": \"linux\",\n  \"host_arch\": \"x86_64\",\n  \"binutils_available\": {\n    \"nm\": true,\n    \"objdump\": true,\n    \"readelf\": true,\n    \"strings\": true,\n    \"ldd\": true\n  },\n  \"native_libraries_scanned\": 0,\n  \"mismatches_or_missing_links\": [],\n  \"sample_binaries\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-66278C22A914",
+    "timestamp_utc": "2026-11-12T17:17:16.403704+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py verify-fix scripts/hyper_runner.py",
+    "exit_code": 0,
+    "duration_ms": 73.34,
+    "output_preview": "{\n  \"verified_file\": \"scripts/hyper_runner.py\",\n  \"separation_logic_frame_safe\": true,\n  \"liskov_contract_violations\": [],\n  \"anomalies_in_patched_file\": [],\n  \"verdict\": \"SAFE_TO_SHIP\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-A04146542558",
+    "timestamp_utc": "2026-11-12T17:17:56.160052+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/nexus_agent_os.py sync --path . --workers 4",
+    "exit_code": 0,
+    "duration_ms": 62.37,
+    "output_preview": "{\n  \"sync_duration_ms\": 5.04,\n  \"files_reindexed_delta\": 0,\n  \"files_skipped_stat_cache\": 117,\n  \"files_pruned\": 0,\n  \"total_files\": 117,\n  \"total_symbols\": 2086,\n  \"total_state_channel_links\": 372,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-1F616BE71A62",
+    "timestamp_utc": "2026-11-12T17:17:56.266353+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 98.97,
+    "output_preview": "cept guard, violating repo norm (7/8 sites guard it, z=2.12).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"scripts/xray/scan_repo.py:L129\",\n      \"detail\": \"Call to 'sh()' discards return value, violating repo invariant (15/16 callers check it, z=3.5).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tools/generate_doc_inventory.py:L159\",\n      \"detail\": \"Call to 'dump()' discards return value, violating repo invariant (10/11 callers check it, z=2.71).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-9387EC61B41E",
+    "timestamp_utc": "2026-11-12T17:17:56.407775+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py forensics scripts/arena_guard.py:138-145",
+    "exit_code": 0,
+    "duration_ms": 55.42,
+    "output_preview": "deterministic operating system (arena_guard + AGENTS.md + docs/xray atlas)\",\n      \"co_modified_files_in_commit\": [\n        \"AGENTS.md\",\n        \"MANIFEST.sha256\",\n        \"docs/work-units/WU-001-council-framework.md\",\n        \"docs/xray/01_5W_ARCHITECTURE_ATLAS.md\",\n        \"docs/xray/02_END_TO_END_FLOWS.md\",\n        \"docs/xray/03_DEPENDENCY_AND_TRAP_MAP.md\",\n        \"docs/xray/05_MEMORIES_AND_LESSONS_LEARNED.md\",\n        \"docs/xray/README.md\",\n        \"docs/xray/_data/execution_receipts.json\",\n        \"metrics/ledger.jsonl\"\n      ],\n      \"is_probable_bug_inducing_commit\": false\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-42D83E73A64E",
+    "timestamp_utc": "2026-11-12T17:17:56.506236+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/tool_latent_codec.py run -- python3 scripts/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 150.89,
+    "output_preview": "7          | \"anomalies\": [                                                |\n|  L9     [x12] | \"severity\": \"CRITICAL\",                                       |\n|  L12         | \"detail\": \"Calls 'find_spec()' with 1 args, but scripts/evo_c |\n|  L13    [x3] | },                                                            |\n|  L18         | \"detail\": \"Call to 'check_output()' lacks try/except guard, v |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 300 raw tokens -> 343 latent-digest tokens (0.87x compression | 100% lossless via @H-87DE2B8D)"
+  },
+  {
+    "receipt_id": "RCPT-CD97583404FB",
+    "timestamp_utc": "2026-11-12T17:17:56.699345+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py verify-fix scripts/hyper_runner.py",
+    "exit_code": 0,
+    "duration_ms": 70.45,
+    "output_preview": "{\n  \"verified_file\": \"scripts/hyper_runner.py\",\n  \"separation_logic_frame_safe\": true,\n  \"liskov_contract_violations\": [],\n  \"anomalies_in_patched_file\": [],\n  \"verdict\": \"SAFE_TO_SHIP\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-C83348A3234D",
+    "timestamp_utc": "2026-11-12T17:17:56.878913+00:00",
+    "environment": "repo_sync_drift",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "generated_utc": "2026-11-12T17:17:56.878282+00:00",
+      "local_drift_markers": {
+        "app_id_production": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.webos"
+        ],
+        "app_id_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.lab"
+        ],
+        "feature_nuvio_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab"
+        ],
+        "stackitem_fields": [
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos"
+        ],
+        "renderer_iflet_guard": [
+          "scripts/repo_sync.py:if let.*guard",
+          "scripts/repo_sync.py:if let .* else",
+          "scripts/repo_sync.py:if let"
+        ],
+        "lckv_seqlock": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:even, head==tail",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:even.*head.*tail"
+        ],
+        "launch_guard": [
+          "scripts/repo_sync.py:duplicate.*launch"
+        ],
+        "ci_rust_toolchain": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:toolchain",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "scripts/aegis_bug_hunter.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:rust-",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/sandbox_verify.py:toolchain"
+        ]
+      },
+      "tracked_repos": {
+        "steve_spivak_luma_webos_launcher": "ae1425e614e2d5e5fbce8244312ddc6ff33e5b5c",
+        "funnymataleao_luma_webos_launcher": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "ecklf_lg_luma": "v2.19.0"
+      },
+      "drift_categories": [
+        "app_id_divergence",
+        "feature_gating_divergence",
+        "stack_item_field_divergence",
+        "renderer_iflet_guard_divergence",
+        "lckv_seqlock_divergence",
+        "launch_guard_divergence",
+        "ci_rust_toolchain_divergence"
+      ],
+      "alignment_rules": {
+        "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+        "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+        "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+        "rollback_safe": "Rollback requires no production Nuvio application modification",
+        "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+        "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+        "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-FB7D01183B05",
+    "timestamp_utc": "2026-11-12T17:17:56.812108+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 74.94,
+    "output_preview": "n any repo\",\n    \"lab_target_isolated\": \"space.nuvio.lab only used when nuvio_lab feature + lab=true\",\n    \"no_silent_runtime_override\": \"Invalid app IDs fail validation; no silent override of production app ID\",\n    \"rollback_safe\": \"Rollback requires no production Nuvio application modification\",\n    \"no_duplicate_routing\": \"No extra media launcher or duplicate routing layer\",\n    \"receipt_required\": \"Every cross-repo patch carries a tamper-evident RCPT receipt\",\n    \"docs_sync\": \"Code changes in any repo require docs/xray/ sync in the same commit\"\n  },\n  \"receipt_id\": \"RCPT-C83348A3234D\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-8838222D7659",
+    "timestamp_utc": "2026-11-12T17:18:02.331931+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/nexus_agent_os.py sync --path . --workers 4",
+    "exit_code": 0,
+    "duration_ms": 64.23,
+    "output_preview": "{\n  \"sync_duration_ms\": 5.0,\n  \"files_reindexed_delta\": 0,\n  \"files_skipped_stat_cache\": 117,\n  \"files_pruned\": 0,\n  \"total_files\": 117,\n  \"total_symbols\": 2086,\n  \"total_state_channel_links\": 372,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-F9E05F57F3C0",
+    "timestamp_utc": "2026-11-12T17:18:02.438610+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 96.17,
+    "output_preview": "cept guard, violating repo norm (7/8 sites guard it, z=2.12).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"scripts/xray/scan_repo.py:L129\",\n      \"detail\": \"Call to 'sh()' discards return value, violating repo invariant (15/16 callers check it, z=3.5).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tools/generate_doc_inventory.py:L159\",\n      \"detail\": \"Call to 'dump()' discards return value, violating repo invariant (10/11 callers check it, z=2.71).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-A0E3D596D75D",
+    "timestamp_utc": "2026-11-12T17:18:02.579455+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py forensics scripts/arena_guard.py:138-145",
+    "exit_code": 0,
+    "duration_ms": 54.1,
+    "output_preview": "deterministic operating system (arena_guard + AGENTS.md + docs/xray atlas)\",\n      \"co_modified_files_in_commit\": [\n        \"AGENTS.md\",\n        \"MANIFEST.sha256\",\n        \"docs/work-units/WU-001-council-framework.md\",\n        \"docs/xray/01_5W_ARCHITECTURE_ATLAS.md\",\n        \"docs/xray/02_END_TO_END_FLOWS.md\",\n        \"docs/xray/03_DEPENDENCY_AND_TRAP_MAP.md\",\n        \"docs/xray/05_MEMORIES_AND_LESSONS_LEARNED.md\",\n        \"docs/xray/README.md\",\n        \"docs/xray/_data/execution_receipts.json\",\n        \"metrics/ledger.jsonl\"\n      ],\n      \"is_probable_bug_inducing_commit\": false\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-9D9946E193A9",
+    "timestamp_utc": "2026-11-12T17:18:02.676620+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/tool_latent_codec.py run -- python3 scripts/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 150.99,
+    "output_preview": "7          | \"anomalies\": [                                                |\n|  L9     [x12] | \"severity\": \"CRITICAL\",                                       |\n|  L12         | \"detail\": \"Calls 'find_spec()' with 1 args, but scripts/evo_c |\n|  L13    [x3] | },                                                            |\n|  L18         | \"detail\": \"Call to 'check_output()' lacks try/except guard, v |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 300 raw tokens -> 344 latent-digest tokens (0.87x compression | 100% lossless via @H-DC3D38C5)"
+  },
+  {
+    "receipt_id": "RCPT-1E26E620A2F6",
+    "timestamp_utc": "2026-11-12T17:18:02.870684+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/aegis_bug_hunter.py verify-fix scripts/hyper_runner.py",
+    "exit_code": 0,
+    "duration_ms": 102.47,
+    "output_preview": "{\n  \"verified_file\": \"scripts/hyper_runner.py\",\n  \"separation_logic_frame_safe\": true,\n  \"liskov_contract_violations\": [],\n  \"anomalies_in_patched_file\": [],\n  \"verdict\": \"SAFE_TO_SHIP\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-2F8D1FF9DD20",
+    "timestamp_utc": "2026-11-12T17:18:03.083159+00:00",
+    "environment": "repo_sync_drift",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "generated_utc": "2026-11-12T17:18:03.082498+00:00",
+      "local_drift_markers": {
+        "app_id_production": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.webos"
+        ],
+        "app_id_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.lab"
+        ],
+        "feature_nuvio_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab"
+        ],
+        "stackitem_fields": [
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos"
+        ],
+        "renderer_iflet_guard": [
+          "scripts/repo_sync.py:if let.*guard",
+          "scripts/repo_sync.py:if let .* else",
+          "scripts/repo_sync.py:if let"
+        ],
+        "lckv_seqlock": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:even, head==tail",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:even.*head.*tail"
+        ],
+        "launch_guard": [
+          "scripts/repo_sync.py:duplicate.*launch"
+        ],
+        "ci_rust_toolchain": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:toolchain",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "scripts/aegis_bug_hunter.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:rust-",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/sandbox_verify.py:toolchain"
+        ]
+      },
+      "tracked_repos": {
+        "steve_spivak_luma_webos_launcher": "ae1425e614e2d5e5fbce8244312ddc6ff33e5b5c",
+        "funnymataleao_luma_webos_launcher": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "ecklf_lg_luma": "v2.19.0"
+      },
+      "drift_categories": [
+        "app_id_divergence",
+        "feature_gating_divergence",
+        "stack_item_field_divergence",
+        "renderer_iflet_guard_divergence",
+        "lckv_seqlock_divergence",
+        "launch_guard_divergence",
+        "ci_rust_toolchain_divergence"
+      ],
+      "alignment_rules": {
+        "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+        "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+        "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+        "rollback_safe": "Rollback requires no production Nuvio application modification",
+        "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+        "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+        "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-39ADE9EB7F07",
+    "timestamp_utc": "2026-11-12T17:18:03.015964+00:00",
+    "git_head": "13a8224",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 75.38,
+    "output_preview": "n any repo\",\n    \"lab_target_isolated\": \"space.nuvio.lab only used when nuvio_lab feature + lab=true\",\n    \"no_silent_runtime_override\": \"Invalid app IDs fail validation; no silent override of production app ID\",\n    \"rollback_safe\": \"Rollback requires no production Nuvio application modification\",\n    \"no_duplicate_routing\": \"No extra media launcher or duplicate routing layer\",\n    \"receipt_required\": \"Every cross-repo patch carries a tamper-evident RCPT receipt\",\n    \"docs_sync\": \"Code changes in any repo require docs/xray/ sync in the same commit\"\n  },\n  \"receipt_id\": \"RCPT-2F8D1FF9DD20\"\n}"
   }
 ]
