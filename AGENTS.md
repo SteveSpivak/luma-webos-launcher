@@ -170,3 +170,6 @@ rate 60–85%, doc freshness 100%, mirror integrity 100%, work preservation 100%
 | Receipts ledger | `docs/xray/_data/execution_receipts.json` | tamper-evident execution receipts |
 | Hyper-Runner spec | `docs/xray/04_HYPER_RUNNER_SPEC.md` | BLUF, ASCII, Mermaid, math, scorecard |
 | Omni-Cortex spec | `docs/xray/07_OMNI_CORTEX_SPEC.md` | BLUF, ASCII, Mermaid, math, subcommand reference |
+| Multi-Repo Sync | `docs/xray/08_MULTI_REPO_SYNC.md` | BLUF, ASCII, Mermaid, math, 3-repo drift/alignment |
+| Repo manifest | `scripts/repo_manifest.json` | steve/funny/ecklf registry + alignment rules |
+| Repo sync | `scripts/repo_sync.py` | fetch/drift/align/record-fix across all repos |

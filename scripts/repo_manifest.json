@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-11-05T00:00:00Z",
+  "description": "Multi-repo registry for Council-driven patch alignment across the Luma webOS launcher ecosystem.",
+  "repos": {
+    "steve_spivak_luma_webos_launcher": {
+      "alias": "steve",
+      "role": "working_branch",
+      "remote": "https://github.com/SteveSpivak/luma-webos-launcher.git",
+      "branch": "arena/5fe14abb-luma-webos-launcher",
+      "base_commit": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+      "current_head": "1dc0ff694076899279cd05714099500c7d5de903",
+      "pr_number": 2,
+      "pr_status": "pr_open",
+      "language": "Rust",
+      "notes": "Arena working branch. PR #2 blocked on Rust compilation gates (no Rust toolchain in sandbox). Council framework applied (arena_guard, omni_cortex, docs/xray KB)."
+    },
+    "funnymataleao_luma_webos_launcher": {
+      "alias": "funny",
+      "role": "upstream_base",
+      "remote": "https://github.com/funnymataleao/luma-webos-launcher.git",
+      "branch": "main",
+      "last_known_head": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+      "version": "2.2.160",
+      "language": "Rust + OpenGL ES",
+      "notes": "Native Rust + OpenGL ES webOS TV launcher. Base of our working branch. 5 commits on main, ~2 weeks old (Oct 2026). Upstream of our base commit."
+    },
+    "ecklf_lg_luma": {
+      "alias": "ecklf",
+      "role": "original_upstream",
+      "remote": "https://github.com/ecklf/lg-luma.git",
+      "branch": "main",
+      "last_known_tag": "v2.19.0",
+      "last_known_commit": "25d342a7153c39a54d8a52c78cd0c2e50fbf6ca9",
+      "tag_date_utc": "2026-11-11T18:30:00Z",
+      "language": "TypeScript / Web",
+      "notes": "Original upstream Luma project (LG webOS TV launcher with live video wallpapers, widgets, Jellyfin, Moonlight, Home Assistant). Releases: v2.19.0 latest, v2.18.1, v2.18.0, v2.17.0 tracked."
+    }
+  },
+  "alignment_rules": {
+    "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+    "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+    "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+    "rollback_safe": "Rollback requires no production Nuvio application modification",
+    "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+    "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+    "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+  },
+  "drift_categories": [
+    "app_id_divergence",
+    "feature_gating_divergence",
+    "stack_item_field_divergence",
+    "renderer_iflet_guard_divergence",
+    "lckv_seqlock_divergence",
+    "launch_guard_divergence",
+    "ci_rust_toolchain_divergence"
+  ]
+}

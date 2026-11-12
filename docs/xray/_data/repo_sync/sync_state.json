@@ -1,0 +1,133 @@
+{
+  "repos": {
+    "steve_spivak_luma_webos_launcher": {
+      "remote": "https://github.com/SteveSpivak/luma-webos-launcher.git",
+      "branch": "arena/5fe14abb-luma-webos-launcher",
+      "head_sha": "1dc0ff694076899279cd05714099500c7d5de903",
+      "tags": {},
+      "latest_tag": null,
+      "fetched_utc": "2026-11-12T16:02:00.998252+00:00",
+      "error": null
+    },
+    "funnymataleao_luma_webos_launcher": {
+      "remote": "https://github.com/funnymataleao/luma-webos-launcher.git",
+      "branch": "main",
+      "head_sha": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+      "tags": {
+        "v2.2.160": "952045521f75997a416336e572788c03273e50c3"
+      },
+      "latest_tag": "v2.2.160",
+      "fetched_utc": "2026-11-12T16:02:01.824455+00:00",
+      "error": null
+    },
+    "ecklf_lg_luma": {
+      "remote": "https://github.com/ecklf/lg-luma.git",
+      "branch": "main",
+      "head_sha": "25d342a7153c39a54d8a52c78cd0c2e50fbf6ca9",
+      "tags": {
+        "v1.0.0": "47517c873edd0758286a613e15355bf0d2131fcb",
+        "v1.0.1": "fc0c3c9228531cb4be0daf97068181f4d5e4c9d1",
+        "v1.0.2": "cfdeb5e8bfdf8f2f982da027f79ada9988a5d7f7",
+        "v1.0.3": "86005267d22fcb81e321e0577d2d25f3acd6a13e",
+        "v1.1.0": "ffd8ddca0cf588d52d6681ebfd08004fab26da3e",
+        "v1.1.1": "da3b8229e51b9494b98381f309d80f5e5dd8f6be",
+        "v2.0.0": "442a04ebefe3eee50e1b60c1004cb080a5ccb157",
+        "v2.0.1": "5785b6f8e16f0e80c2303ce3e87fc302ed24f03b",
+        "v2.0.2": "307f8f6f6887b29d85c86702cfd812c07f0daa3c",
+        "v2.0.3": "a8235aade9c6cd2d29ab6c9a241d696ddb944657",
+        "v2.1.0": "db068fa311e50e04da98d28efc81cfaa68590702",
+        "v2.10.0": "763787f8e699d0b16a31ddb587cae80810d21c13",
+        "v2.10.3": "ca323ba6ff0a3323771ab234c805ee3f6c6e093b",
+        "v2.11.0": "147a0a41d7f470103a8e69a07b11411b967d2173",
+        "v2.12.0": "284d025b9b7439f9f4493daf99e4ee02e76a24e4",
+        "v2.13.0": "470f1e2da97128a16e398ed1c0d77f10621d9a96",
+        "v2.14.0": "b91615efa532cfd7c074ffcc3216b7c1f9b621b5",
+        "v2.15.0": "77295a381c7503508700626d2f3df1f70a5113f9",
+        "v2.15.1": "4cbf23846d7828468f222a3ae2d973b2e06e624c",
+        "v2.15.2": "4c4f2b32aec905707e2cab54178ce7fb70d26e70",
+        "v2.15.3": "9e0a1d4c2bb28fd479e202724c2a0991f1360e63",
+        "v2.16.0": "500f1b5f8a523a048696350978943ee4002c9f73",
+        "v2.16.1": "b68996fc422d8ab26d0f6f0e2b1f25d0c53ed9af",
+        "v2.16.2": "e5608cd053be5376a54a806129a332952dfabcef",
+        "v2.17.0": "d974698000b2396ef2f2e0524d094a0581a28349",
+        "v2.18.0": "c596078827ca5c0c2ae5dd91f168e7fa97eedd0c",
+        "v2.18.1": "7e08e2cb00daf57f628764c69bb07f7f142d3a35",
+        "v2.19.0": "25d342a7153c39a54d8a52c78cd0c2e50fbf6ca9",
+        "v2.2.1": "e0accec00af51f3da6f0d1d04f73c7e139893d7e",
+        "v2.3.0": "c7600b02c74b465d17ccc89898fa311b785b16f4",
+        "v2.3.1": "ccdac8372e4b0046e6b0b40b9912bc88542f624b",
+        "v2.4.0": "4495a93d9978bc1337da25a2863be848ae8a791c",
+        "v2.5.0": "7621e2235be967fbfdfdae549132ca0b40be1853",
+        "v2.6.0": "309cc67271bf040f256c3603afa0428a514307df",
+        "v2.7.0": "3190c9528a7445974debf14d0a62e621d483758e",
+        "v2.8.0": "c23e8551675e2befa7d9b371f65b9dbdd997b7a7",
+        "v2.8.1": "465ee4006e6dd49a5d13cfaf3db6bbc3423f16d7",
+        "v2.8.2": "78cad712ed8084bd2abe29b9a5a0a49a8a1aa17d",
+        "v2.8.3": "3b458051a999ca5658e5b1812f6d9383f2e7a280",
+        "v2.8.5": "6271b1384bdf847ec49dc8158219b9de722dc1f2",
+        "v2.9.0": "c6fc8e4a2da621c43539af64b9499d003eec1b21"
+      },
+      "latest_tag": "v2.9.0",
+      "fetched_utc": "2026-11-12T16:02:02.665687+00:00",
+      "error": null
+    }
+  },
+  "fixes": {
+    "EL-006": {
+      "fix_id": "EL-006",
+      "what": "StackItem does not derive Default; replaced ..Default::default() with explicit progress_permille/poster_url/still_url fields",
+      "where": "src/tests.rs nuvio_stack_item_has_content_target_field test; src/main.rs LUMA_GAME_PREVIEW block",
+      "why": "StackItem lacks Default derive; compilation E0382 path move error on Rust 1.93",
+      "how": "Explicit field initialization instead of Default::default()",
+      "repos_affected": [
+        "steve",
+        "funny"
+      ],
+      "recorded_utc": "2026-11-12T16:02:18.061937+00:00",
+      "receipt": "RCPT-344E59E89267"
+    },
+    "EL-004": {
+      "fix_id": "EL-004",
+      "what": "if let guards are experimental on Rust 1.93; CI pin too old",
+      "where": "src/renderer.rs:2033, renderer.rs:1883",
+      "why": "CI uses Rust 1.93.0 which rejects if let guards; needs guard rewrite or CI bump to 1.96+",
+      "how": "Rewrite if let guards to match-else or bump CI toolchain",
+      "repos_affected": [
+        "steve",
+        "funny"
+      ],
+      "recorded_utc": "2026-11-12T16:02:20.115704+00:00",
+      "receipt": "RCPT-344E59E89267"
+    },
+    "WU-001": {
+      "fix_id": "WU-001",
+      "what": "Adopted deterministic Arena OS: AGENTS.md + arena_guard.py + docs/xray KB",
+      "where": "repo-wide: scripts/arena_guard.py, AGENTS.md, docs/xray/*.md",
+      "why": "Prevent lost work in ephemeral cloud containers; guarantee LOCAL_SHA == REMOTE_SHA; no fabricated metrics",
+      "how": "5-stage loop: recon \u2192 lab \u2192 build \u2192 docs \u2192 ship with receipt ledger and pre-commit hook",
+      "repos_affected": [
+        "steve",
+        "funny",
+        "ecklf"
+      ],
+      "recorded_utc": "2026-11-12T16:02:21.911110+00:00",
+      "receipt": "RCPT-344E59E89267"
+    },
+    "WU-002": {
+      "fix_id": "WU-002",
+      "what": "Omni-Cortex CLI: honest telemetry, Ochiai triage, Merkle-AST, NCD clones, spectral topology, BBR/Vegas guard",
+      "where": "scripts/omni_cortex.py, scripts/lib/*.py, labs/04-08/",
+      "why": "Cross-platform agent readiness: Linux sandbox + macOS M1 Pro + webOS target; zero fabricated metrics",
+      "how": "Pure stdlib Python 3.11, read-only, unprivileged syscalls, shared RCPT receipt ledger",
+      "repos_affected": [
+        "steve",
+        "funny",
+        "ecklf"
+      ],
+      "recorded_utc": "2026-11-12T16:02:23.959683+00:00",
+      "receipt": "RCPT-344E59E89267"
+    }
+  },
+  "patches": {},
+  "last_sync": "2026-11-12T16:02:02.665711+00:00"
+}
