@@ -3,10 +3,10 @@
     "steve_spivak_luma_webos_launcher": {
       "remote": "https://github.com/SteveSpivak/luma-webos-launcher.git",
       "branch": "arena/5fe14abb-luma-webos-launcher",
-      "head_sha": "1dc0ff694076899279cd05714099500c7d5de903",
+      "head_sha": "ad905d112ea8a85dfe1c5a8642f8b6a1751e3a91",
       "tags": {},
       "latest_tag": null,
-      "fetched_utc": "2026-11-12T16:02:00.998252+00:00",
+      "fetched_utc": "2026-11-12T16:03:20.297175+00:00",
       "error": null
     },
     "funnymataleao_luma_webos_launcher": {
@@ -17,7 +17,7 @@
         "v2.2.160": "952045521f75997a416336e572788c03273e50c3"
       },
       "latest_tag": "v2.2.160",
-      "fetched_utc": "2026-11-12T16:02:01.824455+00:00",
+      "fetched_utc": "2026-11-12T16:03:20.968882+00:00",
       "error": null
     },
     "ecklf_lg_luma": {
@@ -68,7 +68,7 @@
         "v2.9.0": "c6fc8e4a2da621c43539af64b9499d003eec1b21"
       },
       "latest_tag": "v2.9.0",
-      "fetched_utc": "2026-11-12T16:02:02.665687+00:00",
+      "fetched_utc": "2026-11-12T16:03:21.964562+00:00",
       "error": null
     }
   },
@@ -129,5 +129,5 @@
     }
   },
   "patches": {},
-  "last_sync": "2026-11-12T16:02:02.665711+00:00"
+  "last_sync": "2026-11-12T16:03:21.964590+00:00"
 }

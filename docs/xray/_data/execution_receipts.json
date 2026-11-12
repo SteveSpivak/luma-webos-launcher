@@ -476,5 +476,483 @@
     "exit_code": 0,
     "duration_ms": 36.38,
     "output_preview": "{\n  \"files_audited\": 11,\n  \"M1_citation_integrity_pct\": 100.0,\n  \"M2_top15_hotspot_recall_pct\": 100.0,\n  \"M4_bluf_header_compliance_pct\": 100.0,\n  \"mermaid_diagrams_valid\": \"13/13 (100.0%)\",\n  \"adhd_wall_of_text_violations\": 0,\n  \"unfinished_placeholders\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-D973898CABD8",
+    "timestamp_utc": "2026-11-12T16:03:21.965557+00:00",
+    "environment": "repo_sync_fetch",
+    "command": "python3 scripts/repo_sync.py fetch",
+    "exit_code": 0,
+    "duration_ms": 2285.8,
+    "telemetry": {
+      "steve_spivak_luma_webos_launcher": {
+        "remote": "https://github.com/SteveSpivak/luma-webos-launcher.git",
+        "branch": "arena/5fe14abb-luma-webos-launcher",
+        "head_sha": "ad905d112ea8a85dfe1c5a8642f8b6a1751e3a91",
+        "tags": {},
+        "latest_tag": null,
+        "fetched_utc": "2026-11-12T16:03:20.297175+00:00",
+        "error": null
+      },
+      "funnymataleao_luma_webos_launcher": {
+        "remote": "https://github.com/funnymataleao/luma-webos-launcher.git",
+        "branch": "main",
+        "head_sha": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "tags": {
+          "v2.2.160": "952045521f75997a416336e572788c03273e50c3"
+        },
+        "latest_tag": "v2.2.160",
+        "fetched_utc": "2026-11-12T16:03:20.968882+00:00",
+        "error": null
+      },
+      "ecklf_lg_luma": {
+        "remote": "https://github.com/ecklf/lg-luma.git",
+        "branch": "main",
+        "head_sha": "25d342a7153c39a54d8a52c78cd0c2e50fbf6ca9",
+        "tags": {
+          "v1.0.0": "47517c873edd0758286a613e15355bf0d2131fcb",
+          "v1.0.1": "fc0c3c9228531cb4be0daf97068181f4d5e4c9d1",
+          "v1.0.2": "cfdeb5e8bfdf8f2f982da027f79ada9988a5d7f7",
+          "v1.0.3": "86005267d22fcb81e321e0577d2d25f3acd6a13e",
+          "v1.1.0": "ffd8ddca0cf588d52d6681ebfd08004fab26da3e",
+          "v1.1.1": "da3b8229e51b9494b98381f309d80f5e5dd8f6be",
+          "v2.0.0": "442a04ebefe3eee50e1b60c1004cb080a5ccb157",
+          "v2.0.1": "5785b6f8e16f0e80c2303ce3e87fc302ed24f03b",
+          "v2.0.2": "307f8f6f6887b29d85c86702cfd812c07f0daa3c",
+          "v2.0.3": "a8235aade9c6cd2d29ab6c9a241d696ddb944657",
+          "v2.1.0": "db068fa311e50e04da98d28efc81cfaa68590702",
+          "v2.10.0": "763787f8e699d0b16a31ddb587cae80810d21c13",
+          "v2.10.3": "ca323ba6ff0a3323771ab234c805ee3f6c6e093b",
+          "v2.11.0": "147a0a41d7f470103a8e69a07b11411b967d2173",
+          "v2.12.0": "284d025b9b7439f9f4493daf99e4ee02e76a24e4",
+          "v2.13.0": "470f1e2da97128a16e398ed1c0d77f10621d9a96",
+          "v2.14.0": "b91615efa532cfd7c074ffcc3216b7c1f9b621b5",
+          "v2.15.0": "77295a381c7503508700626d2f3df1f70a5113f9",
+          "v2.15.1": "4cbf23846d7828468f222a3ae2d973b2e06e624c",
+          "v2.15.2": "4c4f2b32aec905707e2cab54178ce7fb70d26e70",
+          "v2.15.3": "9e0a1d4c2bb28fd479e202724c2a0991f1360e63",
+          "v2.16.0": "500f1b5f8a523a048696350978943ee4002c9f73",
+          "v2.16.1": "b68996fc422d8ab26d0f6f0e2b1f25d0c53ed9af",
+          "v2.16.2": "e5608cd053be5376a54a806129a332952dfabcef",
+          "v2.17.0": "d974698000b2396ef2f2e0524d094a0581a28349",
+          "v2.18.0": "c596078827ca5c0c2ae5dd91f168e7fa97eedd0c",
+          "v2.18.1": "7e08e2cb00daf57f628764c69bb07f7f142d3a35",
+          "v2.19.0": "25d342a7153c39a54d8a52c78cd0c2e50fbf6ca9",
+          "v2.2.1": "e0accec00af51f3da6f0d1d04f73c7e139893d7e",
+          "v2.3.0": "c7600b02c74b465d17ccc89898fa311b785b16f4",
+          "v2.3.1": "ccdac8372e4b0046e6b0b40b9912bc88542f624b",
+          "v2.4.0": "4495a93d9978bc1337da25a2863be848ae8a791c",
+          "v2.5.0": "7621e2235be967fbfdfdae549132ca0b40be1853",
+          "v2.6.0": "309cc67271bf040f256c3603afa0428a514307df",
+          "v2.7.0": "3190c9528a7445974debf14d0a62e621d483758e",
+          "v2.8.0": "c23e8551675e2befa7d9b371f65b9dbdd997b7a7",
+          "v2.8.1": "465ee4006e6dd49a5d13cfaf3db6bbc3423f16d7",
+          "v2.8.2": "78cad712ed8084bd2abe29b9a5a0a49a8a1aa17d",
+          "v2.8.3": "3b458051a999ca5658e5b1812f6d9383f2e7a280",
+          "v2.8.5": "6271b1384bdf847ec49dc8158219b9de722dc1f2",
+          "v2.9.0": "c6fc8e4a2da621c43539af64b9499d003eec1b21"
+        },
+        "latest_tag": "v2.9.0",
+        "fetched_utc": "2026-11-12T16:03:21.964562+00:00",
+        "error": null
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-F673420F6F3D",
+    "timestamp_utc": "2026-11-12T16:09:49.023294+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex sense",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "timestamp_utc": "2026-11-12T16:09:49.022952+00:00",
+      "platform": "linux",
+      "system": "Linux",
+      "release": "6.1.158+",
+      "machine": "x86_64",
+      "python": "3.11.2",
+      "cpu_count_logical": 2,
+      "cpu_affinity_count": 2,
+      "page_size_bytes": 4096,
+      "cgroup_cpu_quota": {
+        "state": "UNAVAILABLE_NULL",
+        "source": null,
+        "raw": null,
+        "quota_cores": null
+      },
+      "cgroup_memory": {
+        "state": "UNAVAILABLE_NULL",
+        "source": null,
+        "limit_bytes": null,
+        "current_bytes": null
+      },
+      "darwin_apple_silicon": null,
+      "proc_self_status": {
+        "VmPeak": "26980 kB",
+        "VmRSS": "20556 kB",
+        "VmSwap": "0 kB",
+        "Threads": "1",
+        "voluntary_ctxt_switches": "0",
+        "nonvoluntary_ctxt_switches": "0"
+      },
+      "linux_psi": {
+        "cpu": null,
+        "memory": null,
+        "io": null
+      },
+      "rusage_exact": {
+        "on_cpu_user_sec": 0.0553,
+        "on_cpu_sys_sec": 0.0079,
+        "self_maxrss_bytes": 21049344,
+        "children_maxrss_bytes": 0,
+        "minor_faults_ram": 2917,
+        "major_faults_disk": 0,
+        "voluntary_io_switches": 0,
+        "involuntary_preempt_switches": 0,
+        "preemption_thrash_ratio": 0.0
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-B6090E0D5FFB",
+    "timestamp_utc": "2026-11-12T16:09:48.959334+00:00",
+    "git_head": "ad905d1",
+    "command": "python3 scripts/evo_cortex.py sense",
+    "exit_code": 0,
+    "duration_ms": 75.16,
+    "output_preview": ": \"26980 kB\",\n      \"VmRSS\": \"20556 kB\",\n      \"VmSwap\": \"0 kB\",\n      \"Threads\": \"1\",\n      \"voluntary_ctxt_switches\": \"0\",\n      \"nonvoluntary_ctxt_switches\": \"0\"\n    },\n    \"linux_psi\": {\n      \"cpu\": null,\n      \"memory\": null,\n      \"io\": null\n    },\n    \"rusage_exact\": {\n      \"on_cpu_user_sec\": 0.0553,\n      \"on_cpu_sys_sec\": 0.0079,\n      \"self_maxrss_bytes\": 21049344,\n      \"children_maxrss_bytes\": 0,\n      \"minor_faults_ram\": 2917,\n      \"major_faults_disk\": 0,\n      \"voluntary_io_switches\": 0,\n      \"involuntary_preempt_switches\": 0,\n      \"preemption_thrash_ratio\": 0.0\n    }\n  }\n}"
+  },
+  {
+    "receipt_id": "RCPT-3D71116C4877",
+    "timestamp_utc": "2026-11-12T16:09:51.849478+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex index --path .",
+    "exit_code": 0,
+    "duration_ms": 173.71,
+    "telemetry": {
+      "database_path": ".agent-kb/cortex.sqlite",
+      "fts5_available": true,
+      "files_indexed": 24,
+      "symbols_indexed": 148,
+      "call_and_import_edges": 2109,
+      "abstract_hazards_detected": 0,
+      "profiling": {
+        "wall_sec": 0.1287,
+        "on_cpu_sec": 0.1286,
+        "off_cpu_stall_sec": 0.0001,
+        "off_cpu_stall_ratio": 0.0006
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-7BB7B5B37A61",
+    "timestamp_utc": "2026-11-12T16:09:51.632845+00:00",
+    "git_head": "ad905d1",
+    "command": "python3 scripts/evo_cortex.py index --path .",
+    "exit_code": 0,
+    "duration_ms": 225.15,
+    "output_preview": "{\n  \"database_path\": \".agent-kb/cortex.sqlite\",\n  \"fts5_available\": true,\n  \"files_indexed\": 24,\n  \"symbols_indexed\": 148,\n  \"call_and_import_edges\": 2109,\n  \"abstract_hazards_detected\": 0,\n  \"profiling\": {\n    \"wall_sec\": 0.1287,\n    \"on_cpu_sec\": 0.1286,\n    \"off_cpu_stall_sec\": 0.0001,\n    \"off_cpu_stall_ratio\": 0.0006\n  },\n  \"receipt_id\": \"RCPT-3D71116C4877\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-EBEBEAEE6874",
+    "timestamp_utc": "2026-11-12T16:09:54.243298+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex slice issue_receipt --hops 3",
+    "exit_code": 0,
+    "duration_ms": 1.97,
+    "telemetry": {
+      "target_symbol": "issue_receipt",
+      "max_hops": 3,
+      "backward_slice_upstream_callers": [
+        {
+          "caller": "main",
+          "file": "scripts/evo_cortex.py",
+          "hop": 1,
+          "chain": "main -> issue_receipt"
+        },
+        {
+          "caller": "cmd_telemetry",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_telemetry -> issue_receipt"
+        },
+        {
+          "caller": "cmd_triage_suite",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_triage_suite -> issue_receipt"
+        },
+        {
+          "caller": "cmd_merkle_map",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_merkle_map -> issue_receipt"
+        },
+        {
+          "caller": "cmd_ncd_clones",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_ncd_clones -> issue_receipt"
+        },
+        {
+          "caller": "cmd_topology",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_topology -> issue_receipt"
+        },
+        {
+          "caller": "cmd_run_guarded",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_run_guarded -> issue_receipt"
+        },
+        {
+          "caller": "cmd_fetch",
+          "file": "scripts/repo_sync.py",
+          "hop": 1,
+          "chain": "cmd_fetch -> issue_receipt"
+        },
+        {
+          "caller": "cmd_drift",
+          "file": "scripts/repo_sync.py",
+          "hop": 1,
+          "chain": "cmd_drift -> issue_receipt"
+        },
+        {
+          "caller": "cmd_align",
+          "file": "scripts/repo_sync.py",
+          "hop": 1,
+          "chain": "cmd_align -> issue_receipt"
+        }
+      ],
+      "forward_slice_downstream_callees": [
+        {
+          "callee": "mkdir",
+          "hop": 1,
+          "chain": "issue_receipt -> mkdir"
+        },
+        {
+          "callee": "isoformat",
+          "hop": 1,
+          "chain": "issue_receipt -> isoformat"
+        },
+        {
+          "callee": "append",
+          "hop": 1,
+          "chain": "issue_receipt -> append"
+        },
+        {
+          "callee": "write_text",
+          "hop": 1,
+          "chain": "issue_receipt -> write_text"
+        },
+        {
+          "callee": "exists",
+          "hop": 1,
+          "chain": "issue_receipt -> exists"
+        },
+        {
+          "callee": "loads",
+          "hop": 1,
+          "chain": "issue_receipt -> loads"
+        },
+        {
+          "callee": "upper",
+          "hop": 1,
+          "chain": "issue_receipt -> upper"
+        },
+        {
+          "callee": "dumps",
+          "hop": 1,
+          "chain": "issue_receipt -> dumps"
+        },
+        {
+          "callee": "read_text",
+          "hop": 1,
+          "chain": "issue_receipt -> read_text"
+        },
+        {
+          "callee": "now",
+          "hop": 1,
+          "chain": "issue_receipt -> now"
+        },
+        {
+          "callee": "hexdigest",
+          "hop": 1,
+          "chain": "issue_receipt -> hexdigest"
+        },
+        {
+          "callee": "sha256",
+          "hop": 1,
+          "chain": "issue_receipt -> sha256"
+        },
+        {
+          "callee": "encode",
+          "hop": 1,
+          "chain": "issue_receipt -> encode"
+        },
+        {
+          "callee": "load_receipts",
+          "hop": 1,
+          "chain": "issue_receipt -> load_receipts"
+        },
+        {
+          "callee": "exists",
+          "hop": 2,
+          "chain": "issue_receipt -> load_receipts -> exists"
+        },
+        {
+          "callee": "loads",
+          "hop": 2,
+          "chain": "issue_receipt -> load_receipts -> loads"
+        },
+        {
+          "callee": "read_text",
+          "hop": 2,
+          "chain": "issue_receipt -> load_receipts -> read_text"
+        }
+      ],
+      "fts5_bm25_semantic_matches": [
+        {
+          "file": "scripts/lib/receipts.py",
+          "symbol": "issue_receipt",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/evo_cortex.py",
+          "symbol": "issue_receipt",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/repo_sync.py",
+          "symbol": "issue_receipt",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_telemetry",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_topology",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/evo_cortex.py",
+          "symbol": "main",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_ncd_clones",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_triage_suite",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/repo_sync.py",
+          "symbol": "cmd_drift",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/repo_sync.py",
+          "symbol": "cmd_align",
+          "kind": "func"
+        }
+      ]
+    }
+  },
+  {
+    "receipt_id": "RCPT-3CB2B8B39A16",
+    "timestamp_utc": "2026-11-12T16:09:54.181356+00:00",
+    "git_head": "ad905d1",
+    "command": "python3 scripts/evo_cortex.py slice issue_receipt --hops 3",
+    "exit_code": 0,
+    "duration_ms": 70.62,
+    "output_preview": "d_topology\",\n      \"kind\": \"func\"\n    },\n    {\n      \"file\": \"scripts/evo_cortex.py\",\n      \"symbol\": \"main\",\n      \"kind\": \"func\"\n    },\n    {\n      \"file\": \"scripts/omni_cortex.py\",\n      \"symbol\": \"cmd_ncd_clones\",\n      \"kind\": \"func\"\n    },\n    {\n      \"file\": \"scripts/omni_cortex.py\",\n      \"symbol\": \"cmd_triage_suite\",\n      \"kind\": \"func\"\n    },\n    {\n      \"file\": \"scripts/repo_sync.py\",\n      \"symbol\": \"cmd_drift\",\n      \"kind\": \"func\"\n    },\n    {\n      \"file\": \"scripts/repo_sync.py\",\n      \"symbol\": \"cmd_align\",\n      \"kind\": \"func\"\n    }\n  ],\n  \"receipt_id\": \"RCPT-EBEBEAEE6874\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-16939905A4B4",
+    "timestamp_utc": "2026-11-12T16:09:56.570174+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex ghost-collect --path . --limit 20",
+    "exit_code": 0,
+    "duration_ms": 13.95,
+    "telemetry": {
+      "test_files_attempted": 2,
+      "ghost_virtualized_collection_succeeded": 2,
+      "non_import_init_exceptions": 0,
+      "missing_root_packages_virtualized": [
+        "org"
+      ],
+      "inferred_external_api_contracts_called": [
+        "org",
+        "org.python",
+        "org.python.core",
+        "org.python.core.PyStringMap",
+        "org.python.core.PyStringMap.copy"
+      ],
+      "sample_collected": [
+        {
+          "file": "tools/test_validate_docs.py",
+          "test_symbols_discovered": 15
+        },
+        {
+          "file": "labs/01_smoke_and_invariants/test_smoke.py",
+          "test_symbols_discovered": 0
+        }
+      ],
+      "sample_init_exceptions": [],
+      "differential_profile": {
+        "wall_sec": 0.0127,
+        "on_cpu_sec": 0.0127,
+        "off_cpu_stall_ratio": 0.0
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-EAA4D24E0BD7",
+    "timestamp_utc": "2026-11-12T16:09:56.491879+00:00",
+    "git_head": "ad905d1",
+    "command": "python3 scripts/evo_cortex.py ghost-collect --limit 20",
+    "exit_code": 0,
+    "duration_ms": 91.69,
+    "output_preview": "rg\"\n  ],\n  \"inferred_external_api_contracts_called\": [\n    \"org\",\n    \"org.python\",\n    \"org.python.core\",\n    \"org.python.core.PyStringMap\",\n    \"org.python.core.PyStringMap.copy\"\n  ],\n  \"sample_collected\": [\n    {\n      \"file\": \"tools/test_validate_docs.py\",\n      \"test_symbols_discovered\": 15\n    },\n    {\n      \"file\": \"labs/01_smoke_and_invariants/test_smoke.py\",\n      \"test_symbols_discovered\": 0\n    }\n  ],\n  \"sample_init_exceptions\": [],\n  \"differential_profile\": {\n    \"wall_sec\": 0.0127,\n    \"on_cpu_sec\": 0.0127,\n    \"off_cpu_stall_ratio\": 0.0\n  },\n  \"receipt_id\": \"RCPT-16939905A4B4\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-2CF38B6D392B",
+    "timestamp_utc": "2026-11-12T16:09:59.580742+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex evolve --path .",
+    "exit_code": 0,
+    "duration_ms": 175.45,
+    "telemetry": {
+      "generation": 1,
+      "files_indexed": 24,
+      "hazards": 0
+    }
+  },
+  {
+    "receipt_id": "RCPT-D49FDA8A9725",
+    "timestamp_utc": "2026-11-12T16:09:59.350988+00:00",
+    "git_head": "ad905d1",
+    "command": "python3 scripts/evo_cortex.py evolve --path .",
+    "exit_code": 0,
+    "duration_ms": 241.56,
+    "output_preview": "bol\": \"len\",\n      \"caller_files\": 16\n    },\n    {\n      \"symbol\": \"Path\",\n      \"caller_files\": 13\n    },\n    {\n      \"symbol\": \"get\",\n      \"caller_files\": 13\n    },\n    {\n      \"symbol\": \"read_text\",\n      \"caller_files\": 12\n    },\n    {\n      \"symbol\": \"sorted\",\n      \"caller_files\": 12\n    },\n    {\n      \"symbol\": \"split\",\n      \"caller_files\": 12\n    },\n    {\n      \"symbol\": \"startswith\",\n      \"caller_files\": 12\n    },\n    {\n      \"symbol\": \"encode\",\n      \"caller_files\": 11\n    },\n    {\n      \"symbol\": \"exists\",\n      \"caller_files\": 11\n    }\n  ],\n  \"receipt_id\": \"RCPT-2CF38B6D392B\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-260CA36A81DE",
+    "timestamp_utc": "2026-11-12T16:11:00.961465+00:00",
+    "git_head": "ad905d1",
+    "command": "python3 scripts/xray/verify_kb.py",
+    "exit_code": 0,
+    "duration_ms": 38.17,
+    "output_preview": "{\n  \"files_audited\": 12,\n  \"M1_citation_integrity_pct\": 100.0,\n  \"M2_top15_hotspot_recall_pct\": 100.0,\n  \"M4_bluf_header_compliance_pct\": 100.0,\n  \"mermaid_diagrams_valid\": \"15/15 (100.0%)\",\n  \"adhd_wall_of_text_violations\": 0,\n  \"unfinished_placeholders\": 0\n}"
   }
 ]

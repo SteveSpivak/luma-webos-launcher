@@ -173,3 +173,7 @@ rate 60–85%, doc freshness 100%, mirror integrity 100%, work preservation 100%
 | Multi-Repo Sync | `docs/xray/08_MULTI_REPO_SYNC.md` | BLUF, ASCII, Mermaid, math, 3-repo drift/alignment |
 | Repo manifest | `scripts/repo_manifest.json` | steve/funny/ecklf registry + alignment rules |
 | Repo sync | `scripts/repo_sync.py` | fetch/drift/align/record-fix across all repos |
+| Evo-Cortex | `scripts/evo_cortex.py` | 5-subcommand self-evolving CLI: sense/index/slice/ghost-collect/evolve |
+| Evo-Cortex spec | `docs/xray/09_EVO_CORTEX_SPEC.md` | BLUF, ASCII, Mermaid, math, genome + Control Barrier Guard |
+| Genome | `.agent-kb/evo_genome.json` | autopoietic self-evolution state (W*, batch, guardrails) |
+| Cortex DB | `.agent-kb/cortex.sqlite` | embedded SQLite3 Datalog + FTS5 knowledge base |
