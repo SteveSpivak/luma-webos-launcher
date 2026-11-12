@@ -16,5 +16,40 @@
     "exit_code": 0,
     "duration_ms": 43973.38,
     "output_preview": "o.toml\n  [OK] NUVIO_LAB_APP_ID is feature-gated\n  [OK] NUVIO_APP_ID is production value (space.nuvio.webos)\n  [OK] Feature-gating check passed\n\n[6/6] Rust toolchain verification\n  [SKIP] cargo not available \u2014 run on local macOS agent or GitHub Actions CI\n         Required gates:\n           cargo fmt --all --check\n           cargo check --features nuvio,nuvio_lab\n           cargo test --all-features\n           cargo clippy --all-targets --all-features -- -D warnings\n\n============================================================\n  FAST SCAN PASSED \u2014 0 errors\n  (2 warning(s) \u2014 review before push)"
+  },
+  {
+    "receipt_id": "RCPT-D8C607171D6B",
+    "timestamp_utc": "2026-11-12T15:37:59.979132+00:00",
+    "environment": "Virtual-Linux-Container",
+    "arch": "x86_64",
+    "workers_used": 2,
+    "tests_executed": 1,
+    "tests_skipped_merkle_cache": 0,
+    "tests_failed": 0,
+    "wall_clock_s": 0.082,
+    "cumulative_cpu_s": 0.07,
+    "exit_code": 0
+  },
+  {
+    "receipt_id": "RCPT-2BD83C591889",
+    "timestamp_utc": "2026-11-12T15:38:02.885660+00:00",
+    "environment": "Virtual-Linux-Container",
+    "arch": "x86_64",
+    "workers_used": 2,
+    "tests_executed": 0,
+    "tests_skipped_merkle_cache": 1,
+    "tests_failed": 0,
+    "wall_clock_s": 0.002,
+    "cumulative_cpu_s": 0,
+    "exit_code": 0
+  },
+  {
+    "receipt_id": "RCPT-64E68CCB9D03",
+    "timestamp_utc": "2026-11-12T15:43:50.283775+00:00",
+    "git_head": "303691e",
+    "command": "python3 scripts/xray/verify_kb.py",
+    "exit_code": 0,
+    "duration_ms": 39.27,
+    "output_preview": "{\n  \"files_audited\": 9,\n  \"M1_citation_integrity_pct\": 100.0,\n  \"M2_top15_hotspot_recall_pct\": 100.0,\n  \"M4_bluf_header_compliance_pct\": 100.0,\n  \"mermaid_diagrams_valid\": \"10/10 (100.0%)\",\n  \"adhd_wall_of_text_violations\": 0,\n  \"unfinished_placeholders\": 0\n}"
   }
 ]

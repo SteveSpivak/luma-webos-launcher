@@ -1,0 +1,10 @@
+{
+  "tests": {
+    "labs/01_smoke_and_invariants/test_smoke.py": {
+      "merkle": "da49ea21b0383bd8",
+      "duration_s": 0.0698,
+      "last_status": "PASS"
+    }
+  },
+  "est_worker_mb": 140.0
+}

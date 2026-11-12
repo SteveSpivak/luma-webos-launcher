@@ -34,10 +34,16 @@ Do not guess or write naive boilerplate. For every non-trivial task:
    - **External SOTA (Repos & Papers):** How do reference implementations solve this?
    - **Selected Mechanism & Tradeoff:** Why our approach minimizes latency, memory, complexity.
 2. **Falsifiable Lab Execution:** Write/run a reproducible micro-experiment in `labs/` or `tests/`.
+   Execute through the hardware-aware Hyper-Runner (Merkle-AST DAG skip + LPT scheduler + RAM scratchpad
+   + tamper-evident receipt), which is the single execution engine for both Virtual Linux containers and
+   macOS M1 Pro:
    ```bash
-   python3 scripts/arena_guard.py exec -- <your_test_or_benchmark_command>
+   source scripts/ram_workspace.sh
+   python3 scripts/hyper_runner.py --path labs/ --runner "<your_test_command>"
+   python3 scripts/arena_guard.py exec -- python3 scripts/hyper_runner.py --path labs/
    ```
-   Record the emitted `RCPT-...` ID and exact baseline vs. new measurements.
+   Record the emitted `RCPT-...` ID and exact baseline vs. new measurements. Unchanged tests skip via the
+   Merkle-AST cache in ~0.1 ms; every number is backed by a receipt.
 
 ### STAGE 3: SURGICAL IMPLEMENTATION
 1. Implement the minimal, cleanest code change required.
@@ -157,4 +163,7 @@ rate 60–85%, doc freshness 100%, mirror integrity 100%, work preservation 100%
 | Forensic scanner | `scripts/xray/scan_repo.py` | git DAG, co-change matrix, Merkle provenance |
 | xray CLI | `scripts/xray/xray_cli.py` | impact/review/status/hotspots/branches |
 | Arena Guard | `scripts/arena_guard.py` | init/exec/audit/ship with receipt ledger |
+| Hyper-Runner | `scripts/hyper_runner.py` | Merkle-AST skip + LPT scheduler + RAM scratchpad + receipts |
+| RAM workspace | `scripts/ram_workspace.sh` | /dev/shm (Linux) / APFS RAM Disk (macOS M1 Pro) |
 | Receipts ledger | `docs/xray/_data/execution_receipts.json` | tamper-evident execution receipts |
+| Hyper-Runner spec | `docs/xray/04_HYPER_RUNNER_SPEC.md` | BLUF, ASCII, Mermaid, math, scorecard |

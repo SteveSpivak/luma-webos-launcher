@@ -99,9 +99,12 @@ def audit_kb():
             first_line = block.strip().splitlines()[0] if block.strip() else ""
             valid_hdr = any(first_line.startswith(h) for h in (
                 "flowchart", "graph", "sequenceDiagram", "stateDiagram",
-                "erDiagram", "gitGraph", "C4",
+                "erDiagram", "gitGraph", "C4", "gantt",
             ))
-            node_defs = len(re.findall(r"-->|---|-\.->|==>|-\>>", block))
+            if first_line.startswith("gantt"):
+                node_defs = len(re.findall(r"^\s*\S.*:\s*\d", block, re.M))
+            else:
+                node_defs = len(re.findall(r"-->|---|-\.->|==>|-\>>", block))
             if valid_hdr and 1 <= node_defs <= 45:
                 valid_mermaid += 1
 
