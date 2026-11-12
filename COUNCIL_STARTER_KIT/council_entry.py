@@ -36,6 +36,9 @@ Subcommands are grouped by capability:
     drift           Cross-repo drift detection (7 categories)
     record-fix      Record fix provenance (what/where/why/how)
 
+  CONSTRAINT VALIDATION (Nuvio user constraints)
+    validate-constraints  Validate space.nuvio.webos/lab contract (no prod mod, lab isolated, no silent override)
+
   UTILITY
     help            Show this help
 
@@ -80,6 +83,8 @@ SCRIPT_MAP = {
     "receipt-chain": "council_pipeline.py",
     "drift": "repo_sync.py",
     "record-fix": "repo_sync.py",
+    # Constraint validation
+    "validate-constraints": "nuvio_constraint_validator.py",
 }
 
 

@@ -118,6 +118,16 @@ def test_aegis_dylib_audit():
     return rc == 0, f"rc={rc}" if rc != 0 else None
 
 
+def test_validate_constraints():
+    """validate-constraints should exit 0 with all Nuvio contract assertions passing."""
+    rc, out, err = run(["python3", "council_entry.py", "validate-constraints"])
+    if rc != 0:
+        return False, f"rc={rc}, err={err[:200]}"
+    if "LAB 3 PASSED" not in out:
+        return False, "Constraint validation did not report all assertions passing"
+    return True, None
+
+
 def test_aegis_cfg():
     """aegis cfg should exit 0 on /bin/true if objdump available."""
     import shutil
@@ -193,7 +203,14 @@ def main():
     if not ok:
         FAILURES.append(f"aegis dylib-audit: {err}")
 
-    # 6. aegis cfg (conditional)
+    # 6. validate-constraints (Nuvio user constraints)
+    print("\n6. validate-constraints...")
+    ok, err = test_validate_constraints()
+    print(f"   validate-constraints: {'PASS' if ok else 'FAIL'} {err or ''}")
+    if not ok:
+        FAILURES.append(f"validate-constraints: {err}")
+
+    # 7. aegis cfg (conditional)
     print("\n6. aegis cfg...")
     ok, err = test_aegis_cfg()
     if ok is None:

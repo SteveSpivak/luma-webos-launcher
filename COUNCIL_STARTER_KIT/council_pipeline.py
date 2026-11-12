@@ -112,6 +112,24 @@ def save_pipeline_receipt(receipt: dict) -> None:
 # ---------------------------------------------------------------------------
 # Stages
 # ---------------------------------------------------------------------------
+def stage_0_validate_constraints() -> dict:
+    """Stage 0: Validate Nuvio user constraints (precondition check).
+
+    Enforces:
+      - space.nuvio.webos never modified/launched/replaced
+      - space.nuvio.lab only when nuvio_lab feature + lab=true
+      - Invalid app IDs fail validation (no silent override)
+      - Production app ID never used for lab launches
+    """
+    print("[STAGE 0] nuvio_constraint_validator.py — constraint validation")
+    res = arena_guard_exec(
+        ["python3", _resolve_script("nuvio_constraint_validator.py")],
+        "nuvio_constraint_validate",
+    )
+    print(f"  receipt={res['receipt_id']} exit={res['exit_code']}")
+    return res
+
+
 def stage_1_nexus_sync(workers: int = 4) -> dict:
     """Stage 1: O(Δ) wait-free polyglot index."""
     print("[STAGE 1] nexus_agent_os.py sync — polyglot index")
@@ -212,6 +230,12 @@ def run_full_pipeline(args) -> int:
         "stages": [],
         "all_passed": True,
     }
+
+    # Stage 0: Constraint validation (Nuvio user constraints)
+    s0 = stage_0_validate_constraints()
+    pipeline_receipt["stages"].append(s0)
+    if s0["exit_code"] != 0:
+        pipeline_receipt["all_passed"] = False
 
     # Stage 1: Nexus sync
     s1 = stage_1_nexus_sync(workers=args.workers)
