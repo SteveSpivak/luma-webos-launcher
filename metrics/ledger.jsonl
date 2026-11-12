@@ -1,0 +1,6 @@
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"process.work_preservation","value":1.0,"evidence":"RCPT-5466BE1682DD,RCPT-DFA517CD5A4A","note":"Council framework adopted; arena_guard.py init/exec/audit/ship verified"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.evidence_density","value":1.0,"evidence":"RCPT-5466BE1682DD","note":"All KB gates backed by execution receipts; no fabricated metrics"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.doc_freshness","value":1.0,"evidence":"MANIFEST.sha256","note":"All 8 docs/xray files hashed in manifest, integrity verified"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.mirror_integrity","value":1.0,"evidence":"scripts/sync-docs.sh","note":"Manifest integrity OK; all entries resolve to existing files"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.citation_integrity","value":1.0,"evidence":"RCPT-5466BE1682DD","note":"M1 citation integrity 100% (13/13 citations resolve)"}
+{"ts":"2026-11-05T00:00:00Z","wuid":"WU-001","metric":"quality.bluf_compliance","value":1.0,"evidence":"RCPT-5466BE1682DD","note":"M4 BLUF header compliance 100% (8/8 files)"}

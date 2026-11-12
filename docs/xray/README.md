@@ -6,6 +6,25 @@
 > - **Who**: Cloud agent writes code; local macOS agent runs `cargo` gates; GitHub Actions CI validates before PR #2 merge.
 > - **How**: `cargo fmt --all --check`, `cargo check --features nuvio,nuvio_lab`, `cargo test --all-features`, `cargo clippy --all-targets --all-features -- -D warnings`. No local Rust toolchain — cloud sandbox is python3/bash only.
 
++-----------------------------------------------------------------------------+
+| ASCII MODULE OVERVIEW: ENTRY → PLATFORM → LUNA IPC → NUVIO TV APP         |
++-----------------------------------------------------------------------------+
+|                                                                             |
+|  [src/main.rs]  lab=true + nuvio_lab feature                                |
+|         |                                                                   |
+|         v                                                                   |
+|  [src/platform.rs]  nuvio_app_id(lab)                                       |
+|         |  space.nuvio.lab  /  space.nuvio.webos                            |
+|         v                                                                   |
+|  call("luna://com.palmdtv.applauncher/launch")                              |
+|         |                                                                   |
+|         v                                                                   |
+|  [Nuvio TV App]  opens title on user opt-in                                 |
+|                                                                             |
++-----------------------------------------------------------------------------+
+| RISK LEGEND:  🟢 STABLE  🟡 COUPLED  🔴 RADIOACTIVE                         |
++-----------------------------------------------------------------------------+
+
 # Luma WebOS Launcher — Agent Knowledge Base (L0 System Atlas)
 
 **Branch**: `arena/5fe14abb-luma-webos-launcher` | **Status**: `pr_open` (PR #2) | **Base**: `40994fc` (origin/main) | **Head**: `961d529`
