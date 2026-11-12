@@ -10,3 +10,7 @@ target/
 .agent-memory/*.db-shm
 .agent-memory/*.db-wal
 .agent-memory/__pycache__/
+.agent-kb/*.sqlite
+.agent-kb/shadow_checkpoints.json
+mutants/
+__pycache__/

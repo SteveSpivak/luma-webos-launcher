@@ -954,5 +954,411 @@
     "exit_code": 0,
     "duration_ms": 38.17,
     "output_preview": "{\n  \"files_audited\": 12,\n  \"M1_citation_integrity_pct\": 100.0,\n  \"M2_top15_hotspot_recall_pct\": 100.0,\n  \"M4_bluf_header_compliance_pct\": 100.0,\n  \"mermaid_diagrams_valid\": \"15/15 (100.0%)\",\n  \"adhd_wall_of_text_violations\": 0,\n  \"unfinished_placeholders\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-0CB20E073479",
+    "timestamp_utc": "2026-11-12T16:11:15.298575+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex sense",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "timestamp_utc": "2026-11-12T16:11:15.298217+00:00",
+      "platform": "linux",
+      "system": "Linux",
+      "release": "6.1.158+",
+      "machine": "x86_64",
+      "python": "3.11.2",
+      "cpu_count_logical": 2,
+      "cpu_affinity_count": 2,
+      "page_size_bytes": 4096,
+      "cgroup_cpu_quota": {
+        "state": "UNAVAILABLE_NULL",
+        "source": null,
+        "raw": null,
+        "quota_cores": null
+      },
+      "cgroup_memory": {
+        "state": "UNAVAILABLE_NULL",
+        "source": null,
+        "limit_bytes": null,
+        "current_bytes": null
+      },
+      "darwin_apple_silicon": null,
+      "proc_self_status": {
+        "VmPeak": "27112 kB",
+        "VmRSS": "20396 kB",
+        "VmSwap": "0 kB",
+        "Threads": "1",
+        "voluntary_ctxt_switches": "0",
+        "nonvoluntary_ctxt_switches": "0"
+      },
+      "linux_psi": {
+        "cpu": null,
+        "memory": null,
+        "io": null
+      },
+      "rusage_exact": {
+        "on_cpu_user_sec": 0.0307,
+        "on_cpu_sys_sec": 0.0115,
+        "self_maxrss_bytes": 20885504,
+        "children_maxrss_bytes": 0,
+        "minor_faults_ram": 2955,
+        "major_faults_disk": 0,
+        "voluntary_io_switches": 0,
+        "involuntary_preempt_switches": 0,
+        "preemption_thrash_ratio": 0.0
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-8A9F397603AC",
+    "timestamp_utc": "2026-11-12T16:11:15.495733+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex index --path .",
+    "exit_code": 0,
+    "duration_ms": 138.74,
+    "telemetry": {
+      "database_path": ".agent-kb/cortex.sqlite",
+      "fts5_available": true,
+      "files_indexed": 24,
+      "symbols_indexed": 148,
+      "call_and_import_edges": 2109,
+      "abstract_hazards_detected": 0,
+      "profiling": {
+        "wall_sec": 0.1249,
+        "on_cpu_sec": 0.1249,
+        "off_cpu_stall_sec": 0.0001,
+        "off_cpu_stall_ratio": 0.0006
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-A9C80A6123F9",
+    "timestamp_utc": "2026-11-12T16:11:15.546959+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex slice issue_receipt --hops 2",
+    "exit_code": 0,
+    "duration_ms": 1.3,
+    "telemetry": {
+      "target_symbol": "issue_receipt",
+      "max_hops": 2,
+      "backward_slice_upstream_callers": [
+        {
+          "caller": "main",
+          "file": "scripts/evo_cortex.py",
+          "hop": 1,
+          "chain": "main -> issue_receipt"
+        },
+        {
+          "caller": "cmd_telemetry",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_telemetry -> issue_receipt"
+        },
+        {
+          "caller": "cmd_triage_suite",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_triage_suite -> issue_receipt"
+        },
+        {
+          "caller": "cmd_merkle_map",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_merkle_map -> issue_receipt"
+        },
+        {
+          "caller": "cmd_ncd_clones",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_ncd_clones -> issue_receipt"
+        },
+        {
+          "caller": "cmd_topology",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_topology -> issue_receipt"
+        },
+        {
+          "caller": "cmd_run_guarded",
+          "file": "scripts/omni_cortex.py",
+          "hop": 1,
+          "chain": "cmd_run_guarded -> issue_receipt"
+        },
+        {
+          "caller": "cmd_fetch",
+          "file": "scripts/repo_sync.py",
+          "hop": 1,
+          "chain": "cmd_fetch -> issue_receipt"
+        },
+        {
+          "caller": "cmd_drift",
+          "file": "scripts/repo_sync.py",
+          "hop": 1,
+          "chain": "cmd_drift -> issue_receipt"
+        },
+        {
+          "caller": "cmd_align",
+          "file": "scripts/repo_sync.py",
+          "hop": 1,
+          "chain": "cmd_align -> issue_receipt"
+        }
+      ],
+      "forward_slice_downstream_callees": [
+        {
+          "callee": "mkdir",
+          "hop": 1,
+          "chain": "issue_receipt -> mkdir"
+        },
+        {
+          "callee": "isoformat",
+          "hop": 1,
+          "chain": "issue_receipt -> isoformat"
+        },
+        {
+          "callee": "append",
+          "hop": 1,
+          "chain": "issue_receipt -> append"
+        },
+        {
+          "callee": "write_text",
+          "hop": 1,
+          "chain": "issue_receipt -> write_text"
+        },
+        {
+          "callee": "exists",
+          "hop": 1,
+          "chain": "issue_receipt -> exists"
+        },
+        {
+          "callee": "loads",
+          "hop": 1,
+          "chain": "issue_receipt -> loads"
+        },
+        {
+          "callee": "upper",
+          "hop": 1,
+          "chain": "issue_receipt -> upper"
+        },
+        {
+          "callee": "dumps",
+          "hop": 1,
+          "chain": "issue_receipt -> dumps"
+        },
+        {
+          "callee": "read_text",
+          "hop": 1,
+          "chain": "issue_receipt -> read_text"
+        },
+        {
+          "callee": "now",
+          "hop": 1,
+          "chain": "issue_receipt -> now"
+        },
+        {
+          "callee": "hexdigest",
+          "hop": 1,
+          "chain": "issue_receipt -> hexdigest"
+        },
+        {
+          "callee": "sha256",
+          "hop": 1,
+          "chain": "issue_receipt -> sha256"
+        },
+        {
+          "callee": "encode",
+          "hop": 1,
+          "chain": "issue_receipt -> encode"
+        },
+        {
+          "callee": "load_receipts",
+          "hop": 1,
+          "chain": "issue_receipt -> load_receipts"
+        },
+        {
+          "callee": "exists",
+          "hop": 2,
+          "chain": "issue_receipt -> load_receipts -> exists"
+        },
+        {
+          "callee": "loads",
+          "hop": 2,
+          "chain": "issue_receipt -> load_receipts -> loads"
+        },
+        {
+          "callee": "read_text",
+          "hop": 2,
+          "chain": "issue_receipt -> load_receipts -> read_text"
+        }
+      ],
+      "fts5_bm25_semantic_matches": [
+        {
+          "file": "scripts/lib/receipts.py",
+          "symbol": "issue_receipt",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/evo_cortex.py",
+          "symbol": "issue_receipt",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/repo_sync.py",
+          "symbol": "issue_receipt",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_telemetry",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_topology",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/evo_cortex.py",
+          "symbol": "main",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_ncd_clones",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/omni_cortex.py",
+          "symbol": "cmd_triage_suite",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/repo_sync.py",
+          "symbol": "cmd_drift",
+          "kind": "func"
+        },
+        {
+          "file": "scripts/repo_sync.py",
+          "symbol": "cmd_align",
+          "kind": "func"
+        }
+      ]
+    }
+  },
+  {
+    "receipt_id": "RCPT-3413CDFCEE81",
+    "timestamp_utc": "2026-11-12T16:11:15.608756+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex ghost-collect --path . --limit 5",
+    "exit_code": 0,
+    "duration_ms": 8.38,
+    "telemetry": {
+      "test_files_attempted": 2,
+      "ghost_virtualized_collection_succeeded": 2,
+      "non_import_init_exceptions": 0,
+      "missing_root_packages_virtualized": [
+        "org"
+      ],
+      "inferred_external_api_contracts_called": [
+        "org",
+        "org.python",
+        "org.python.core",
+        "org.python.core.PyStringMap",
+        "org.python.core.PyStringMap.copy"
+      ],
+      "sample_collected": [
+        {
+          "file": "tools/test_validate_docs.py",
+          "test_symbols_discovered": 15
+        },
+        {
+          "file": "labs/01_smoke_and_invariants/test_smoke.py",
+          "test_symbols_discovered": 0
+        }
+      ],
+      "sample_init_exceptions": [],
+      "differential_profile": {
+        "wall_sec": 0.0074,
+        "on_cpu_sec": 0.0074,
+        "off_cpu_stall_ratio": 0.0
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-D367B60D27EF",
+    "timestamp_utc": "2026-11-12T16:11:15.795695+00:00",
+    "environment": "Linux x86_64",
+    "command": "evo_cortex evolve --path .",
+    "exit_code": 0,
+    "duration_ms": 135.27,
+    "telemetry": {
+      "generation": 2,
+      "files_indexed": 24,
+      "hazards": 0
+    }
+  },
+  {
+    "receipt_id": "RCPT-B4D1617030D7",
+    "timestamp_utc": "2026-11-12T16:17:38.571052+00:00",
+    "git_head": "342fe09",
+    "command": "python3 scripts/nexus_agent_os.py sync --path .",
+    "exit_code": 0,
+    "duration_ms": 540.19,
+    "output_preview": "{\n  \"sync_duration_ms\": 483.56,\n  \"files_reindexed_delta\": 157,\n  \"files_skipped_stat_cache\": 21,\n  \"files_pruned\": 0,\n  \"total_files\": 178,\n  \"total_symbols\": 4256,\n  \"total_state_channel_links\": 450,\n  \"total_import_time_traps\": 10\n}"
+  },
+  {
+    "receipt_id": "RCPT-1F58FEAF3224",
+    "timestamp_utc": "2026-11-12T16:17:40.746196+00:00",
+    "git_head": "342fe09",
+    "command": "python3 scripts/nexus_agent_os.py diagnose-setup --path .",
+    "exit_code": 0,
+    "duration_ms": 94.42,
+    "output_preview": "\"risk\": 85\n    },\n    {\n      \"file\": \"tools/font-catalog.py\",\n      \"kind\": \"TOPLEVEL_EAGER_IO_SIDE_EFFECT\",\n      \"line\": 32,\n      \"snippet\": \"get() at import: for fam in FAMILIES:\",\n      \"risk\": 85\n    },\n    {\n      \"file\": \"tools/font-catalog.py\",\n      \"kind\": \"TOPLEVEL_EAGER_IO_SIDE_EFFECT\",\n      \"line\": 32,\n      \"snippet\": \"get() at import: for fam in FAMILIES:\",\n      \"risk\": 85\n    },\n    {\n      \"file\": \"tools/font-catalog.py\",\n      \"kind\": \"TOPLEVEL_EAGER_IO_SIDE_EFFECT\",\n      \"line\": 32,\n      \"snippet\": \"get() at import: for fam in FAMILIES:\",\n      \"risk\": 85\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-6C8AE21AF083",
+    "timestamp_utc": "2026-11-12T16:17:40.885541+00:00",
+    "git_head": "342fe09",
+    "command": "python3 scripts/nexus_agent_os.py state-lineage ENV:",
+    "exit_code": 0,
+    "duration_ms": 80.53,
+    "output_preview": "\"src/jellyfin.rs:L181 (<polyglot>)\",\n        \"src/main.rs:L1555 (<polyglot>)\",\n        \"src/plex.rs:L166 (<polyglot>)\"\n      ]\n    },\n    \"ENV:HYPER_ROSETTA_REEXEC\": {\n      \"WRITERS_MUTATORS\": [],\n      \"READERS_CONSUMERS\": [\n        \"scripts/hyper_runner.py:L61 (enforce_native_apple_silicon)\"\n      ]\n    },\n    \"ENV:REPO_ROOT\": {\n      \"WRITERS_MUTATORS\": [],\n      \"READERS_CONSUMERS\": [\n        \"labs/01_smoke_and_invariants/test_smoke.py:L14 (SmokeInvariants)\",\n        \"labs/01_smoke_and_invariants/test_smoke.py:L14 (SmokeInvariants.test_hyper_cache_dir_exists)\"\n      ]\n    }\n  }\n}"
+  },
+  {
+    "receipt_id": "RCPT-51739BE1FC3A",
+    "timestamp_utc": "2026-11-12T16:17:42.126716+00:00",
+    "git_head": "342fe09",
+    "command": "python3 scripts/nexus_agent_os.py read scripts/nexus_agent_os.py --symbol sync_incremental_graph --lines 1:20",
+    "exit_code": 0,
+    "duration_ms": 98.98,
+    "output_preview": "h)\n   11 |   4. state-lineage  : Bipartite Shared-State Channel Graph (env vars, self.attrs, routes, tables)\n   12 |   5. checkpoint     : 3ms Transactional Git ODB Shadow Trees (git write-tree instant undo)\n   13 |   6. bench          : Interleaved Non-Parametric MAD + Hodges-Lehmann On-CPU/Off-CPU Benchmark\n   14 | \n   15 | Pure stdlib Python 3.11. Read-only by default. Never fabricates missing hardware numbers.\n   16 | Integrates with arena_guard.py ship for verified LOCAL_SHA == REMOTE_SHA persistence.\n   17 | \"\"\"\n   18 | from __future__ import annotations\n   19 | \n   20 | import argparse"
+  },
+  {
+    "receipt_id": "RCPT-DB4B06CB0D36",
+    "timestamp_utc": "2026-11-12T16:17:42.267270+00:00",
+    "git_head": "342fe09",
+    "command": "python3 scripts/nexus_agent_os.py checkpoint save --label pre-commit-nexus",
+    "exit_code": 0,
+    "duration_ms": 87.19,
+    "output_preview": "{\n  \"status\": \"SHADOW_CHECKPOINT_SAVED\",\n  \"checkpoint_id\": \"SHDW-DC82D3744D\",\n  \"tree_sha\": \"dc82d3744d27a9d8f17cb198590e18e60eb30ffa\",\n  \"label\": \"pre-commit-nexus\",\n  \"timestamp_utc\": \"2026-11-12T16:17:42.345350+00:00\",\n  \"latency_ms\": 34.33\n}"
+  },
+  {
+    "receipt_id": "RCPT-577CC663E859",
+    "timestamp_utc": "2026-11-12T16:17:43.099890+00:00",
+    "git_head": "342fe09",
+    "command": "python3 scripts/nexus_agent_os.py bench python3 -c 'pass' python3 -c 'pass' --runs 5",
+    "exit_code": 0,
+    "duration_ms": 179.21,
+    "output_preview": "{\n  \"interleaved_trials_per_command\": 5,\n  \"command_A_baseline\": {\n    \"cmd\": \"python3 -c 'pass'\",\n    \"wall_median_ms\": 10.913,\n    \"wall_mad_ms\": 0.343,\n    \"on_cpu_median_ms\": 10.805\n  },\n  \"command_B_candidate\": {\n    \"cmd\": \"python3 -c 'pass'\",\n    \"wall_median_ms\": 10.402,\n    \"wall_mad_ms\": 0.894,\n    \"on_cpu_median_ms\": 10.265\n  },\n  \"hodges_lehmann_shift\": {\n    \"wall_delta_ms\": -0.542,\n    \"on_cpu_delta_ms\": -0.595,\n    \"verdict\": \"CANDIDATE_FASTER\"\n  }\n}"
+  },
+  {
+    "receipt_id": "RCPT-D8BBC72DF1B8",
+    "timestamp_utc": "2026-11-12T16:17:43.331392+00:00",
+    "git_head": "342fe09",
+    "command": "python3 labs/12_testing_quality/test_quality_runner.py",
+    "exit_code": 0,
+    "duration_ms": 3715.48,
+    "output_preview": "\"available\": true\n        },\n        {\n          \"check\": \"100m / 10s = 10 m/s (dimensionally correct)\",\n          \"result\": \"10.0 meter / second\",\n          \"units_ok\": true\n        },\n        {\n          \"check\": \"5m + 3s (should FAIL dimension check)\",\n          \"units_ok\": true,\n          \"detail\": \"Correctly rejected: DimensionalityError\"\n        }\n      ],\n      \"duration_sec\": 0.19,\n      \"summary\": \"Interval proofs: 3/3 passed; Unit checks: 3/3 passed\",\n      \"all_pass\": true\n    }\n  },\n  \"duration_sec\": 3.65,\n  \"summary\": \"4 labs passed, 0 labs failed\",\n  \"passed\": 4,\n  \"failed\": 0\n}"
   }
 ]

@@ -1,5 +1,5 @@
 {
-  "generation": 1,
+  "generation": 2,
   "history": [
     {
       "gen": 1,
@@ -8,6 +8,14 @@
       "symbols": 148,
       "hazards": 0,
       "index_wall_sec": 0.1533
+    },
+    {
+      "gen": 2,
+      "timestamp": "2026-11-12T16:11:15.660403+00:00",
+      "files": 24,
+      "symbols": 148,
+      "hazards": 0,
+      "index_wall_sec": 0.1186
     }
   ],
   "synthesized_guardrails": [],
@@ -15,10 +23,10 @@
     "platform": "Linux 6.1.158+ (x86_64)",
     "safe_workers_w_star": 2,
     "optimal_batch_size": 15,
-    "stall_ratio_observed": 0.0006,
+    "stall_ratio_observed": 0.0029,
     "control_barrier_rationale": "Kleene Epistemic Guard: cgroup_memory is NULL or preemption > 0.30; amortizing boot tax via in-process batch=15"
   },
-  "last_evolved_utc": "2026-11-12T16:09:59.405272+00:00",
+  "last_evolved_utc": "2026-11-12T16:11:15.660403+00:00",
   "load_bearing_hub_symbols": [
     {
       "symbol": "append",
