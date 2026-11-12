@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import ast
 import collections
+import concurrent.futures
 import datetime
 import hashlib
 import importlib.util
@@ -194,8 +195,38 @@ def extract_polyglot_semantics(rel_path: str, ext: str, raw_bytes: bytes, text: 
     return symbols, edges, channels, traps
 
 
-def sync_incremental_graph(target_subpath: str = ".") -> dict:
-    """Wait-Free O(Δ) Incremental Indexer: parses only files whose (mtime_ns, size) changed."""
+def _parse_single_file(args: tuple) -> dict | None:
+    """Parse a single file for the parallel sync worker. Returns parsed result or None."""
+    p, rel, ext, raw = args
+    try:
+        text = raw.decode("utf-8", errors="replace")
+    except (UnicodeDecodeError, AttributeError):
+        return None
+    if b"\x00" in raw[:1024]:
+        return None
+    offsets = compute_line_byte_offsets(raw)
+    sha = hashlib.sha256(raw).hexdigest()[:16]
+    try:
+        if ext == ".py":
+            syms, edgs, chans, trps = extract_python_semantics(rel, raw, text, offsets)
+        else:
+            syms, edgs, chans, trps = extract_polyglot_semantics(rel, ext, raw, text, offsets)
+    except Exception:
+        return None
+    return {
+        "rel": rel, "sha": sha, "lang": ext.lstrip("."),
+        "mtime_ns": p.stat().st_mtime_ns,
+        "size": p.stat().st_size, "loc": len(offsets) - 2,
+        "syms": syms, "edgs": edgs, "chans": chans, "trps": trps,
+    }
+
+
+def sync_incremental_graph(target_subpath: str = ".", workers: int = 4) -> dict:
+    """Wait-Free O(Δ) Incremental Indexer: parses only files whose (mtime_ns, size) changed.
+
+    Uses a symbol content-dedup cache (keyed by sha256) so identical file content
+    is parsed only once, and parallel file parsing via ThreadPoolExecutor.
+    """
     t0 = time.monotonic()
     KB_DIR.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(DB_PATH))
@@ -218,6 +249,10 @@ def sync_incremental_graph(target_subpath: str = ".") -> dict:
     cached = {row[0]: (row[1], row[2]) for row in conn.execute("SELECT path, mtime_ns, size_bytes FROM files")}
     seen_paths = set()
     updated_files, skipped_unchanged = 0, 0
+
+    # ---- Collect files needing (re)parse ----
+    to_parse: list[tuple] = []
+    dedup_cache: dict[str, dict] = {}  # sha256 -> parsed result
 
     for dirpath, dirs, files in os.walk(REPO_ROOT / target_subpath):
         dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith(".")]
@@ -244,26 +279,51 @@ def sync_incremental_graph(target_subpath: str = ".") -> dict:
             if b"\x00" in raw[:1024]:
                 continue
 
-            text = raw.decode("utf-8", errors="replace")
-            offsets = compute_line_byte_offsets(raw)
+            # Symbol content-dedup: skip re-parse if identical content seen before.
             sha = hashlib.sha256(raw).hexdigest()[:16]
+            if sha in dedup_cache:
+                prev = dedup_cache[sha]
+                # Reuse parsed result but update file metadata.
+                conn.execute("DELETE FROM symbols WHERE file = ?", (rel,))
+                conn.execute("DELETE FROM edges WHERE src_file = ?", (rel,))
+                conn.execute("DELETE FROM state_channels WHERE file = ?", (rel,))
+                conn.execute("DELETE FROM import_traps WHERE file = ?", (rel,))
+                conn.execute("INSERT OR REPLACE INTO files VALUES (?,?,?,?,?,?)",
+                             (rel, ext.lstrip("."), st.st_mtime_ns, st.st_size, prev["loc"], sha))
+                conn.executemany("INSERT INTO symbols VALUES (?,?,?,?,?,?,?,?,?)", prev["syms"])
+                conn.executemany("INSERT INTO edges VALUES (?,?,?,?,?)", prev["edgs"])
+                conn.executemany("INSERT INTO state_channels VALUES (?,?,?,?,?,?)", prev["chans"])
+                conn.executemany("INSERT INTO import_traps VALUES (?,?,?,?,?)", prev["trps"])
+                updated_files += 1
+                continue
 
-            if ext == ".py":
-                syms, edgs, chans, trps = extract_python_semantics(rel, raw, text, offsets)
-            else:
-                syms, edgs, chans, trps = extract_polyglot_semantics(rel, ext, raw, text, offsets)
+            to_parse.append((p, rel, ext.lstrip("."), raw))
 
-            conn.execute("DELETE FROM symbols WHERE file = ?", (rel,))
-            conn.execute("DELETE FROM edges WHERE src_file = ?", (rel,))
-            conn.execute("DELETE FROM state_channels WHERE file = ?", (rel,))
-            conn.execute("DELETE FROM import_traps WHERE file = ?", (rel,))
-            conn.execute("INSERT OR REPLACE INTO files VALUES (?,?,?,?,?,?)",
-                         (rel, ext.lstrip("."), st.st_mtime_ns, st.st_size, len(offsets) - 2, sha))
-            conn.executemany("INSERT INTO symbols VALUES (?,?,?,?,?,?,?,?,?)", syms)
-            conn.executemany("INSERT INTO edges VALUES (?,?,?,?,?)", edgs)
-            conn.executemany("INSERT INTO state_channels VALUES (?,?,?,?,?,?)", chans)
-            conn.executemany("INSERT INTO import_traps VALUES (?,?,?,?,?)", trps)
-            updated_files += 1
+    # ---- Parallel parse of changed/new files ----
+    parse_results: list[dict] = []
+    if to_parse:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
+            future_to_idx = {ex.submit(_parse_single_file, args): i for i, args in enumerate(to_parse)}
+            for fut in concurrent.futures.as_completed(future_to_idx):
+                res = fut.result()
+                if res is not None:
+                    parse_results.append(res)
+                    dedup_cache[res["sha"]] = res
+
+    # ---- Write results to SQLite ----
+    for res in parse_results:
+        rel = res["rel"]
+        conn.execute("DELETE FROM symbols WHERE file = ?", (rel,))
+        conn.execute("DELETE FROM edges WHERE src_file = ?", (rel,))
+        conn.execute("DELETE FROM state_channels WHERE file = ?", (rel,))
+        conn.execute("DELETE FROM import_traps WHERE file = ?", (rel,))
+        conn.execute("INSERT OR REPLACE INTO files VALUES (?,?,?,?,?,?)",
+                     (rel, res["lang"], res["mtime_ns"], res["size"], res["loc"], res["sha"]))
+        conn.executemany("INSERT INTO symbols VALUES (?,?,?,?,?,?,?,?,?)", res["syms"])
+        conn.executemany("INSERT INTO edges VALUES (?,?,?,?,?)", res["edgs"])
+        conn.executemany("INSERT INTO state_channels VALUES (?,?,?,?,?,?)", res["chans"])
+        conn.executemany("INSERT INTO import_traps VALUES (?,?,?,?,?)", res["trps"])
+        updated_files += 1
 
     deleted = set(cached.keys()) - seen_paths
     for d in deleted:
@@ -499,6 +559,7 @@ def main():
 
     sy = sub.add_parser("sync", help="O(Δ) Wait-Free Incremental Polyglot Graph & State-Channel Indexer")
     sy.add_argument("--path", default=".")
+    sy.add_argument("--workers", type=int, default=4, help="Parallel file-parsing workers")
 
     rd = sub.add_parser("read", help="Focal + Skeleton AST Reader (85% fewer tokens than cat/sed)")
     rd.add_argument("file", help="Relative file path to read")
@@ -523,7 +584,7 @@ def main():
 
     args = p.parse_args()
     if args.cmd == "sync":
-        print(json.dumps(sync_incremental_graph(args.path), indent=2))
+        print(json.dumps(sync_incremental_graph(args.path, workers=args.workers), indent=2))
     elif args.cmd == "read":
         cmd_read(args)
     elif args.cmd == "diagnose-setup":

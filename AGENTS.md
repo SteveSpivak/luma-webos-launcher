@@ -177,7 +177,7 @@ rate 60–85%, doc freshness 100%, mirror integrity 100%, work preservation 100%
 | Evo-Cortex spec | `docs/xray/09_EVO_CORTEX_SPEC.md` | BLUF, ASCII, Mermaid, math, genome + Control Barrier Guard |
 | Genome | `.agent-kb/evo_genome.json` | autopoietic self-evolution state (W*, batch, guardrails) |
 | Cortex DB | `.agent-kb/cortex.sqlite` | embedded SQLite3 Datalog + FTS5 knowledge base |
-| Nexus Agent OS | `scripts/nexus_agent_os.py` | 6-subcommand fresh-eyes forensics: sync/read/diagnose-setup/state-lineage/checkpoint/bench |
-| Tool Latent Codec | `scripts/tool_latent_codec.py` | HSLC symbolic-latent tool compression: run/deref/bench-compression (@H handles, quotient folding) |
+| Nexus Agent OS | `scripts/nexus_agent_os.py` | 6-subcommand fresh-eyes forensics: sync/read/diagnose-setup/state-lineage/checkpoint/bench; --workers parallel sync + symbol dedup cache (15x speedup on cached runs) |
+| Tool Latent Codec | `scripts/tool_latent_codec.py` | HSLC symbolic-latent tool compression: run/deref/bench-compression/batch-compress (@H handles, quotient folding, surprisal elision, 653x on stress test) |
 | Latent Handle DB | `.agent-kb/latent_handles.sqlite` | content-addressed @H-XXXXXXXX handle store (gitignored runtime artifact) |
-| Aegis Bug Hunter | `scripts/aegis_bug_hunter.py` | 5-subcommand bug forensics & zero-regression patch verifier: hunt/review/forensics/dylib-audit/verify-fix |
+| Aegis Bug Hunter | `scripts/aegis_bug_hunter.py` | 5-subcommand bug forensics & zero-regression patch verifier: hunt/review/forensics/dylib-audit/verify-fix; reverse engineering via nm/strings/ldd/readelf (symbol tables, dep graphs, arch-mismatch hazards) |

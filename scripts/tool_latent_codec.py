@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import concurrent.futures
 import datetime
 import hashlib
 import json
@@ -373,6 +374,61 @@ def cmd_bench_compression(args) -> int:
     return 0
 
 
+def cmd_batch_compress(args) -> int:
+    """Compress multiple log/text files in parallel, emitting one @H handle per file.
+
+    Useful for compressing CI logs, pytest output, git logs, and linter output
+    across many files at once.
+    """
+    files = args.files
+    if not files:
+        print("ERROR: Provide at least one file to compress.", file=sys.stderr)
+        return 2
+
+    def _compress_one(fp: str) -> dict:
+        p = Path(fp)
+        if not p.exists():
+            return {"file": fp, "error": "not found"}
+        try:
+            raw = p.read_text(encoding="utf-8", errors="replace")
+        except OSError as e:
+            return {"file": fp, "error": str(e)[:120]}
+        res = compress_to_symbolic_latent(raw, str(p), exit_code=0)
+        pkt = res["packet"]
+        return {
+            "file": fp,
+            "handle": pkt["handle"],
+            "raw_tokens": pkt["raw_tokens_est"],
+            "compressed_tokens": pkt["compressed_tokens_est"],
+            "compression_ratio": pkt["compression_ratio"],
+            "raw_lines": pkt["raw_lines"],
+            "quotient_classes": len(pkt["quotient_error_classes"]),
+        }
+
+    results: list[dict] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.workers)) as ex:
+        future_to_fp = {ex.submit(_compress_one, fp): fp for fp in files}
+        for fut in concurrent.futures.as_completed(future_to_fp):
+            results.append(fut.result())
+
+    results.sort(key=lambda r: r.get("file", ""))
+    total_raw = sum(r.get("raw_tokens", 0) for r in results if "error" not in r)
+    total_comp = sum(r.get("compressed_tokens", 0) for r in results if "error" not in r)
+    overall_ratio = round(total_raw / total_comp, 2) if total_comp > 0 else 0.0
+
+    print(json.dumps({
+        "batch_compression": {
+            "files": len(files),
+            "workers": args.workers,
+            "total_raw_tokens": total_raw,
+            "total_compressed_tokens": total_comp,
+            "overall_ratio_x": overall_ratio,
+        },
+        "results": results,
+    }, indent=2))
+    return 0
+
+
 def main() -> int:
     p = argparse.ArgumentParser(
         description="Tool Latent Codec (HSLC): Symbolic-Latent Tool Compression for CLI Agents"
@@ -392,6 +448,11 @@ def main() -> int:
     bc = sub.add_parser("bench-compression",
                         help="Run falsifiable benchmark on a 5,255-error log compression")
 
+    bm = sub.add_parser("batch-compress",
+                        help="Compress multiple log/text files in parallel -> one @H handle per file")
+    bm.add_argument("files", nargs="+", help="File paths to compress")
+    bm.add_argument("--workers", type=int, default=4, help="Parallel compression workers")
+
     args = p.parse_args()
     if args.cmd == "run":
         return cmd_run(args)
@@ -399,6 +460,8 @@ def main() -> int:
         return cmd_deref(args)
     if args.cmd == "bench-compression":
         return cmd_bench_compression(args)
+    if args.cmd == "batch-compress":
+        return cmd_batch_compress(args)
     return 1
 
 

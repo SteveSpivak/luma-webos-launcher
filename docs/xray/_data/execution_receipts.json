@@ -1696,5 +1696,113 @@
         "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
       }
     }
+  },
+  {
+    "receipt_id": "RCPT-58A95082FD31",
+    "timestamp_utc": "2026-11-12T16:49:01.873374+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/nexus_agent_os.py sync --path . --workers 4",
+    "exit_code": 0,
+    "duration_ms": 66.53,
+    "output_preview": "{\n  \"sync_duration_ms\": 9.97,\n  \"files_reindexed_delta\": 1,\n  \"files_skipped_stat_cache\": 179,\n  \"files_pruned\": 0,\n  \"total_files\": 180,\n  \"total_symbols\": 4244,\n  \"total_state_channel_links\": 508,\n  \"total_import_time_traps\": 9\n}"
+  },
+  {
+    "receipt_id": "RCPT-5E3583C96E21",
+    "timestamp_utc": "2026-11-12T16:49:03.540506+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/nexus_agent_os.py diagnose-setup --path .",
+    "exit_code": 0,
+    "duration_ms": 86.2,
+    "output_preview": "\"risk\": 85\n    },\n    {\n      \"file\": \"tools/font-catalog.py\",\n      \"kind\": \"TOPLEVEL_EAGER_IO_SIDE_EFFECT\",\n      \"line\": 32,\n      \"snippet\": \"get() at import: for fam in FAMILIES:\",\n      \"risk\": 85\n    },\n    {\n      \"file\": \"tools/font-catalog.py\",\n      \"kind\": \"TOPLEVEL_EAGER_IO_SIDE_EFFECT\",\n      \"line\": 32,\n      \"snippet\": \"get() at import: for fam in FAMILIES:\",\n      \"risk\": 85\n    },\n    {\n      \"file\": \"tools/font-catalog.py\",\n      \"kind\": \"TOPLEVEL_EAGER_IO_SIDE_EFFECT\",\n      \"line\": 32,\n      \"snippet\": \"get() at import: for fam in FAMILIES:\",\n      \"risk\": 85\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-4D549CEFE2A3",
+    "timestamp_utc": "2026-11-12T16:49:03.667559+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/nexus_agent_os.py state-lineage ENV:",
+    "exit_code": 0,
+    "duration_ms": 62.93,
+    "output_preview": "\"src/jellyfin.rs:L181 (<polyglot>)\",\n        \"src/main.rs:L1555 (<polyglot>)\",\n        \"src/plex.rs:L166 (<polyglot>)\"\n      ]\n    },\n    \"ENV:HYPER_ROSETTA_REEXEC\": {\n      \"WRITERS_MUTATORS\": [],\n      \"READERS_CONSUMERS\": [\n        \"scripts/hyper_runner.py:L61 (enforce_native_apple_silicon)\"\n      ]\n    },\n    \"ENV:REPO_ROOT\": {\n      \"WRITERS_MUTATORS\": [],\n      \"READERS_CONSUMERS\": [\n        \"labs/01_smoke_and_invariants/test_smoke.py:L14 (SmokeInvariants)\",\n        \"labs/01_smoke_and_invariants/test_smoke.py:L14 (SmokeInvariants.test_hyper_cache_dir_exists)\"\n      ]\n    }\n  }\n}"
+  },
+  {
+    "receipt_id": "RCPT-5234F7E26D0C",
+    "timestamp_utc": "2026-11-12T16:49:04.308168+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/nexus_agent_os.py checkpoint save --label refined-v2",
+    "exit_code": 0,
+    "duration_ms": 66.02,
+    "output_preview": "{\n  \"status\": \"SHADOW_CHECKPOINT_SAVED\",\n  \"checkpoint_id\": \"SHDW-5A717F1754\",\n  \"tree_sha\": \"5a717f175400b764d171bb14ab67ec3dfbe6d94d\",\n  \"label\": \"refined-v2\",\n  \"timestamp_utc\": \"2026-11-12T16:49:04.366862+00:00\",\n  \"latency_ms\": 12.43\n}"
+  },
+  {
+    "receipt_id": "RCPT-9D3B2CD7D6AA",
+    "timestamp_utc": "2026-11-12T16:49:04.412901+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/nexus_agent_os.py bench python3 -c 'pass' python3 -c 'pass' --runs 5",
+    "exit_code": 0,
+    "duration_ms": 151.01,
+    "output_preview": "{\n  \"interleaved_trials_per_command\": 5,\n  \"command_A_baseline\": {\n    \"cmd\": \"python3 -c 'pass'\",\n    \"wall_median_ms\": 9.535,\n    \"wall_mad_ms\": 0.453,\n    \"on_cpu_median_ms\": 9.413\n  },\n  \"command_B_candidate\": {\n    \"cmd\": \"python3 -c 'pass'\",\n    \"wall_median_ms\": 9.399,\n    \"wall_mad_ms\": 0.16,\n    \"on_cpu_median_ms\": 9.187\n  },\n  \"hodges_lehmann_shift\": {\n    \"wall_delta_ms\": -0.074,\n    \"on_cpu_delta_ms\": -0.054,\n    \"verdict\": \"NO_SIGNIFICANT_GAIN_BEYOND_VM_JITTER\"\n  }\n}"
+  },
+  {
+    "receipt_id": "RCPT-C0C9C889A954",
+    "timestamp_utc": "2026-11-12T16:49:05.315694+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/tool_latent_codec.py bench-compression",
+    "exit_code": 0,
+    "duration_ms": 418.04,
+    "output_preview": "| E   ConnectionRefusedError: [Errno 111] Connect call failed ( |\n|  L28    [x1314] | E   ModuleNotFoundError: No module named 'torch'              |\n+=============================================================================+\n{\n  \"benchmark\": \"Simulated RCPT-8EFC67D2E3C4 (5,255 Collection Errors / 26,279 Lines)\",\n  \"cpu_encode_latency_ms\": 355.63,\n  \"raw_tokens\": 356175,\n  \"compressed_frame_tokens\": 545,\n  \"token_compression_ratio_x\": 653.53,\n  \"root_cause_equivalence_classes_recovered\": \"4/4\",\n  \"root_cause_exact_coordinate_recall_pct\": 100.0,\n  \"lossless_handle_minted\": \"@H-F48C9294\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-DC59AF6845B1",
+    "timestamp_utc": "2026-11-12T16:49:05.774331+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/tool_latent_codec.py batch-compress scripts/arena_guard.py scripts/hyper_runner.py --workers 2",
+    "exit_code": 0,
+    "duration_ms": 66.71,
+    "output_preview": "\": 2,\n    \"workers\": 2,\n    \"total_raw_tokens\": 7427,\n    \"total_compressed_tokens\": 684,\n    \"overall_ratio_x\": 10.86\n  },\n  \"results\": [\n    {\n      \"file\": \"scripts/arena_guard.py\",\n      \"handle\": \"@H-D4F6EFDA\",\n      \"raw_tokens\": 3123,\n      \"compressed_tokens\": 342,\n      \"compression_ratio\": 9.13,\n      \"raw_lines\": 301,\n      \"quotient_classes\": 0\n    },\n    {\n      \"file\": \"scripts/hyper_runner.py\",\n      \"handle\": \"@H-FD9DD40E\",\n      \"raw_tokens\": 4304,\n      \"compressed_tokens\": 342,\n      \"compression_ratio\": 12.58,\n      \"raw_lines\": 421,\n      \"quotient_classes\": 0\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-CE8E283B1A5B",
+    "timestamp_utc": "2026-11-12T16:49:07.109436+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 106.05,
+    "output_preview": "with 1 args, but scripts/evo_cortex.py:L479 requires [2..3].\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"scripts/xray/scan_repo.py:L129\",\n      \"detail\": \"Call to 'sh()' discards return value, violating repo invariant (15/16 callers check it, z=3.5).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tools/generate_doc_inventory.py:L159\",\n      \"detail\": \"Call to 'dump()' discards return value, violating repo invariant (10/11 callers check it, z=2.71).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-EA436D2DD86C",
+    "timestamp_utc": "2026-11-12T16:49:07.253362+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/aegis_bug_hunter.py dylib-audit",
+    "exit_code": 0,
+    "duration_ms": 42.67,
+    "output_preview": "{\n  \"host_os\": \"linux\",\n  \"host_arch\": \"x86_64\",\n  \"binutils_available\": {\n    \"nm\": true,\n    \"objdump\": true,\n    \"readelf\": true,\n    \"strings\": true,\n    \"ldd\": true\n  },\n  \"native_libraries_scanned\": 0,\n  \"mismatches_or_missing_links\": [],\n  \"sample_binaries\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-649D1B893E42",
+    "timestamp_utc": "2026-11-12T16:49:08.419599+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/aegis_bug_hunter.py forensics scripts/arena_guard.py:138-145",
+    "exit_code": 0,
+    "duration_ms": 66.25,
+    "output_preview": "deterministic operating system (arena_guard + AGENTS.md + docs/xray atlas)\",\n      \"co_modified_files_in_commit\": [\n        \"AGENTS.md\",\n        \"MANIFEST.sha256\",\n        \"docs/work-units/WU-001-council-framework.md\",\n        \"docs/xray/01_5W_ARCHITECTURE_ATLAS.md\",\n        \"docs/xray/02_END_TO_END_FLOWS.md\",\n        \"docs/xray/03_DEPENDENCY_AND_TRAP_MAP.md\",\n        \"docs/xray/05_MEMORIES_AND_LESSONS_LEARNED.md\",\n        \"docs/xray/README.md\",\n        \"docs/xray/_data/execution_receipts.json\",\n        \"metrics/ledger.jsonl\"\n      ],\n      \"is_probable_bug_inducing_commit\": false\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-3AA3F291B924",
+    "timestamp_utc": "2026-11-12T16:49:08.529433+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 scripts/aegis_bug_hunter.py verify-fix scripts/hyper_runner.py",
+    "exit_code": 0,
+    "duration_ms": 64.7,
+    "output_preview": "{\n  \"verified_file\": \"scripts/hyper_runner.py\",\n  \"separation_logic_frame_safe\": true,\n  \"liskov_contract_violations\": [],\n  \"anomalies_in_patched_file\": [],\n  \"verdict\": \"SAFE_TO_SHIP\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-F0DE91DEFFAD",
+    "timestamp_utc": "2026-11-12T16:49:08.920402+00:00",
+    "git_head": "2b859e9",
+    "command": "python3 labs/12_testing_quality/test_quality_runner.py",
+    "exit_code": 0,
+    "duration_ms": 3725.29,
+    "output_preview": "\"available\": true\n        },\n        {\n          \"check\": \"100m / 10s = 10 m/s (dimensionally correct)\",\n          \"result\": \"10.0 meter / second\",\n          \"units_ok\": true\n        },\n        {\n          \"check\": \"5m + 3s (should FAIL dimension check)\",\n          \"units_ok\": true,\n          \"detail\": \"Correctly rejected: DimensionalityError\"\n        }\n      ],\n      \"duration_sec\": 0.19,\n      \"summary\": \"Interval proofs: 3/3 passed; Unit checks: 3/3 passed\",\n      \"all_pass\": true\n    }\n  },\n  \"duration_sec\": 3.66,\n  \"summary\": \"4 labs passed, 0 labs failed\",\n  \"passed\": 4,\n  \"failed\": 0\n}"
   }
 ]

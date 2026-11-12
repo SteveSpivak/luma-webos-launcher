@@ -12,5 +12,6 @@ target/
 .agent-memory/__pycache__/
 .agent-kb/*.sqlite
 .agent-kb/shadow_checkpoints.json
+.agent-kb/*_cache.json
 mutants/
 __pycache__/
