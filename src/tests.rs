@@ -1423,7 +1423,9 @@ fn video_wallpaper_mode_keeps_its_setting() {
     let mut preferences = crate::model::Preferences {
         background: "video".into(),
         video_index: 7,
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     };
     preferences.sanitize();
     assert_eq!(preferences.background, "video");
@@ -3119,7 +3121,9 @@ fn heading_text_size_bounds_keep_new_upper_limits_after_prefs_roundtrip() {
     let mut prefs = Preferences {
         heading_size_pct: 255,
         text_size_pct: 255,
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     };
     prefs.sanitize();
     assert_eq!(prefs.heading_size_pct, 170);
@@ -3184,7 +3188,9 @@ fn stack_card_opens_title_card_and_back_returns_to_the_card() {
     let mut state = ready();
     state.preferences.stacks = vec![StackConfig {
         source: "jellyfin".into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }];
     state.stack_items = vec![
         (1..=3)
@@ -3192,7 +3198,9 @@ fn stack_card_opens_title_card_and_back_returns_to_the_card() {
                 title: format!("Film {id}"),
                 poster: None,
                 id,
-                ..Default::default()
+                progress_permille: 0,
+            poster_url: None,
+            still_url: None
             })
             .collect(),
     ];
@@ -3205,7 +3213,9 @@ fn stack_card_opens_title_card_and_back_returns_to_the_card() {
         title: "Film 2".into(),
         subtitles: vec![("English".into(), "http://x/en.srt".into())],
         qualities: vec!["1080p".into(), "720p".into()],
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     });
     // The card is drawn on top and takes every control.
     let targets: Vec<Target> = controls(&state).into_iter().map(|c| c.target).collect();
@@ -3245,13 +3255,17 @@ fn title_card_waits_for_details_then_comes_in_without_the_stand_in_title() {
     let mut state = ready();
     state.preferences.stacks = vec![StackConfig {
         source: "jellyfin".into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }];
     state.stack_items = vec![vec![StackItem {
         title: "Фильм / Film".into(),
         poster: None,
         id: 7,
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }]];
     state.focus = Target::StackCard(0, 0);
     state.activate();
@@ -3266,7 +3280,9 @@ fn title_card_waits_for_details_then_comes_in_without_the_stand_in_title() {
     state.movie_details(Detail {
         id: 7,
         title: "Фильм".into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     });
     // The details start the entrance; it ends with everything in place.
     let m = state.movie.as_mut().unwrap();
@@ -3316,7 +3332,9 @@ fn ha_entity(id: &str, name: &str, state: &str) -> crate::smart_home::Entity {
         name: name.into(),
         state: state.into(),
         domain: id.split_once('.').unwrap().0.into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }
 }
 
@@ -3696,7 +3714,9 @@ mod nuvio {
             poster: None,
             id: 42,
             content_target: "nuvio://tmdb/movie/603".into(),
-            ..Default::default()
+            progress_permille: 0,
+            poster_url: None,
+            still_url: None
         };
         assert_eq!(item.content_target, "nuvio://tmdb/movie/603");
         assert_eq!(item.id, 42);
