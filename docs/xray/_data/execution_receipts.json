@@ -2212,5 +2212,14 @@
     "exit_code": 0,
     "duration_ms": 73.59,
     "output_preview": "n any repo\",\n    \"lab_target_isolated\": \"space.nuvio.lab only used when nuvio_lab feature + lab=true\",\n    \"no_silent_runtime_override\": \"Invalid app IDs fail validation; no silent override of production app ID\",\n    \"rollback_safe\": \"Rollback requires no production Nuvio application modification\",\n    \"no_duplicate_routing\": \"No extra media launcher or duplicate routing layer\",\n    \"receipt_required\": \"Every cross-repo patch carries a tamper-evident RCPT receipt\",\n    \"docs_sync\": \"Code changes in any repo require docs/xray/ sync in the same commit\"\n  },\n  \"receipt_id\": \"RCPT-DC9123D3F624\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-64636C5191CF",
+    "timestamp_utc": "2026-11-12T17:14:39.116582+00:00",
+    "git_head": "90469a4",
+    "command": "python3 scripts/arena_guard.py ship test: council pipeline end-to-end --what Add pipeline test artifact --why Validate end-to-end pipeline with ship stage --where scripts/_pipeline_test_tmp.py --how Council pipeline stage 7 arena_guard ship --receipt RCPT-4741D4E77D67",
+    "exit_code": 0,
+    "duration_ms": 2350.41,
+    "output_preview": "[ARENA AUDIT PASSED] BLUF, ASCII, Citation, Secret, and Doc-Sync checks verified.\n[ARENA SHIP VERIFIED] Branch 'arena/5fe14abb-luma-webos-launcher' pushed to GitHub origin. SHA Parity Confirmed: 90469a45f29caed44c621ea13a368e74f793e934"
   }
 ]
