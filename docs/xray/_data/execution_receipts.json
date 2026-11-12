@@ -1396,5 +1396,50 @@
     "exit_code": 0,
     "duration_ms": 752.35,
     "output_preview": "L4     [x6] | \"files_skipped_stat_cache\": 21,                               |\n|  L5          | \"files_pruned\": 0,                                            |\n|  L6     [x6] | \"total_files\": 179,                                           |\n|  L7     [x6] | \"total_symbols\": 4265,                                        |\n|  L8     [x6] | \"total_state_channel_links\": 450,                             |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 59 raw tokens -> 304 latent-digest tokens (0.19x compression | 100% lossless via @H-42DE0BEF)"
+  },
+  {
+    "receipt_id": "RCPT-626C7119EC88",
+    "timestamp_utc": "2026-11-12T16:32:46.590210+00:00",
+    "git_head": "8aee2cd",
+    "command": "python3 scripts/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 222.16,
+    "output_preview": "with 1 args, but scripts/evo_cortex.py:L479 requires [2..3].\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"scripts/xray/scan_repo.py:L129\",\n      \"detail\": \"Call to 'sh()' discards return value, violating repo invariant (11/12 callers check it, z=2.89).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tools/generate_doc_inventory.py:L159\",\n      \"detail\": \"Call to 'dump()' discards return value, violating repo invariant (15/16 callers check it, z=3.5).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-7FDFF98FFCAE",
+    "timestamp_utc": "2026-11-12T16:32:47.673910+00:00",
+    "git_head": "8aee2cd",
+    "command": "python3 scripts/aegis_bug_hunter.py dylib-audit",
+    "exit_code": 0,
+    "duration_ms": 64.43,
+    "output_preview": "{\n  \"host_os\": \"linux\",\n  \"host_arch\": \"x86_64\",\n  \"native_libraries_scanned\": 0,\n  \"mismatches_or_missing_links\": [],\n  \"sample_binaries\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-D068C204B7D0",
+    "timestamp_utc": "2026-11-12T16:32:47.780284+00:00",
+    "git_head": "8aee2cd",
+    "command": "python3 scripts/aegis_bug_hunter.py forensics scripts/arena_guard.py:138-145",
+    "exit_code": 0,
+    "duration_ms": 63.91,
+    "output_preview": "deterministic operating system (arena_guard + AGENTS.md + docs/xray atlas)\",\n      \"co_modified_files_in_commit\": [\n        \"AGENTS.md\",\n        \"MANIFEST.sha256\",\n        \"docs/work-units/WU-001-council-framework.md\",\n        \"docs/xray/01_5W_ARCHITECTURE_ATLAS.md\",\n        \"docs/xray/02_END_TO_END_FLOWS.md\",\n        \"docs/xray/03_DEPENDENCY_AND_TRAP_MAP.md\",\n        \"docs/xray/05_MEMORIES_AND_LESSONS_LEARNED.md\",\n        \"docs/xray/README.md\",\n        \"docs/xray/_data/execution_receipts.json\",\n        \"metrics/ledger.jsonl\"\n      ],\n      \"is_probable_bug_inducing_commit\": false\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-833D5A504E8D",
+    "timestamp_utc": "2026-11-12T16:32:48.432023+00:00",
+    "git_head": "8aee2cd",
+    "command": "python3 scripts/aegis_bug_hunter.py review --base HEAD",
+    "exit_code": 0,
+    "duration_ms": 47.02,
+    "output_preview": "{\n  \"base_ref\": \"HEAD\",\n  \"files_modified\": 1,\n  \"total_lines_changed\": 27,\n  \"shannon_change_dispersion_entropy_bits\": 0.0,\n  \"entropy_risk_tier\": \"FOCUSED_SURGICAL_CHANGE\",\n  \"changed_files\": [\n    {\n      \"file\": \"docs/xray/_data/execution_receipts.json\",\n      \"loc_delta\": 27\n    }\n  ],\n  \"anomalies_in_changed_files\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-E8019E9701A3",
+    "timestamp_utc": "2026-11-12T16:32:48.523458+00:00",
+    "git_head": "8aee2cd",
+    "command": "python3 scripts/aegis_bug_hunter.py verify-fix scripts/hyper_runner.py",
+    "exit_code": 0,
+    "duration_ms": 86.02,
+    "output_preview": "{\n  \"verified_file\": \"scripts/hyper_runner.py\",\n  \"separation_logic_frame_safe\": true,\n  \"liskov_contract_violations\": [],\n  \"anomalies_in_patched_file\": [],\n  \"verdict\": \"SAFE_TO_SHIP\"\n}"
   }
 ]

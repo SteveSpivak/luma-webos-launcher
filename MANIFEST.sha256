@@ -3,15 +3,15 @@
 # Rule: edit only the source of truth in docs/xray/; regenerate mirrors via
 # scripts/sync-docs.sh. Two edited copies = drift = defect.
 
-59ce9fb161d648211ffc20d2b722da21bd93cb47219c661f3f59a5d9e0402bfc  docs/xray/01_5W_ARCHITECTURE_ATLAS.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-6148517c7cea40722487db2180ddb57dc71983d40cac941c220d2b00aaca95e5  docs/xray/02_END_TO_END_FLOWS.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-fb5382c610f950236535691faf67a11f3da0ec27a2232c4c4315d5a95d7c8ecc  docs/xray/03_DEPENDENCY_AND_TRAP_MAP.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-acb9c3b73c93e9ca50e965125d24016da6aa66bd0be8744b560b47d6906ac830  docs/xray/04_HYPER_RUNNER_SPEC.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-3251ad42212020daa5f2be6481f5dd5e54dde6f45718768c059f62928b86265d  docs/xray/05_MEMORIES_AND_LESSONS_LEARNED.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-34dd76ae7b0c920aa022b3504a74b9b63778b210c26d61a970b7ecd3bd2d423d  docs/xray/07_OMNI_CORTEX_SPEC.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-e6ebecde7aa42d158a07845db9419bee135c421694d5841f0e685b118d788547  docs/xray/08_MULTI_REPO_SYNC.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-94e9a4349aceea74261d769c2ad7a1a63b0eb9f3af27b5f8c7fd0750f09fb185  docs/xray/09_EVO_CORTEX_SPEC.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-b010a3bffd968af6d4ae09b454ec36a21c1e3e0d842b188ab43c60a807b47af8  docs/xray/CITATION_LOG.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-e69863acd7f34f347a1319d0881d46813fddd962eba2b3bbf60954dce0f586f8  docs/xray/HOTSPOTS.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-70bf1cef1d9644c57e86a93cd6ad915530b862393b182c41b58b80cbe1874438  docs/xray/MERMAID_DIAGRAMS.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
-89966c6a4c0d6fc18b187c33d178ea95868a3dae819fb901d2359b8f1464f0d9  docs/xray/README.md  bd53e92  on-any-docs-xray-change  Arena-Cloud-Agent
+59ce9fb161d648211ffc20d2b722da21bd93cb47219c661f3f59a5d9e0402bfc  docs/xray/01_5W_ARCHITECTURE_ATLAS.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+6148517c7cea40722487db2180ddb57dc71983d40cac941c220d2b00aaca95e5  docs/xray/02_END_TO_END_FLOWS.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+fb5382c610f950236535691faf67a11f3da0ec27a2232c4c4315d5a95d7c8ecc  docs/xray/03_DEPENDENCY_AND_TRAP_MAP.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+acb9c3b73c93e9ca50e965125d24016da6aa66bd0be8744b560b47d6906ac830  docs/xray/04_HYPER_RUNNER_SPEC.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+3251ad42212020daa5f2be6481f5dd5e54dde6f45718768c059f62928b86265d  docs/xray/05_MEMORIES_AND_LESSONS_LEARNED.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+34dd76ae7b0c920aa022b3504a74b9b63778b210c26d61a970b7ecd3bd2d423d  docs/xray/07_OMNI_CORTEX_SPEC.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+e6ebecde7aa42d158a07845db9419bee135c421694d5841f0e685b118d788547  docs/xray/08_MULTI_REPO_SYNC.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+94e9a4349aceea74261d769c2ad7a1a63b0eb9f3af27b5f8c7fd0750f09fb185  docs/xray/09_EVO_CORTEX_SPEC.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+b010a3bffd968af6d4ae09b454ec36a21c1e3e0d842b188ab43c60a807b47af8  docs/xray/CITATION_LOG.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+e69863acd7f34f347a1319d0881d46813fddd962eba2b3bbf60954dce0f586f8  docs/xray/HOTSPOTS.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+70bf1cef1d9644c57e86a93cd6ad915530b862393b182c41b58b80cbe1874438  docs/xray/MERMAID_DIAGRAMS.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
+89966c6a4c0d6fc18b187c33d178ea95868a3dae819fb901d2359b8f1464f0d9  docs/xray/README.md  8aee2cd  on-any-docs-xray-change  Arena-Cloud-Agent
