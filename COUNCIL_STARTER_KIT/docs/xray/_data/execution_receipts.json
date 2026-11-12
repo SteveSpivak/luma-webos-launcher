@@ -1,0 +1,245 @@
+[
+  {
+    "receipt_id": "RCPT-78789807BF36",
+    "timestamp_utc": "2026-11-12T19:05:40.681862+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 87.51,
+    "output_preview": "{\n  \"sync_duration_ms\": 19.57,\n  \"files_reindexed_delta\": 8,\n  \"files_skipped_stat_cache\": 0,\n  \"files_pruned\": 0,\n  \"total_files\": 8,\n  \"total_symbols\": 1,\n  \"total_state_channel_links\": 83,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-7D9E57D6E4F7",
+    "timestamp_utc": "2026-11-12T19:05:40.840206+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 176.83,
+    "output_preview": "s_cross_checked\": 1615,\n  \"total_anomalies_found\": 2,\n  \"anomalies\": [\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tests/test_starter_kit.py:L42\",\n      \"detail\": \"Call to 'compile()' discards return value, violating repo invariant (27/28 callers check it, z=4.91).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tests/test_starter_kit.py:L65\",\n      \"detail\": \"Call to 'loads()' discards return value, violating repo invariant (10/11 callers check it, z=2.71).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-9A3CDEFF2B3C",
+    "timestamp_utc": "2026-11-12T19:05:41.096054+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py dylib-audit",
+    "exit_code": 0,
+    "duration_ms": 53.92,
+    "output_preview": "{\n  \"host_os\": \"linux\",\n  \"host_arch\": \"x86_64\",\n  \"binutils_available\": {\n    \"nm\": true,\n    \"objdump\": true,\n    \"readelf\": true,\n    \"strings\": true,\n    \"ldd\": true,\n    \"otool\": false\n  },\n  \"native_libraries_scanned\": 0,\n  \"mismatches_or_missing_links\": [],\n  \"sample_binaries\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-CD0F97691097",
+    "timestamp_utc": "2026-11-12T19:05:41.220693+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py cfg /bin/true",
+    "exit_code": 0,
+    "duration_ms": 91.33,
+    "output_preview": "m\": \"B5d18\",\n        \"to\": \"external:0x3a69\",\n        \"type\": \"branch_taken\"\n      },\n      {\n        \"from\": \"B5d18\",\n        \"to\": \"B5d25\",\n        \"type\": \"fallthrough\"\n      },\n      {\n        \"from\": \"B5d25\",\n        \"to\": \"external:0x3a39\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d30\",\n        \"to\": \"external:setlocale@plt\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d37\",\n        \"to\": \"external:__cxa_atexit@plt\",\n        \"type\": \"unconditional\"\n      }\n    ],\n    \"node_count\": 899,\n    \"edge_count\": 1400\n  },\n  \"total_blocks\": 899\n}"
+  },
+  {
+    "receipt_id": "RCPT-0A0EB2D639B4",
+    "timestamp_utc": "2026-11-12T19:05:41.381714+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py bench-compression",
+    "exit_code": 0,
+    "duration_ms": 464.86,
+    "output_preview": "| E   ConnectionRefusedError: [Errno 111] Connect call failed ( |\n|  L28    [x1314] | E   ModuleNotFoundError: No module named 'torch'              |\n+=============================================================================+\n{\n  \"benchmark\": \"Simulated RCPT-8EFC67D2E3C4 (5,255 Collection Errors / 26,279 Lines)\",\n  \"cpu_encode_latency_ms\": 407.11,\n  \"raw_tokens\": 356175,\n  \"compressed_frame_tokens\": 545,\n  \"token_compression_ratio_x\": 653.53,\n  \"root_cause_equivalence_classes_recovered\": \"4/4\",\n  \"root_cause_exact_coordinate_recall_pct\": 100.0,\n  \"lossless_handle_minted\": \"@H-F48C9294\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-D6A8B96B2D8F",
+    "timestamp_utc": "2026-11-12T19:05:42.019316+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 64.24,
+    "output_preview": "{\n  \"sync_duration_ms\": 0.89,\n  \"files_reindexed_delta\": 0,\n  \"files_skipped_stat_cache\": 8,\n  \"files_pruned\": 0,\n  \"total_files\": 8,\n  \"total_symbols\": 1,\n  \"total_state_channel_links\": 83,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-140B5BF7272A",
+    "timestamp_utc": "2026-11-12T19:05:42.124678+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 84.74,
+    "output_preview": "s_cross_checked\": 1615,\n  \"total_anomalies_found\": 2,\n  \"anomalies\": [\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tests/test_starter_kit.py:L42\",\n      \"detail\": \"Call to 'compile()' discards return value, violating repo invariant (27/28 callers check it, z=4.91).\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tests/test_starter_kit.py:L65\",\n      \"detail\": \"Call to 'loads()' discards return value, violating repo invariant (10/11 callers check it, z=2.71).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-AF2F290DC874",
+    "timestamp_utc": "2026-11-12T19:05:42.254374+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py run -- python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 131.34,
+    "output_preview": "L6          | \"total_anomalies_found\": 2,                                   |\n|  L7          | \"anomalies\": [                                                |\n|  L9     [x6] | \"severity\": \"MEDIUM\",                                         |\n|  L12         | \"detail\": \"Call to 'compile()' discards return value, violati |\n|  L13         | },                                                            |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 173 raw tokens -> 343 latent-digest tokens (0.5x compression | 100% lossless via @H-10A7D287)"
+  },
+  {
+    "receipt_id": "RCPT-31576F3142D1",
+    "timestamp_utc": "2026-11-12T19:05:42.435576+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/repo_sync.py drift",
+    "exit_code": 1,
+    "duration_ms": 48.02,
+    "output_preview": "ST_FILE.read_text())\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.11/pathlib.py\", line 1059, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.11/pathlib.py\", line 1045, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/scripts/repo_manifest.json'"
+  },
+  {
+    "receipt_id": "RCPT-01A9A33F005A",
+    "timestamp_utc": "2026-11-12T19:05:41.944427+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/council_pipeline.py full --workers 2",
+    "exit_code": 1,
+    "duration_ms": 553.83,
+    "output_preview": "on\n  receipt=RCPT-AF2F290DC874 exit=0\n[STAGE 6] repo_sync.py drift \u2014 cross-repo drift detection\n  receipt=RCPT-31576F3142D1 exit=1\n\n======================================================================\nCOUNCIL PIPELINE COMPLETE \u2014 506.51ms\n  All stages passed: False\n  Stages completed: 4\n  Stage 1 [PASS] nexus_sync: receipt=RCPT-D6A8B96B2D8F\n  Stage 2 [PASS] aegis_hunt: receipt=RCPT-140B5BF7272A\n  Stage 3 [PASS] tool_latent_compress_hunt: receipt=RCPT-AF2F290DC874\n  Stage 4 [FAIL] repo_sync_drift: receipt=RCPT-31576F3142D1\n======================================================================"
+  },
+  {
+    "receipt_id": "RCPT-EF658DE53B7B",
+    "timestamp_utc": "2026-11-12T19:07:25.150327+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 65.45,
+    "output_preview": "{\n  \"sync_duration_ms\": 3.5,\n  \"files_reindexed_delta\": 1,\n  \"files_skipped_stat_cache\": 7,\n  \"files_pruned\": 0,\n  \"total_files\": 8,\n  \"total_symbols\": 1,\n  \"total_state_channel_links\": 85,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-376592DA8932",
+    "timestamp_utc": "2026-11-12T19:07:25.284652+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 86.99,
+    "output_preview": "{\n  \"scan_duration_ms\": 30.7,\n  \"files_scanned\": 8,\n  \"functions_modeled\": 114,\n  \"call_sites_cross_checked\": 1608,\n  \"total_anomalies_found\": 1,\n  \"anomalies\": [\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tests/test_starter_kit.py:L64\",\n      \"detail\": \"Call to 'compile()' discards return value, violating repo invariant (27/28 callers check it, z=4.91).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-AB9896C4DC63",
+    "timestamp_utc": "2026-11-12T19:07:25.448723+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py dylib-audit",
+    "exit_code": 0,
+    "duration_ms": 57.1,
+    "output_preview": "{\n  \"host_os\": \"linux\",\n  \"host_arch\": \"x86_64\",\n  \"binutils_available\": {\n    \"nm\": true,\n    \"objdump\": true,\n    \"readelf\": true,\n    \"strings\": true,\n    \"ldd\": true,\n    \"otool\": false\n  },\n  \"native_libraries_scanned\": 0,\n  \"mismatches_or_missing_links\": [],\n  \"sample_binaries\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-3FACD02FB637",
+    "timestamp_utc": "2026-11-12T19:07:25.581098+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py cfg /bin/true",
+    "exit_code": 0,
+    "duration_ms": 108.54,
+    "output_preview": "m\": \"B5d18\",\n        \"to\": \"external:0x3a69\",\n        \"type\": \"branch_taken\"\n      },\n      {\n        \"from\": \"B5d18\",\n        \"to\": \"B5d25\",\n        \"type\": \"fallthrough\"\n      },\n      {\n        \"from\": \"B5d25\",\n        \"to\": \"external:0x3a39\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d30\",\n        \"to\": \"external:setlocale@plt\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d37\",\n        \"to\": \"external:__cxa_atexit@plt\",\n        \"type\": \"unconditional\"\n      }\n    ],\n    \"node_count\": 899,\n    \"edge_count\": 1400\n  },\n  \"total_blocks\": 899\n}"
+  },
+  {
+    "receipt_id": "RCPT-5634FB41A5E4",
+    "timestamp_utc": "2026-11-12T19:07:25.763795+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py bench-compression",
+    "exit_code": 0,
+    "duration_ms": 421.19,
+    "output_preview": "| E   ConnectionRefusedError: [Errno 111] Connect call failed ( |\n|  L28    [x1314] | E   ModuleNotFoundError: No module named 'torch'              |\n+=============================================================================+\n{\n  \"benchmark\": \"Simulated RCPT-8EFC67D2E3C4 (5,255 Collection Errors / 26,279 Lines)\",\n  \"cpu_encode_latency_ms\": 369.08,\n  \"raw_tokens\": 356175,\n  \"compressed_frame_tokens\": 545,\n  \"token_compression_ratio_x\": 653.53,\n  \"root_cause_equivalence_classes_recovered\": \"4/4\",\n  \"root_cause_exact_coordinate_recall_pct\": 100.0,\n  \"lossless_handle_minted\": \"@H-F48C9294\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-48484936480E",
+    "timestamp_utc": "2026-11-12T19:07:26.320592+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 72.5,
+    "output_preview": "{\n  \"sync_duration_ms\": 0.8,\n  \"files_reindexed_delta\": 0,\n  \"files_skipped_stat_cache\": 8,\n  \"files_pruned\": 0,\n  \"total_files\": 8,\n  \"total_symbols\": 1,\n  \"total_state_channel_links\": 85,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-0F39C919AD53",
+    "timestamp_utc": "2026-11-12T19:07:26.432915+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 70.25,
+    "output_preview": "{\n  \"scan_duration_ms\": 19.93,\n  \"files_scanned\": 8,\n  \"functions_modeled\": 114,\n  \"call_sites_cross_checked\": 1608,\n  \"total_anomalies_found\": 1,\n  \"anomalies\": [\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tests/test_starter_kit.py:L64\",\n      \"detail\": \"Call to 'compile()' discards return value, violating repo invariant (27/28 callers check it, z=4.91).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-6203925E9973",
+    "timestamp_utc": "2026-11-12T19:07:26.545309+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py run -- python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 127.68,
+    "output_preview": "L4     [x3] | \"functions_modeled\": 114,                                     |\n|  L6          | \"total_anomalies_found\": 1,                                   |\n|  L7          | \"anomalies\": [                                                |\n|  L8     [x2] | {                                                             |\n|  L9     [x3] | \"severity\": \"MEDIUM\",                                         |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 108 raw tokens -> 343 latent-digest tokens (0.31x compression | 100% lossless via @H-BF87DAE0)"
+  },
+  {
+    "receipt_id": "RCPT-81D1E7BEA730",
+    "timestamp_utc": "2026-11-12T19:07:26.717260+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/repo_sync.py drift",
+    "exit_code": 1,
+    "duration_ms": 40.65,
+    "output_preview": "ST_FILE.read_text())\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.11/pathlib.py\", line 1059, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.11/pathlib.py\", line 1045, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/scripts/repo_manifest.json'"
+  },
+  {
+    "receipt_id": "RCPT-832DDD25976C",
+    "timestamp_utc": "2026-11-12T19:07:26.253830+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/council_pipeline.py full --workers 2",
+    "exit_code": 1,
+    "duration_ms": 518.91,
+    "output_preview": "on\n  receipt=RCPT-6203925E9973 exit=0\n[STAGE 6] repo_sync.py drift \u2014 cross-repo drift detection\n  receipt=RCPT-81D1E7BEA730 exit=1\n\n======================================================================\nCOUNCIL PIPELINE COMPLETE \u2014 479.33ms\n  All stages passed: False\n  Stages completed: 4\n  Stage 1 [PASS] nexus_sync: receipt=RCPT-48484936480E\n  Stage 2 [PASS] aegis_hunt: receipt=RCPT-0F39C919AD53\n  Stage 3 [PASS] tool_latent_compress_hunt: receipt=RCPT-6203925E9973\n  Stage 4 [FAIL] repo_sync_drift: receipt=RCPT-81D1E7BEA730\n======================================================================"
+  },
+  {
+    "receipt_id": "RCPT-2B4F1AE0AA21",
+    "timestamp_utc": "2026-11-12T19:07:39.080453+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py bench-compression",
+    "exit_code": 0,
+    "duration_ms": 473.24,
+    "output_preview": "| E   ConnectionRefusedError: [Errno 111] Connect call failed ( |\n|  L28    [x1314] | E   ModuleNotFoundError: No module named 'torch'              |\n+=============================================================================+\n{\n  \"benchmark\": \"Simulated RCPT-8EFC67D2E3C4 (5,255 Collection Errors / 26,279 Lines)\",\n  \"cpu_encode_latency_ms\": 416.38,\n  \"raw_tokens\": 356175,\n  \"compressed_frame_tokens\": 545,\n  \"token_compression_ratio_x\": 653.53,\n  \"root_cause_equivalence_classes_recovered\": \"4/4\",\n  \"root_cause_exact_coordinate_recall_pct\": 100.0,\n  \"lossless_handle_minted\": \"@H-F48C9294\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-2661312DFDD6",
+    "timestamp_utc": "2026-11-12T19:07:54.957664+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 70.2,
+    "output_preview": "{\n  \"sync_duration_ms\": 4.02,\n  \"files_reindexed_delta\": 1,\n  \"files_skipped_stat_cache\": 7,\n  \"files_pruned\": 0,\n  \"total_files\": 8,\n  \"total_symbols\": 1,\n  \"total_state_channel_links\": 86,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-E7ADDE8042BA",
+    "timestamp_utc": "2026-11-12T19:07:55.071287+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 85.24,
+    "output_preview": "{\n  \"scan_duration_ms\": 29.84,\n  \"files_scanned\": 8,\n  \"functions_modeled\": 114,\n  \"call_sites_cross_checked\": 1615,\n  \"total_anomalies_found\": 1,\n  \"anomalies\": [\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"ENGLER_DEVIANT_IGNORED_RETURN\",\n      \"location\": \"tests/test_starter_kit.py:L77\",\n      \"detail\": \"Call to 'compile()' discards return value, violating repo invariant (27/28 callers check it, z=4.91).\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-67EE918B6E09",
+    "timestamp_utc": "2026-11-12T19:07:55.198058+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py run -- python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 170.39,
+    "output_preview": "L4     [x3] | \"functions_modeled\": 114,                                     |\n|  L6          | \"total_anomalies_found\": 1,                                   |\n|  L7          | \"anomalies\": [                                                |\n|  L8     [x2] | {                                                             |\n|  L9     [x3] | \"severity\": \"MEDIUM\",                                         |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 107 raw tokens -> 344 latent-digest tokens (0.31x compression | 100% lossless via @H-A33A0EDF)"
+  },
+  {
+    "receipt_id": "RCPT-457B9381C3AB",
+    "timestamp_utc": "2026-11-12T19:07:55.414644+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/repo_sync.py drift",
+    "exit_code": 1,
+    "duration_ms": 41.14,
+    "output_preview": "ST_FILE.read_text())\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.11/pathlib.py\", line 1059, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.11/pathlib.py\", line 1045, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/scripts/repo_manifest.json'"
+  },
+  {
+    "receipt_id": "RCPT-39C79AF00897",
+    "timestamp_utc": "2026-11-12T19:07:54.888012+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/council_pipeline.py full --workers 2",
+    "exit_code": 1,
+    "duration_ms": 585.29,
+    "output_preview": "ion\n  receipt=RCPT-67EE918B6E09 exit=0\n[STAGE 6] repo_sync.py drift \u2014 cross-repo drift detection\n  receipt=RCPT-457B9381C3AB exit=1\n\n======================================================================\nCOUNCIL PIPELINE COMPLETE \u2014 544.9ms\n  All stages passed: False\n  Stages completed: 4\n  Stage 1 [PASS] nexus_sync: receipt=RCPT-2661312DFDD6\n  Stage 2 [PASS] aegis_hunt: receipt=RCPT-E7ADDE8042BA\n  Stage 3 [PASS] tool_latent_compress_hunt: receipt=RCPT-67EE918B6E09\n  Stage 4 [FAIL] repo_sync_drift: receipt=RCPT-457B9381C3AB\n======================================================================"
+  },
+  {
+    "receipt_id": "RCPT-0A6365A1C7C2",
+    "timestamp_utc": "2026-11-12T19:11:53.584989+00:00",
+    "git_head": "61fae26",
+    "command": "python3 tests/test_starter_kit.py",
+    "exit_code": 0,
+    "duration_ms": 2114.8,
+    "output_preview": "nexus_agent_os.py: PASS\n   tool_latent_codec.py: PASS\n   aegis_bug_hunter.py: PASS\n   council_pipeline.py: PASS\n   arena_guard.py: PASS\n   repo_sync.py: PASS\n\n2. council_entry help...\n   council_entry help: PASS \n\n3. nexus sync...\n   nexus sync: PASS \n\n4. aegis hunt...\n   aegis hunt: PASS \n\n5. aegis dylib-audit...\n   aegis dylib-audit: PASS \n\n6. aegis cfg...\n   aegis cfg: PASS\n\n7. tool_latent_codec bench-compression...\n   bench-compression: PASS \n\n8. council pipeline full...\n   council pipeline full: PASS \n\n==================================================\nSELF-TEST PASSED \u2014 all checks OK"
+  }
+]

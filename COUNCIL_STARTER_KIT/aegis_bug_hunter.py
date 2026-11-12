@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 """
-AEGIS BUG HUNTER & ZERO-REGRESSION PATCH VERIFIER — Refined (Council Pass 2)
+AEGIS BUG HUNTER & ZERO-REGRESSION PATCH VERIFIER — Council Pass 3
 
 Bug forensics & surgical patch engine for CLI agents across Virtual Linux (6.1+)
-and macOS M1 Pro. Combines five subcommands:
+and macOS M1 Pro. Combines six subcommands:
 
   1. hunt        — Engler Statistical Deviance Miner + PVS-Studio AST Bug Detector
+                   (Python AND TypeScript/JavaScript — regex-based, zero deps)
   2. review      — Fast-Scan Differential Code Review (Shannon entropy + bug gates)
   3. forensics   — AST-Refined SZZ Bug Genealogy (git log -L / -S pickaxe)
   4. dylib-audit — Native Binary Forensic Auditor
                    (.so ELF / .dylib Mach-O: raw headers + symbol tables via nm,
                     string extraction via strings, dependency graphs via ldd/readelf)
-  5. verify-fix  — Separation-Logic Frame Rule Verifier ({P * R} C -> C' {Q * R})
+  5. cfg         — Control Flow Graph reverse engineering via objdump disassembly
+  6. verify-fix  — Separation-Logic Frame Rule Verifier ({P * R} C -> C' {Q * R})
 
 Zero external dependencies — pure Python 3.11 stdlib + optional system binutils
-(nm, objdump, readelf, strings, ldd) when present. Runs in <500ms on 2-CPU
-container and macOS M1 Pro.
+(nm, objdump, readelf, strings, ldd, otool) when present. Runs in <500ms on
+2-CPU container and macOS M1 Pro.
+
+Polyglot: Python via ast module; TypeScript/JavaScript via regex + structural
+pattern matching (tautologies, redundant booleans, dead branches, missing
+optional-chaining guards, unused return values).
 """
 from __future__ import annotations
 
@@ -43,24 +49,43 @@ IGNORE_DIRS = {
     "target", "vendor",
 }
 
+# Source file extensions supported by the bug hunter.
+PY_EXTENSIONS = {".py"}
+TSJS_EXTENSIONS = {".ts", ".tsx", ".js", ".jsx"}
+ALL_SOURCE_EXTENSIONS = PY_EXTENSIONS | TSJS_EXTENSIONS
+
+
 # ---------------------------------------------------------------------------
 # System tool availability (reverse-engineering toolchain)
 # ---------------------------------------------------------------------------
 def _have(tool: str) -> bool:
     return shutil.which(tool) is not None
 
+
 HAS_NM = _have("nm")
 HAS_OBJDUMP = _have("objdump")
 HAS_READELF = _have("readelf")
 HAS_STRINGS = _have("strings")
 HAS_LDD = _have("ldd")
+HAS_OTOOL = _have("otool")
 
 
 # ---------------------------------------------------------------------------
 # Filesystem helpers
 # ---------------------------------------------------------------------------
+def iter_source_files(root: Path):
+    """Yield every source file under root (py, ts, tsx, js, jsx), skipping ignored dirs."""
+    if not root.exists():
+        return
+    for dirpath, dirs, files in os.walk(root):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith(".")]
+        for f in sorted(files):
+            if Path(f).suffix.lower() in ALL_SOURCE_EXTENSIONS:
+                yield Path(dirpath, f)
+
+
 def iter_py_files(root: Path):
-    """Yield every .py file under root, skipping ignored dirs."""
+    """Yield every .py file under root (kept for backward compatibility)."""
     if not root.exists():
         return
     for dirpath, dirs, files in os.walk(root):
@@ -92,7 +117,171 @@ def rank_anomalies(anomalies: list[dict]) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# AST scanning core — shared by hunt and verify-fix (eliminates duplication)
+# TYPESCRIPT/JAVASCRIPT SCANNER (regex-based, zero dependencies)
+# ---------------------------------------------------------------------------
+# Function signature: function name(args) or const name = (args) => or name: (args) =>
+TSJS_FUNC_RE = re.compile(
+    r"(?:export\s+)?(?:async\s+)?(?:function\s+(\w+)|"
+    r"(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\(([^)]*)\)\s*=>|"
+    r"(\w+)\s*:\s*(?:async\s+)?\(([^)]*)\)\s*=>)"
+)
+TSJS_METHOD_RE = re.compile(
+    r"(?:async\s+)?(\w+)\s*\(([^)]*)\)\s*\{"  # methodName(args) {
+)
+TSJS_CALL_RE = re.compile(r"(\w[\w.]*)\s*\([^)]*\)")
+TSJS_TAUTOLOGY_RE = re.compile(r"===\s*(\w[\w.]*)\s*===\s*\1")
+TSJS_REDUNDANT_BOOL_RE = re.compile(r"(\w[\w.]*)\s*&&\s*\1|(\w[\w.]*)\s*\|\|\s*\1")
+TSJS_OPTIONAL_ACCESS_RE = re.compile(r"\.\w+(?:\.[\w]+)*")  # property access chains
+
+
+def scan_tsjs_file(rel_path: str, source: str) -> dict:
+    """Scan a TypeScript/JavaScript file for bugs using regex + structural patterns.
+
+    Returns the same shape as ASTScanner._result() for uniform handling.
+    """
+    anomalies: list[dict] = []
+    func_defs: dict[str, list[dict]] = collections.defaultdict(list)
+    call_sites: dict[str, list[dict]] = collections.defaultdict(list)
+    lines = source.splitlines()
+
+    for idx, line in enumerate(lines, start=1):
+        stripped = line.strip()
+
+        # ---- Tautological comparison: x === x ----
+        for m in TSJS_TAUTOLOGY_RE.finditer(stripped):
+            anomalies.append({
+                "severity": "HIGH",
+                "category": "TAUTOLOGICAL_COMPARISON_COPY_PASTE",
+                "location": f"{rel_path}:L{idx}",
+                "detail": (
+                    f"Expression compares identical subtrees on both sides "
+                    f"(probable copy-paste slip)."
+                ),
+            })
+
+        # ---- Redundant boolean: a && a or a || a ----
+        for m in TSJS_REDUNDANT_BOOL_RE.finditer(stripped):
+            anomalies.append({
+                "severity": "HIGH",
+                "category": "REDUNDANT_BOOLEAN_SUBEXPRESSION",
+                "location": f"{rel_path}:L{idx}",
+                "detail": (
+                    "Boolean operator contains duplicate identical condition."
+                ),
+            })
+
+        # ---- Missing optional-chaining guard: obj.prop without ?. ----
+        # Flag direct property access on potentially-nullable values
+        if "." in stripped and "?." not in stripped and "=>" not in stripped:
+            # Look for patterns like `something.something` where something isn't guarded
+            for m in re.finditer(r"([a-zA-Z_$][\w$]*)\.([a-zA-Z_$][\w$]*)", stripped):
+                obj, prop = m.group(1), m.group(2)
+                # Skip common safe objects and keywords
+                if obj in {"console", "Math", "JSON", "Array", "Object", "String",
+                           "Number", "Boolean", "Date", "RegExp", "Error", "Promise",
+                           "fetch", "setTimeout", "setInterval", "process", "global",
+                           "window", "document", "require", "module", "exports",
+                           "__dirname", "__filename"}:
+                    continue
+                # Skip if already using optional chaining on this line segment
+                anomalies.append({
+                    "severity": "MEDIUM",
+                    "category": "TSJS_MISSING_OPTIONAL_CHAINING",
+                    "location": f"{rel_path}:L{idx}",
+                    "detail": (
+                        f"Property access '{obj}.{prop}' without optional chaining "
+                        f"(?.) — may throw on null/undefined."
+                    ),
+                })
+                break  # One per line to avoid noise
+
+        # ---- Function definitions ----
+        for m in TSJS_FUNC_RE.finditer(stripped):
+            name = m.group(1) or m.group(2) or m.group(4) or "anonymous"
+            args_str = m.group(3) or m.group(5) or ""
+            arg_names = [a.strip().split(":")[0].strip() for a in args_str.split(",") if a.strip()]
+            arg_names = [a for a in arg_names if a and not a.startswith("...")]
+            is_async = "async" in stripped
+            has_rest = "..." in args_str
+
+            func_defs[name].append({
+                "file": rel_path,
+                "line": idx,
+                "is_async": is_async,
+                "min_args": len([a for a in arg_names if "=" not in a]),
+                "max_args": 999 if has_rest else len(arg_names),
+                "has_kwarg": False,  # TS/JS doesn't have Python-style kwargs
+                "arg_names": arg_names,
+                "kwonly_names": [],
+                "mixed_nullable_return": False,
+            })
+
+        # ---- Method definitions: methodName(args) { ----
+        for m in TSJS_METHOD_RE.finditer(stripped):
+            name = m.group(1)
+            args_str = m.group(2) or ""
+            arg_names = [a.strip().split(":")[0].strip() for a in args_str.split(",") if a.strip()]
+            arg_names = [a for a in arg_names if a and not a.startswith("...")]
+            # Skip common non-method keywords
+            if name in {"if", "for", "while", "switch", "catch", "try", "function",
+                        "return", "class", "export", "import", "const", "let", "var",
+                        "async", "await", "new", "delete", "typeof", "instanceof",
+                        "in", "of", "do", "else"}:
+                continue
+            func_defs[name].append({
+                "file": rel_path,
+                "line": idx,
+                "is_async": "async" in stripped,
+                "min_args": len([a for a in arg_names if "=" not in a]),
+                "max_args": 999 if "..." in args_str else len(arg_names),
+                "has_kwarg": False,
+                "arg_names": arg_names,
+                "kwonly_names": [],
+                "mixed_nullable_return": False,
+            })
+
+        # ---- Call sites ----
+        for m in TSJS_CALL_RE.finditer(stripped):
+            callee = m.group(1)
+            # Skip keywords and language built-ins
+            if callee.split(".")[0] in {"if", "for", "while", "switch", "catch",
+                                         "try", "function", "class", "export",
+                                         "import", "const", "let", "var", "async",
+                                         "await", "new", "delete", "typeof",
+                                         "instanceof", "in", "of", "do", "else",
+                                         "return", "console", "Math", "JSON"}:
+                continue
+            # Determine if return value is used (assigned, returned, or passed as arg)
+            return_used = (
+                "=" in stripped.split(callee)[0] if callee in stripped else False
+            ) or stripped.strip().startswith("return ") or "=>" in stripped
+            in_try = "try" in stripped  # heuristic
+            call_sites[callee].append({
+                "file": rel_path,
+                "line": idx,
+                "pos_count": 1,  # heuristic
+                "kw_names": [],
+                "has_varargs": False,
+                "is_awaited": "await" in stripped,
+                "in_try": in_try,
+                "return_used": return_used,
+            })
+
+    total_funcs = sum(len(v) for v in func_defs.values())
+    total_sites = sum(len(v) for v in call_sites.values())
+    return {
+        "rel": rel_path,
+        "functions_modeled": total_funcs,
+        "call_sites_cross_checked": total_sites,
+        "total_anomalies_found": len(anomalies),
+        "anomalies": rank_anomalies(anomalies),
+        "func_defs": dict(func_defs),
+        "call_sites": dict(call_sites),
+    }
+
+
+# ---------------------------------------------------------------------------
+# AST scanning core — Python (shared by hunt and verify-fix)
 # ---------------------------------------------------------------------------
 class ASTScanner:
     """Single-pass AST scanner collecting defs, call sites, and anomalies.
@@ -295,6 +484,28 @@ class ASTScanner:
 
 
 # ---------------------------------------------------------------------------
+# Unified scanner — dispatches Python vs TypeScript/JavaScript
+# ---------------------------------------------------------------------------
+def scan_source_file(rel_path: str, source: str) -> dict:
+    """Scan a single source file, dispatching to Python AST or TS/JS regex scanner."""
+    ext = Path(rel_path).suffix.lower()
+    if ext in PY_EXTENSIONS:
+        return ASTScanner(rel_path, source).run()
+    elif ext in TSJS_EXTENSIONS:
+        return scan_tsjs_file(rel_path, source)
+    else:
+        return {
+            "rel": rel_path,
+            "functions_modeled": 0,
+            "call_sites_cross_checked": 0,
+            "total_anomalies_found": 0,
+            "anomalies": [],
+            "func_defs": {},
+            "call_sites": {},
+        }
+
+
+# ---------------------------------------------------------------------------
 # 1. HUNT — Engler Statistical Deviance Miner + PVS-Studio AST Bug Detector
 # ---------------------------------------------------------------------------
 def scan_repo_for_bugs(target_subpath: str = ".",
@@ -306,6 +517,8 @@ def scan_repo_for_bugs(target_subpath: str = ".",
         caller behavior; minority call sites = high-probability latent bugs)
       - PVS-Studio structural patterns (tautological comparisons, redundant
         booleans, dead elif branches, mutable defaults)
+      - TypeScript/JavaScript patterns (tautologies, redundant booleans,
+        missing optional-chaining guards)
       - Arity / keyword-argument compatibility vs every function definition
       - Unawaited async coroutine detection
     """
@@ -326,17 +539,20 @@ def scan_repo_for_bugs(target_subpath: str = ".",
     common_polymorphic = {
         "get", "pop", "set", "update", "run", "write", "read",
         "init", "__init__", "main", "close", "open", "flush",
+        "then", "catch", "finally", "map", "filter", "reduce",
+        "forEach", "find", "findIndex", "some", "every",
     }
     ignore_callers = {
         "print", "len", "str", "int", "float", "list", "dict", "set",
         "max", "min", "round", "append", "add", "sum", "any", "all",
+        "console", "Math", "JSON", "fetch", "setTimeout", "setInterval",
     }
 
     # Aggregate call sites across all files for Engler mining.
     agg_call_sites: dict[str, list[dict]] = collections.defaultdict(list)
     agg_func_defs: dict[str, list[dict]] = collections.defaultdict(list)
 
-    for p in iter_py_files(REPO_ROOT / target_subpath):
+    for p in iter_source_files(REPO_ROOT / target_subpath):
         rel = str(p.relative_to(REPO_ROOT))
         # Cache check: skip if file unchanged (mtime + size).
         st = p.stat()
@@ -360,7 +576,7 @@ def scan_repo_for_bugs(target_subpath: str = ".",
         except OSError:
             continue
 
-        res = ASTScanner(rel, src).run()
+        res = scan_source_file(rel, src)
         all_anomalies.extend(res["anomalies"])
         total_funcs += res["functions_modeled"]
         total_sites += res["call_sites_cross_checked"]
@@ -427,9 +643,9 @@ def scan_repo_for_bugs(target_subpath: str = ".",
                         "category": "UNAWAITED_ASYNC_COROUTINE",
                         "location": f"{s['file']}:L{s['line']}",
                         "detail": (
-                            f"Call to 'async def {callee}()' (defined at "
+                            f"Call to 'async def/function {callee}()' (defined at "
                             f"{d['file']}:L{d['line']}) is never awaited and "
-                            f"its coroutine is dropped!"
+                            f"its result is dropped!"
                         ),
                     })
 
@@ -482,7 +698,7 @@ def scan_repo_for_bugs(target_subpath: str = ".",
 
 
 def _scan_single_file(target_subpath: str) -> dict:
-    """Run ASTScanner constrained to a single file path."""
+    """Run scan_source_file constrained to a single file path."""
     target_path = Path(target_subpath)
     if not target_path.is_absolute():
         target_path = REPO_ROOT / target_subpath
@@ -507,7 +723,7 @@ def _scan_single_file(target_subpath: str) -> dict:
             }],
         }
 
-    return ASTScanner(rel, src).run()
+    return scan_source_file(rel, src)
 
 
 # ---------------------------------------------------------------------------
@@ -517,7 +733,7 @@ def cmd_review(args) -> None:
     """Reviews the working-tree diff vs a base ref.
 
     Reports Shannon change-dispersion entropy (focused vs dispersed change),
-    per-file LOC delta, and runs the bug hunter on every modified .py file.
+    per-file LOC delta, and runs the bug hunter on every modified source file.
     """
     numstat = sh(["git", "diff", args.base, "--numstat"]).splitlines()
     changed_files: list[dict] = []
@@ -539,7 +755,8 @@ def cmd_review(args) -> None:
 
     diff_anomalies: list[dict] = []
     for cf in changed_files:
-        if cf["file"].endswith(".py") and (REPO_ROOT / cf["file"]).exists():
+        if Path(cf["file"]).suffix.lower() in ALL_SOURCE_EXTENSIONS and \
+           (REPO_ROOT / cf["file"]).exists():
             res = _scan_single_file(cf["file"])
             diff_anomalies.extend(res["anomalies"])
 
@@ -627,7 +844,7 @@ def cmd_forensics(args) -> None:
 
 
 # ---------------------------------------------------------------------------
-# 4. DYLIB-AUDIT — Native Binary Forensic Auditor (REVERSE ENGINEERING)
+# 4. DYLIB-AUDIT — Native Binary Forensic Auditor
 # ---------------------------------------------------------------------------
 def inspect_binary_header(path: Path) -> dict:
     """Reads raw ELF or Mach-O magic headers without external binutils."""
@@ -680,13 +897,17 @@ def inspect_binary_header(path: Path) -> dict:
             "format": "Mach-O 64-bit",
             "isa": isa,
         }
-        if HAS_LDD:
-            # macOS uses otool -L; ldd may not exist on macOS but try anyway
-            ot_cmd = ["otool", "-L", str(path)] if _have("otool") else ["ldd", str(path)]
-            ot_out = sh(ot_cmd)
+        if HAS_OTOOL:
+            ot_out = sh(["otool", "-L", str(path)])
             info["linked_dylibs"] = [
                 l.strip().split()[0]
                 for l in ot_out.splitlines()[1:6] if l.strip()
+            ]
+        elif HAS_LDD:
+            ldd_out = sh(["ldd", str(path)])
+            info["linked_dylibs"] = [
+                l.strip().split()[0]
+                for l in ldd_out.splitlines()[1:6] if l.strip()
             ]
         if HAS_NM:
             info["symbols"] = _nm_symbols(path)
@@ -729,7 +950,7 @@ def _extract_strings(path: Path, limit: int = 20) -> list[str]:
 
 
 def _dependency_graph(path: Path) -> dict:
-    """Build shared-library dependency graph via ldd/readelf."""
+    """Build shared-library dependency graph via ldd/readelf/otool."""
     deps: list[str] = []
     if HAS_LDD:
         out = sh(["ldd", str(path)])
@@ -740,7 +961,6 @@ def _dependency_graph(path: Path) -> dict:
                 parts = line.split()
                 deps.append({"name": parts[0], "resolved": parts[2] if len(parts) > 2 else None, "status": "OK"})
             elif line.strip() and not line.startswith(("ldd:", "")):
-                # static line like "linux-vdso.so.1 (0x...)"
                 parts = line.split()
                 if parts:
                     deps.append({"name": parts[0], "status": "STATIC"})
@@ -751,6 +971,12 @@ def _dependency_graph(path: Path) -> dict:
                 m = re.search(r"NEEDED\s+\[([^\]]+)\]", line)
                 if m:
                     deps.append({"name": m.group(1), "status": "NEEDED"})
+    elif HAS_OTOOL:
+        out = sh(["otool", "-L", str(path)])
+        for line in out.splitlines()[1:]:
+            line = line.strip()
+            if line:
+                deps.append({"name": line.split()[0], "status": "DYLIB"})
     return {"dependencies": deps, "count": len(deps)}
 
 
@@ -795,7 +1021,7 @@ def cmd_dylib_audit(args) -> None:
         "host_arch": host_arch,
         "binutils_available": {
             "nm": HAS_NM, "objdump": HAS_OBJDUMP, "readelf": HAS_READELF,
-            "strings": HAS_STRINGS, "ldd": HAS_LDD,
+            "strings": HAS_STRINGS, "ldd": HAS_LDD, "otool": HAS_OTOOL,
         },
         "native_libraries_scanned": len(binaries),
         "mismatches_or_missing_links": mismatches,
@@ -804,7 +1030,242 @@ def cmd_dylib_audit(args) -> None:
 
 
 # ---------------------------------------------------------------------------
-# 5. VERIFY-FIX — Separation-Logic Frame Rule Verifier
+# 5. CFG — Control Flow Graph Reverse Engineering (objdump-based)
+# ---------------------------------------------------------------------------
+# x86-64 / aarch64 branch instructions that terminate a basic block
+TERMINATOR_OPCODES = {
+    # x86-64 unconditional jumps
+    "jmp", "ret", "call",
+    # x86-64 conditional jumps
+    "je", "jne", "jz", "jnz", "js", "jns", "jg", "jge", "jl", "jle",
+    "ja", "jae", "jb", "jbe", "jcxz", "jecxz", "jrcxz",
+    # x86-64 indirect
+    "jmp*", "call*",
+    # aarch64
+    "b", "bl", "blr", "ret", "cbz", "cbnz", "tbz", "tbnz", "b.eq", "b.ne",
+    "b.cs", "b.cc", "b.mi", "b.pl", "b.vs", "b.vc", "b.hi", "b.ls",
+    "b.ge", "b.lt", "b.gt", "b.le",
+}
+
+
+def _is_terminator(mnemonic: str) -> bool:
+    m = mnemonic.lower().strip()
+    base = m.split(".")[0]
+    if base.endswith("*"):
+        base = base[:-1]
+    return base in TERMINATOR_OPCODES or any(
+        m.startswith(t) for t in TERMINATOR_OPCODES
+    )
+
+
+def _extract_branch_target(operand: str) -> str | None:
+    """Extract a branch target address from an operand string."""
+    o = operand.strip()
+    if "<" in o and ">" in o:
+        inner = o[o.index("<") + 1:o.index(">")]
+        if "+" in inner:
+            return inner.split("+")[-1].strip()
+        return inner
+    if o.startswith("0x"):
+        return o
+    if o.startswith("%") or o.startswith("x") or o.startswith("w"):
+        return None
+    return None
+
+
+def _disassemble_binary(path: Path) -> str:
+    """Disassemble a binary using objdump. Returns raw assembly text."""
+    if not HAS_OBJDUMP:
+        return ""
+    try:
+        res = subprocess.run(
+            ["objdump", "-d", "-M", "intel", str(path)],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            text=True, timeout=30,
+        )
+        return res.stdout
+    except (subprocess.TimeoutExpired, OSError):
+        return ""
+
+
+def _parse_basic_blocks(asm_text: str) -> list[dict]:
+    """Parse objdump output into basic blocks with terminators."""
+    blocks: list[dict] = []
+    current_block: list[dict] = []
+    current_addr: str | None = None
+
+    for line in asm_text.splitlines():
+        addr_match = re.match(r"^\s*([0-9a-fA-F]+):\s+([0-9a-fA-F]{2}\s+)+(.*)$", line)
+        if not addr_match:
+            label_match = re.match(r"^\s*([0-9a-fA-F]+)\s+<([^>]+)>:", line)
+            if label_match:
+                if current_block:
+                    blocks.append({
+                        "start_addr": current_addr,
+                        "instructions": current_block,
+                        "terminator": current_block[-1] if current_block else None,
+                    })
+                    current_block = []
+                    current_addr = None
+                current_addr = label_match.group(1)
+                current_block = [{
+                    "addr": label_match.group(1),
+                    "mnemonic": "<label>",
+                    "operand": label_match.group(2),
+                    "raw": line.strip(),
+                }]
+            continue
+
+        if addr_match:
+            addr = addr_match.group(1)
+            rest = addr_match.group(3)
+            parts = rest.split(None, 1)
+            mnemonic = parts[0] if parts else ""
+            operand = parts[1] if len(parts) > 1 else ""
+
+            if current_addr is None:
+                current_addr = addr
+                current_block = []
+
+            current_block.append({
+                "addr": addr,
+                "mnemonic": mnemonic,
+                "operand": operand,
+                "raw": line.strip(),
+            })
+
+            if _is_terminator(mnemonic):
+                blocks.append({
+                    "start_addr": current_addr,
+                    "instructions": current_block,
+                    "terminator": current_block[-1],
+                })
+                current_block = []
+                current_addr = None
+
+    if current_block:
+        blocks.append({
+            "start_addr": current_addr,
+            "instructions": current_block,
+            "terminator": current_block[-1] if current_block else None,
+        })
+
+    return blocks
+
+
+def _build_cfg(blocks: list[dict]) -> dict:
+    """Build a control flow graph from basic blocks."""
+    addr_to_block: dict[str, int] = {}
+    for i, b in enumerate(blocks):
+        addr_to_block[b["start_addr"]] = i
+
+    nodes = []
+    edges: list[dict] = []
+
+    for i, b in enumerate(blocks):
+        term = b["terminator"]
+        if not term:
+            continue
+        mnemonic = term["mnemonic"].lower()
+        operand = term.get("operand", "")
+        target = _extract_branch_target(operand)
+
+        node_id = f"B{b['start_addr']}"
+        nodes.append({
+            "id": node_id,
+            "start_addr": b["start_addr"],
+            "instruction_count": len(b["instructions"]),
+            "terminator": f"{mnemonic} {operand}".strip(),
+        })
+
+        fallthrough_idx = None
+        if i + 1 < len(blocks):
+            fallthrough_idx = i + 1
+
+        if mnemonic == "ret":
+            pass
+        elif mnemonic == "jmp":
+            if target:
+                target_idx = addr_to_block.get(target)
+                if target_idx is not None:
+                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "unconditional"})
+                else:
+                    edges.append({"from": node_id, "to": f"external:{target}", "type": "unconditional"})
+        elif mnemonic == "call":
+            if target:
+                target_idx = addr_to_block.get(target)
+                if target_idx is not None:
+                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "call"})
+                else:
+                    edges.append({"from": node_id, "to": f"external:{target}", "type": "call"})
+            if fallthrough_idx is not None:
+                edges.append({"from": node_id, "to": f"B{blocks[fallthrough_idx]['start_addr']}", "type": "fallthrough"})
+        else:
+            if target:
+                target_idx = addr_to_block.get(target)
+                if target_idx is not None:
+                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "branch_taken"})
+                else:
+                    edges.append({"from": node_id, "to": f"external:{target}", "type": "branch_taken"})
+            if fallthrough_idx is not None:
+                edges.append({"from": node_id, "to": f"B{blocks[fallthrough_idx]['start_addr']}", "type": "fallthrough"})
+
+    return {"nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges)}
+
+
+def cmd_cfg(args) -> int:
+    """Extract a control flow graph from a native binary using objdump."""
+    target_p = Path(args.binary)
+    if not target_p.is_absolute():
+        target_p = REPO_ROOT / target_p
+
+    if not target_p.exists():
+        print(f"ERROR: Binary '{target_p}' not found.", file=sys.stderr)
+        return 1
+
+    if not HAS_OBJDUMP:
+        print("ERROR: objdump not available — cannot disassemble.", file=sys.stderr)
+        return 1
+
+    asm_text = _disassemble_binary(target_p)
+    if not asm_text:
+        print(f"ERROR: Failed to disassemble '{target_p}'.", file=sys.stderr)
+        return 1
+
+    blocks = _parse_basic_blocks(asm_text)
+    cfg = _build_cfg(blocks)
+
+    try:
+        binary_display = str(target_p.relative_to(REPO_ROOT))
+    except ValueError:
+        binary_display = str(target_p)
+
+    output = {
+        "binary": binary_display,
+        "cfg": cfg,
+        "total_blocks": len(blocks),
+    }
+
+    if args.function:
+        # Filter blocks belonging to the function
+        func_blocks = []
+        in_func = False
+        for line in asm_text.splitlines():
+            label_match = re.match(r"^\s*[0-9a-fA-F]+\s+<([^>]+)>:", line)
+            if label_match:
+                func_name = label_match.group(1)
+                in_func = (func_name == args.function or func_name.endswith(f".{args.function}"))
+            if in_func and re.match(r"^\s*[0-9a-fA-F]+:", line):
+                func_blocks.append(line.strip())
+        output["function"] = args.function
+        output["disassembly_lines"] = len(func_blocks)
+
+    print(json.dumps(output, indent=2))
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# 6. VERIFY-FIX — Separation-Logic Frame Rule Verifier
 # ---------------------------------------------------------------------------
 def extract_signatures_map(py_text: str) -> dict:
     """Extract per-function signature contract from Python source text."""
@@ -834,6 +1295,33 @@ def extract_signatures_map(py_text: str) -> dict:
     return sigs
 
 
+def extract_tsjs_signatures_map(tsjs_text: str) -> dict:
+    """Extract per-function signature contract from TypeScript/JavaScript source."""
+    sigs: dict[str, dict] = {}
+    lines = tsjs_text.splitlines()
+
+    for idx, line in enumerate(lines, start=1):
+        stripped = line.strip()
+
+        # Function declarations: function name(args) or const name = (args) =>
+        for m in TSJS_FUNC_RE.finditer(stripped):
+            name = m.group(1) or m.group(2) or m.group(4) or "anonymous"
+            args_str = m.group(3) or m.group(5) or ""
+            arg_names = [a.strip().split(":")[0].strip() for a in args_str.split(",") if a.strip()]
+            arg_names = [a for a in arg_names if a and not a.startswith("...")]
+            n_def = len([a for a in arg_names if "=" in a])
+            sigs[name] = {
+                "is_async": "async" in stripped,
+                "min_args": max(0, len(arg_names) - n_def),
+                "max_args": 999 if "..." in args_str else len(arg_names),
+                "required_args": [a for a in arg_names if "=" not in a],
+                "all_arg_names": set(arg_names),
+                "has_kwarg": False,
+            }
+
+    return sigs
+
+
 def cmd_verify_fix(args) -> int:
     """Proves uncommitted changes to <file> violate 0 Liskov contracts across
     all repo callers, and introduce 0 new AST anomalies.
@@ -844,15 +1332,22 @@ def cmd_verify_fix(args) -> int:
     if not target_p.is_absolute():
         target_p = REPO_ROOT / target_p
     rel = str(target_p.relative_to(REPO_ROOT))
+    ext = target_p.suffix.lower()
 
     new_text = target_p.read_text(encoding="utf-8", errors="replace")
     old_text = sh(["git", "show", f"HEAD:{rel}"])
 
-    old_sigs = extract_signatures_map(old_text) if old_text else {}
-    new_sigs = extract_signatures_map(new_text)
+    old_sigs: dict = {}
+    new_sigs: dict = {}
+
+    if ext in PY_EXTENSIONS:
+        old_sigs = extract_signatures_map(old_text) if old_text else {}
+        new_sigs = extract_signatures_map(new_text)
+    elif ext in TSJS_EXTENSIONS:
+        old_sigs = extract_tsjs_signatures_map(old_text) if old_text else {}
+        new_sigs = extract_tsjs_signatures_map(new_text)
 
     liskov_violations: list[dict] = []
-    modified_symbols: list[str] = []
 
     for sym, o_meta in old_sigs.items():
         if sym not in new_sigs:
@@ -864,7 +1359,7 @@ def cmd_verify_fix(args) -> int:
             continue
         n_meta = new_sigs[sym]
         if o_meta != n_meta:
-            modified_symbols.append(sym)
+            pass  # symbol modified, check specifics below
         if n_meta["min_args"] > o_meta["min_args"]:
             liskov_violations.append({
                 "symbol": sym,
@@ -909,285 +1404,6 @@ def cmd_verify_fix(args) -> int:
     }
     print(json.dumps(output, indent=2))
     return 0 if passed else 1
-
-
-# ---------------------------------------------------------------------------
-# 6. CFG — Control Flow Graph Reverse Engineering (objdump-based)
-# ---------------------------------------------------------------------------
-# x86-64 / aarch64 branch instructions that terminate a basic block
-TERMINATOR_OPCODES = {
-    # x86-64 unconditional jumps
-    "jmp", "ret", "call",
-    # x86-64 conditional jumps
-    "je", "jne", "jz", "jnz", "js", "jns", "jg", "jge", "jl", "jle",
-    "ja", "jae", "jb", "jbe", "jcxz", "jecxz", "jrcxz",
-    # x86-64 indirect
-    "jmp*", "call*",
-    # aarch64
-    "b", "bl", "blr", "ret", "cbz", "cbnz", "tbz", "tbnz", "b.eq", "b.ne",
-    "b.cs", "b.cc", "b.mi", "b.pl", "b.vs", "b.vc", "b.hi", "b.ls",
-    "b.ge", "b.lt", "b.gt", "b.le",
-}
-
-
-def _is_terminator(mnemonic: str) -> bool:
-    m = mnemonic.lower().strip()
-    # Strip size suffixes (e.g., "jmp.q" -> "jmp", "b.eq" -> "b.eq")
-    base = m.split(".")[0]
-    # Handle indirect call/jmp with *
-    if base.endswith("*"):
-        base = base[:-1]
-    return base in TERMINATOR_OPCODES or any(
-        m.startswith(t) for t in TERMINATOR_OPCODES
-    )
-
-
-def _extract_branch_target(operand: str) -> str | None:
-    """Extract a branch target address from an operand string."""
-    o = operand.strip()
-    # Direct label: <func+0x123> or 0x1234 or label
-    if "<" in o and ">" in o:
-        inner = o[o.index("<") + 1:o.index(">")]
-        # Extract offset like func+0x123
-        if "+" in inner:
-            return inner.split("+")[-1].strip()
-        return inner
-    # Hex address
-    if o.startswith("0x"):
-        return o
-    # Register indirect (can't resolve statically)
-    if o.startswith("%") or o.startswith("x") or o.startswith("w"):
-        return None
-    return None
-
-
-def _disassemble_binary(path: Path) -> str:
-    """Disassemble a binary using objdump. Returns raw assembly text."""
-    if not HAS_OBJDUMP:
-        return ""
-    try:
-        res = subprocess.run(
-            ["objdump", "-d", "-M", "intel", str(path)],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-            text=True, timeout=30,
-        )
-        return res.stdout
-    except (subprocess.TimeoutExpired, OSError):
-        return ""
-
-
-def _parse_basic_blocks(asm_text: str) -> list[dict]:
-    """Parse objdump output into basic blocks with terminators.
-
-    A basic block is a maximal sequence of instructions with one entry
-    point (first instruction) and one exit point (last instruction, a
-    terminator).
-    """
-    blocks: list[dict] = []
-    current_block: list[dict] = []
-    current_addr: str | None = None
-
-    for line in asm_text.splitlines():
-        # Match instruction lines:  0000000000401000 <func>:
-        # or:  401000:   48 83 ec 08   sub    rsp, 0x8
-        addr_match = re.match(r"^\s*([0-9a-fA-F]+):\s+([0-9a-fA-F]{2}\s+)+(.*)$", line)
-        if not addr_match:
-            # Could be a label line: 0000000000401000 <main>:
-            label_match = re.match(r"^\s*([0-9a-fA-F]+)\s+<([^>]+)>:", line)
-            if label_match:
-                # If we have an open block, close it
-                if current_block:
-                    blocks.append({
-                        "start_addr": current_addr,
-                        "instructions": current_block,
-                        "terminator": current_block[-1] if current_block else None,
-                    })
-                    current_block = []
-                    current_addr = None
-                # Start a new block at the label
-                current_addr = label_match.group(1)
-                current_block = [{
-                    "addr": label_match.group(1),
-                    "mnemonic": "<label>",
-                    "operand": label_match.group(2),
-                    "raw": line.strip(),
-                }]
-            continue
-
-        if addr_match:
-            addr = addr_match.group(1)
-            rest = addr_match.group(3)
-            # Parse mnemonic and operand
-            parts = rest.split(None, 1)
-            mnemonic = parts[0] if parts else ""
-            operand = parts[1] if len(parts) > 1 else ""
-
-            # If we don't have a current block, start one
-            if current_addr is None:
-                current_addr = addr
-                current_block = []
-
-            current_block.append({
-                "addr": addr,
-                "mnemonic": mnemonic,
-                "operand": operand,
-                "raw": line.strip(),
-            })
-
-            # If this is a terminator, close the block
-            if _is_terminator(mnemonic):
-                blocks.append({
-                    "start_addr": current_addr,
-                    "instructions": current_block,
-                    "terminator": current_block[-1],
-                })
-                current_block = []
-                current_addr = None
-
-    # Flush any remaining block
-    if current_block:
-        blocks.append({
-            "start_addr": current_addr,
-            "instructions": current_block,
-            "terminator": current_block[-1] if current_block else None,
-        })
-
-    return blocks
-
-
-def _build_cfg(blocks: list[dict]) -> dict:
-    """Build a control flow graph from basic blocks.
-
-    Returns nodes (blocks) and edges (control flow transitions).
-    Edges are determined by terminator instructions:
-    - ret: no outgoing edges (block ends)
-    - jmp <target>: edge to target
-    - jcc <target>: edge to target + fall-through edge to next block
-    - call <target>: edge to call target + fall-through edge to next block
-    """
-    # Index blocks by start address
-    addr_to_block: dict[str, int] = {}
-    for i, b in enumerate(blocks):
-        addr_to_block[b["start_addr"]] = i
-
-    nodes = []
-    edges: list[dict] = []
-
-    for i, b in enumerate(blocks):
-        term = b["terminator"]
-        if not term:
-            continue
-        mnemonic = term["mnemonic"].lower()
-        operand = term.get("operand", "")
-        target = _extract_branch_target(operand)
-
-        node_id = f"B{b['start_addr']}"
-        nodes.append({
-            "id": node_id,
-            "start_addr": b["start_addr"],
-            "instruction_count": len(b["instructions"]),
-            "terminator": f"{mnemonic} {operand}".strip(),
-        })
-
-        # Determine fall-through target (next block in address order)
-        fallthrough_idx = None
-        if i + 1 < len(blocks):
-            fallthrough_idx = i + 1
-
-        if mnemonic == "ret":
-            # No outgoing edges
-            pass
-        elif mnemonic == "jmp":
-            if target:
-                target_idx = addr_to_block.get(target)
-                if target_idx is not None:
-                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "unconditional"})
-                else:
-                    edges.append({"from": node_id, "to": f"external:{target}", "type": "unconditional"})
-        elif mnemonic == "call":
-            if target:
-                target_idx = addr_to_block.get(target)
-                if target_idx is not None:
-                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "call"})
-                else:
-                    edges.append({"from": node_id, "to": f"external:{target}", "type": "call"})
-            # Fall through after call
-            if fallthrough_idx is not None:
-                edges.append({"from": node_id, "to": f"B{blocks[fallthrough_idx]['start_addr']}", "type": "fallthrough"})
-        else:
-            # Conditional branch: taken + fall-through
-            if target:
-                target_idx = addr_to_block.get(target)
-                if target_idx is not None:
-                    edges.append({"from": node_id, "to": f"B{blocks[target_idx]['start_addr']}", "type": "branch_taken"})
-                else:
-                    edges.append({"from": node_id, "to": f"external:{target}", "type": "branch_taken"})
-            # Fall-through
-            if fallthrough_idx is not None:
-                edges.append({"from": node_id, "to": f"B{blocks[fallthrough_idx]['start_addr']}", "type": "fallthrough"})
-
-    return {"nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges)}
-
-
-def cmd_cfg(args) -> int:
-    """Extract a control flow graph from a native binary using objdump.
-
-    Disassembles the binary, partitions into basic blocks, and builds
-    a CFG with nodes (blocks) and edges (control flow transitions).
-    """
-    target_p = Path(args.binary)
-    if not target_p.is_absolute():
-        target_p = REPO_ROOT / target_p
-
-    if not target_p.exists():
-        print(f"ERROR: Binary '{target_p}' not found.", file=sys.stderr)
-        return 1
-
-    if not HAS_OBJDUMP:
-        print("ERROR: objdump not available — cannot disassemble.", file=sys.stderr)
-        return 1
-
-    asm_text = _disassemble_binary(target_p)
-    if not asm_text:
-        print(f"ERROR: Failed to disassemble '{target_p}'.", file=sys.stderr)
-        return 1
-
-    blocks = _parse_basic_blocks(asm_text)
-    cfg = _build_cfg(blocks)
-
-    try:
-        binary_display = str(target_p.relative_to(REPO_ROOT))
-    except ValueError:
-        binary_display = str(target_p)
-
-    # Filter to specific function if requested
-    if args.function:
-        # Find blocks belonging to the function
-        func_blocks = []
-        in_func = False
-        for line in asm_text.splitlines():
-            label_match = re.match(r"^\s*[0-9a-fA-F]+\s+<([^>]+)>:", line)
-            if label_match:
-                func_name = label_match.group(1)
-                in_func = (func_name == args.function or func_name.endswith(f".{args.function}"))
-            if in_func and re.match(r"^\s*[0-9a-fA-F]+:", line):
-                func_blocks.append(line.strip())
-
-        output = {
-            "binary": binary_display,
-            "function": args.function,
-            "cfg": cfg,
-            "disassembly_lines": len(func_blocks),
-        }
-    else:
-        output = {
-            "binary": binary_display,
-            "cfg": cfg,
-            "total_blocks": len(blocks),
-        }
-
-    print(json.dumps(output, indent=2))
-    return 0
 
 
 # ---------------------------------------------------------------------------

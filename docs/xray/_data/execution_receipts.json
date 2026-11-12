@@ -2535,5 +2535,388 @@
     "exit_code": 0,
     "duration_ms": 75.38,
     "output_preview": "n any repo\",\n    \"lab_target_isolated\": \"space.nuvio.lab only used when nuvio_lab feature + lab=true\",\n    \"no_silent_runtime_override\": \"Invalid app IDs fail validation; no silent override of production app ID\",\n    \"rollback_safe\": \"Rollback requires no production Nuvio application modification\",\n    \"no_duplicate_routing\": \"No extra media launcher or duplicate routing layer\",\n    \"receipt_required\": \"Every cross-repo patch carries a tamper-evident RCPT receipt\",\n    \"docs_sync\": \"Code changes in any repo require docs/xray/ sync in the same commit\"\n  },\n  \"receipt_id\": \"RCPT-2F8D1FF9DD20\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-822A4ED5B70A",
+    "timestamp_utc": "2026-11-12T19:05:46.043969+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 257.53,
+    "output_preview": "{\n  \"sync_duration_ms\": 195.38,\n  \"files_reindexed_delta\": 60,\n  \"files_skipped_stat_cache\": 65,\n  \"files_pruned\": 0,\n  \"total_files\": 125,\n  \"total_symbols\": 2087,\n  \"total_state_channel_links\": 455,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-54B46A52928F",
+    "timestamp_utc": "2026-11-12T19:09:41.744670+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 71.94,
+    "output_preview": "{\n  \"sync_duration_ms\": 9.94,\n  \"files_reindexed_delta\": 2,\n  \"files_skipped_stat_cache\": 123,\n  \"files_pruned\": 0,\n  \"total_files\": 125,\n  \"total_symbols\": 2087,\n  \"total_state_channel_links\": 458,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-EF656DF52890",
+    "timestamp_utc": "2026-11-12T19:09:41.895545+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 184.02,
+    "output_preview": "thout optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1077\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1082\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-3F3F9064E0A6",
+    "timestamp_utc": "2026-11-12T19:09:42.175945+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py dylib-audit",
+    "exit_code": 0,
+    "duration_ms": 76.01,
+    "output_preview": "{\n  \"host_os\": \"linux\",\n  \"host_arch\": \"x86_64\",\n  \"binutils_available\": {\n    \"nm\": true,\n    \"objdump\": true,\n    \"readelf\": true,\n    \"strings\": true,\n    \"ldd\": true,\n    \"otool\": false\n  },\n  \"native_libraries_scanned\": 0,\n  \"mismatches_or_missing_links\": [],\n  \"sample_binaries\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-82DA30A7BF11",
+    "timestamp_utc": "2026-11-12T19:09:42.363445+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py cfg /bin/true",
+    "exit_code": 0,
+    "duration_ms": 106.83,
+    "output_preview": "m\": \"B5d18\",\n        \"to\": \"external:0x3a69\",\n        \"type\": \"branch_taken\"\n      },\n      {\n        \"from\": \"B5d18\",\n        \"to\": \"B5d25\",\n        \"type\": \"fallthrough\"\n      },\n      {\n        \"from\": \"B5d25\",\n        \"to\": \"external:0x3a39\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d30\",\n        \"to\": \"external:setlocale@plt\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d37\",\n        \"to\": \"external:__cxa_atexit@plt\",\n        \"type\": \"unconditional\"\n      }\n    ],\n    \"node_count\": 899,\n    \"edge_count\": 1400\n  },\n  \"total_blocks\": 899\n}"
+  },
+  {
+    "receipt_id": "RCPT-5EA6F3EB94C2",
+    "timestamp_utc": "2026-11-12T19:09:42.551480+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py bench-compression",
+    "exit_code": 0,
+    "duration_ms": 450.0,
+    "output_preview": "| E   ConnectionRefusedError: [Errno 111] Connect call failed ( |\n|  L28    [x1314] | E   ModuleNotFoundError: No module named 'torch'              |\n+=============================================================================+\n{\n  \"benchmark\": \"Simulated RCPT-8EFC67D2E3C4 (5,255 Collection Errors / 26,279 Lines)\",\n  \"cpu_encode_latency_ms\": 397.07,\n  \"raw_tokens\": 356175,\n  \"compressed_frame_tokens\": 545,\n  \"token_compression_ratio_x\": 653.53,\n  \"root_cause_equivalence_classes_recovered\": \"4/4\",\n  \"root_cause_exact_coordinate_recall_pct\": 100.0,\n  \"lossless_handle_minted\": \"@H-F48C9294\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-DA56B7ECDCDC",
+    "timestamp_utc": "2026-11-12T19:09:43.169649+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 69.98,
+    "output_preview": "{\n  \"sync_duration_ms\": 5.51,\n  \"files_reindexed_delta\": 0,\n  \"files_skipped_stat_cache\": 125,\n  \"files_pruned\": 0,\n  \"total_files\": 125,\n  \"total_symbols\": 2087,\n  \"total_state_channel_links\": 458,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-5B38EF7B18C7",
+    "timestamp_utc": "2026-11-12T19:09:43.284982+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 162.41,
+    "output_preview": "thout optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1077\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1082\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-45FAA33AD76D",
+    "timestamp_utc": "2026-11-12T19:09:43.495975+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py run -- python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 218.82,
+    "output_preview": "8    [x2] | \"detail\": \"Calls 'make()' with 1 args, but extras/player/app/ |\n|  L30         | \"detail\": \"Calls 'apply()' with 1 args, but extras/player/app |\n|  L36         | \"detail\": \"Calls 'find_spec()' with 1 args, but scripts/evo_c |\n|  L42    [x14] | \"detail\": \"Boolean operator contains duplicate identical cond |\n|  L126        | \"detail\": \"Call to 'compile()' discards return value, violati |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 2500 raw tokens -> 344 latent-digest tokens (7.27x compression | 100% lossless via @H-EB07FAE4)"
+  },
+  {
+    "receipt_id": "RCPT-317E9BE54175",
+    "timestamp_utc": "2026-11-12T19:09:43.843348+00:00",
+    "environment": "repo_sync_drift",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "generated_utc": "2026-11-12T19:09:43.842121+00:00",
+      "local_drift_markers": {
+        "app_id_production": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.webos"
+        ],
+        "app_id_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.lab"
+        ],
+        "feature_nuvio_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "COUNCIL_STARTER_KIT/repo_sync.py:nuvio_lab",
+          "COUNCIL_STARTER_KIT/repo_sync.py:nuvio_lab"
+        ],
+        "stackitem_fields": [
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos",
+          "COUNCIL_STARTER_KIT/repo_sync.py:StackItem",
+          "COUNCIL_STARTER_KIT/repo_sync.py:StackItem",
+          "COUNCIL_STARTER_KIT/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos"
+        ],
+        "renderer_iflet_guard": [
+          "scripts/repo_sync.py:if let.*guard",
+          "scripts/repo_sync.py:if let .* else",
+          "scripts/repo_sync.py:if let",
+          "COUNCIL_STARTER_KIT/repo_sync.py:if let.*guard",
+          "COUNCIL_STARTER_KIT/repo_sync.py:if let .* else",
+          "COUNCIL_STARTER_KIT/repo_sync.py:if let"
+        ],
+        "lckv_seqlock": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:even, head==tail",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:even.*head.*tail",
+          "COUNCIL_STARTER_KIT/repo_sync.py:seqlock",
+          "COUNCIL_STARTER_KIT/repo_sync.py:seqlock",
+          "COUNCIL_STARTER_KIT/repo_sync.py:seqlock"
+        ],
+        "launch_guard": [
+          "scripts/repo_sync.py:duplicate.*launch",
+          "COUNCIL_STARTER_KIT/repo_sync.py:duplicate.*launch"
+        ],
+        "ci_rust_toolchain": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:toolchain",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "scripts/aegis_bug_hunter.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:rust-",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/sandbox_verify.py:toolchain"
+        ]
+      },
+      "tracked_repos": {
+        "steve_spivak_luma_webos_launcher": "ae1425e614e2d5e5fbce8244312ddc6ff33e5b5c",
+        "funnymataleao_luma_webos_launcher": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "ecklf_lg_luma": "v2.19.0"
+      },
+      "drift_categories": [
+        "app_id_divergence",
+        "feature_gating_divergence",
+        "stack_item_field_divergence",
+        "renderer_iflet_guard_divergence",
+        "lckv_seqlock_divergence",
+        "launch_guard_divergence",
+        "ci_rust_toolchain_divergence"
+      ],
+      "alignment_rules": {
+        "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+        "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+        "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+        "rollback_safe": "Rollback requires no production Nuvio application modification",
+        "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+        "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+        "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-C67037413BC6",
+    "timestamp_utc": "2026-11-12T19:09:43.761662+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 90.82,
+    "output_preview": "n any repo\",\n    \"lab_target_isolated\": \"space.nuvio.lab only used when nuvio_lab feature + lab=true\",\n    \"no_silent_runtime_override\": \"Invalid app IDs fail validation; no silent override of production app ID\",\n    \"rollback_safe\": \"Rollback requires no production Nuvio application modification\",\n    \"no_duplicate_routing\": \"No extra media launcher or duplicate routing layer\",\n    \"receipt_required\": \"Every cross-repo patch carries a tamper-evident RCPT receipt\",\n    \"docs_sync\": \"Code changes in any repo require docs/xray/ sync in the same commit\"\n  },\n  \"receipt_id\": \"RCPT-317E9BE54175\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-DBDB15100E6F",
+    "timestamp_utc": "2026-11-12T19:09:43.093795+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/council_pipeline.py full --workers 2",
+    "exit_code": 0,
+    "duration_ms": 777.2,
+    "output_preview": "ion\n  receipt=RCPT-45FAA33AD76D exit=0\n[STAGE 6] repo_sync.py drift \u2014 cross-repo drift detection\n  receipt=RCPT-C67037413BC6 exit=0\n\n======================================================================\nCOUNCIL PIPELINE COMPLETE \u2014 734.05ms\n  All stages passed: True\n  Stages completed: 4\n  Stage 1 [PASS] nexus_sync: receipt=RCPT-DA56B7ECDCDC\n  Stage 2 [PASS] aegis_hunt: receipt=RCPT-5B38EF7B18C7\n  Stage 3 [PASS] tool_latent_compress_hunt: receipt=RCPT-45FAA33AD76D\n  Stage 4 [PASS] repo_sync_drift: receipt=RCPT-C67037413BC6\n======================================================================"
+  },
+  {
+    "receipt_id": "RCPT-42426524D014",
+    "timestamp_utc": "2026-11-12T19:11:53.716613+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 69.95,
+    "output_preview": "{\n  \"sync_duration_ms\": 8.43,\n  \"files_reindexed_delta\": 0,\n  \"files_skipped_stat_cache\": 125,\n  \"files_pruned\": 0,\n  \"total_files\": 125,\n  \"total_symbols\": 2087,\n  \"total_state_channel_links\": 458,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-8086ECF78790",
+    "timestamp_utc": "2026-11-12T19:11:53.867063+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 156.58,
+    "output_preview": "thout optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1077\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1082\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-AC1C3C7CC30B",
+    "timestamp_utc": "2026-11-12T19:11:54.109100+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py dylib-audit",
+    "exit_code": 0,
+    "duration_ms": 85.71,
+    "output_preview": "{\n  \"host_os\": \"linux\",\n  \"host_arch\": \"x86_64\",\n  \"binutils_available\": {\n    \"nm\": true,\n    \"objdump\": true,\n    \"readelf\": true,\n    \"strings\": true,\n    \"ldd\": true,\n    \"otool\": false\n  },\n  \"native_libraries_scanned\": 0,\n  \"mismatches_or_missing_links\": [],\n  \"sample_binaries\": []\n}"
+  },
+  {
+    "receipt_id": "RCPT-7548217525C6",
+    "timestamp_utc": "2026-11-12T19:11:54.278838+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py cfg /bin/true",
+    "exit_code": 0,
+    "duration_ms": 121.27,
+    "output_preview": "m\": \"B5d18\",\n        \"to\": \"external:0x3a69\",\n        \"type\": \"branch_taken\"\n      },\n      {\n        \"from\": \"B5d18\",\n        \"to\": \"B5d25\",\n        \"type\": \"fallthrough\"\n      },\n      {\n        \"from\": \"B5d25\",\n        \"to\": \"external:0x3a39\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d30\",\n        \"to\": \"external:setlocale@plt\",\n        \"type\": \"unconditional\"\n      },\n      {\n        \"from\": \"B5d37\",\n        \"to\": \"external:__cxa_atexit@plt\",\n        \"type\": \"unconditional\"\n      }\n    ],\n    \"node_count\": 899,\n    \"edge_count\": 1400\n  },\n  \"total_blocks\": 899\n}"
+  },
+  {
+    "receipt_id": "RCPT-71FC4B2427F7",
+    "timestamp_utc": "2026-11-12T19:11:54.478682+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py bench-compression",
+    "exit_code": 0,
+    "duration_ms": 393.67,
+    "output_preview": "| E   ConnectionRefusedError: [Errno 111] Connect call failed ( |\n|  L28    [x1314] | E   ModuleNotFoundError: No module named 'torch'              |\n+=============================================================================+\n{\n  \"benchmark\": \"Simulated RCPT-8EFC67D2E3C4 (5,255 Collection Errors / 26,279 Lines)\",\n  \"cpu_encode_latency_ms\": 342.97,\n  \"raw_tokens\": 356175,\n  \"compressed_frame_tokens\": 545,\n  \"token_compression_ratio_x\": 653.53,\n  \"root_cause_equivalence_classes_recovered\": \"4/4\",\n  \"root_cause_exact_coordinate_recall_pct\": 100.0,\n  \"lossless_handle_minted\": \"@H-F48C9294\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-EE955FD5EB80",
+    "timestamp_utc": "2026-11-12T19:11:55.013620+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/nexus_agent_os.py sync --path . --workers 2",
+    "exit_code": 0,
+    "duration_ms": 65.09,
+    "output_preview": "{\n  \"sync_duration_ms\": 5.36,\n  \"files_reindexed_delta\": 0,\n  \"files_skipped_stat_cache\": 125,\n  \"files_pruned\": 0,\n  \"total_files\": 125,\n  \"total_symbols\": 2087,\n  \"total_state_channel_links\": 458,\n  \"total_import_time_traps\": 0\n}"
+  },
+  {
+    "receipt_id": "RCPT-1DD44685B51E",
+    "timestamp_utc": "2026-11-12T19:11:55.124205+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 142.35,
+    "output_preview": "thout optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1077\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    },\n    {\n      \"severity\": \"MEDIUM\",\n      \"category\": \"TSJS_MISSING_OPTIONAL_CHAINING\",\n      \"location\": \"extras/aerials/aerials.js:L1082\",\n      \"detail\": \"Property access 'na.services' without optional chaining (?.) \\u2014 may throw on null/undefined.\"\n    }\n  ]\n}"
+  },
+  {
+    "receipt_id": "RCPT-24E1B79EA7AB",
+    "timestamp_utc": "2026-11-12T19:11:55.310583+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/tool_latent_codec.py run -- python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/aegis_bug_hunter.py hunt --path .",
+    "exit_code": 0,
+    "duration_ms": 211.85,
+    "output_preview": "8    [x2] | \"detail\": \"Calls 'make()' with 1 args, but extras/player/app/ |\n|  L30         | \"detail\": \"Calls 'apply()' with 1 args, but extras/player/app |\n|  L36         | \"detail\": \"Calls 'find_spec()' with 1 args, but scripts/evo_c |\n|  L42    [x14] | \"detail\": \"Boolean operator contains duplicate identical cond |\n|  L126        | \"detail\": \"Call to 'compile()' discards return value, violati |\n+=============================================================================+\n\u26a1 [LATENT COMPRESSION] 2500 raw tokens -> 344 latent-digest tokens (7.27x compression | 100% lossless via @H-DE1A42A5)"
+  },
+  {
+    "receipt_id": "RCPT-C7F84FFD264E",
+    "timestamp_utc": "2026-11-12T19:11:55.650638+00:00",
+    "environment": "repo_sync_drift",
+    "command": "python3 scripts/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 0.0,
+    "telemetry": {
+      "generated_utc": "2026-11-12T19:11:55.649318+00:00",
+      "local_drift_markers": {
+        "app_id_production": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.webos"
+        ],
+        "app_id_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:space.nuvio.lab"
+        ],
+        "feature_nuvio_lab": [
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "scripts/repo_sync.py:nuvio_lab",
+          "COUNCIL_STARTER_KIT/repo_sync.py:nuvio_lab",
+          "COUNCIL_STARTER_KIT/repo_sync.py:nuvio_lab"
+        ],
+        "stackitem_fields": [
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:StackItem",
+          "scripts/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos",
+          "COUNCIL_STARTER_KIT/repo_sync.py:StackItem",
+          "COUNCIL_STARTER_KIT/repo_sync.py:StackItem",
+          "COUNCIL_STARTER_KIT/repo_sync.py:{.*title.*poster.*id.*content_target.*progress_permille.*pos"
+        ],
+        "renderer_iflet_guard": [
+          "scripts/repo_sync.py:if let.*guard",
+          "scripts/repo_sync.py:if let .* else",
+          "scripts/repo_sync.py:if let",
+          "COUNCIL_STARTER_KIT/repo_sync.py:if let.*guard",
+          "COUNCIL_STARTER_KIT/repo_sync.py:if let .* else",
+          "COUNCIL_STARTER_KIT/repo_sync.py:if let"
+        ],
+        "lckv_seqlock": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:seqlock",
+          ".agent-kb/labs/02_lckv_fixture/generate.py:even, head==tail",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:seqlock",
+          "scripts/repo_sync.py:even.*head.*tail",
+          "COUNCIL_STARTER_KIT/repo_sync.py:seqlock",
+          "COUNCIL_STARTER_KIT/repo_sync.py:seqlock",
+          "COUNCIL_STARTER_KIT/repo_sync.py:seqlock"
+        ],
+        "launch_guard": [
+          "scripts/repo_sync.py:duplicate.*launch",
+          "COUNCIL_STARTER_KIT/repo_sync.py:duplicate.*launch"
+        ],
+        "ci_rust_toolchain": [
+          ".agent-kb/labs/02_lckv_fixture/generate.py:toolchain",
+          ".agent-kb/labs/03_nuvio_deeplink/trace.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "tools/generate_doc_inventory.py:toolchain",
+          "scripts/aegis_bug_hunter.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/repo_sync.py:rust-",
+          "scripts/repo_sync.py:toolchain",
+          "scripts/sandbox_verify.py:toolchain"
+        ]
+      },
+      "tracked_repos": {
+        "steve_spivak_luma_webos_launcher": "ae1425e614e2d5e5fbce8244312ddc6ff33e5b5c",
+        "funnymataleao_luma_webos_launcher": "40994fc144b5af481056d14e2fb93304aa1e2c82",
+        "ecklf_lg_luma": "v2.19.0"
+      },
+      "drift_categories": [
+        "app_id_divergence",
+        "feature_gating_divergence",
+        "stack_item_field_divergence",
+        "renderer_iflet_guard_divergence",
+        "lckv_seqlock_divergence",
+        "launch_guard_divergence",
+        "ci_rust_toolchain_divergence"
+      ],
+      "alignment_rules": {
+        "never_modify_production_app_id": "space.nuvio.webos must never be modified/launched/replaced by Luma in any repo",
+        "lab_target_isolated": "space.nuvio.lab only used when nuvio_lab feature + lab=true",
+        "no_silent_runtime_override": "Invalid app IDs fail validation; no silent override of production app ID",
+        "rollback_safe": "Rollback requires no production Nuvio application modification",
+        "no_duplicate_routing": "No extra media launcher or duplicate routing layer",
+        "receipt_required": "Every cross-repo patch carries a tamper-evident RCPT receipt",
+        "docs_sync": "Code changes in any repo require docs/xray/ sync in the same commit"
+      }
+    }
+  },
+  {
+    "receipt_id": "RCPT-5E0FE32500CF",
+    "timestamp_utc": "2026-11-12T19:11:55.567584+00:00",
+    "git_head": "61fae26",
+    "command": "python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/repo_sync.py drift",
+    "exit_code": 0,
+    "duration_ms": 91.99,
+    "output_preview": "n any repo\",\n    \"lab_target_isolated\": \"space.nuvio.lab only used when nuvio_lab feature + lab=true\",\n    \"no_silent_runtime_override\": \"Invalid app IDs fail validation; no silent override of production app ID\",\n    \"rollback_safe\": \"Rollback requires no production Nuvio application modification\",\n    \"no_duplicate_routing\": \"No extra media launcher or duplicate routing layer\",\n    \"receipt_required\": \"Every cross-repo patch carries a tamper-evident RCPT receipt\",\n    \"docs_sync\": \"Code changes in any repo require docs/xray/ sync in the same commit\"\n  },\n  \"receipt_id\": \"RCPT-C7F84FFD264E\"\n}"
+  },
+  {
+    "receipt_id": "RCPT-0824EDBE6270",
+    "timestamp_utc": "2026-11-12T19:11:54.945567+00:00",
+    "git_head": "61fae26",
+    "command": "/usr/bin/python3 /home/user/luma-webos-launcher/COUNCIL_STARTER_KIT/council_pipeline.py full --workers 2",
+    "exit_code": 0,
+    "duration_ms": 731.99,
+    "output_preview": "ion\n  receipt=RCPT-24E1B79EA7AB exit=0\n[STAGE 6] repo_sync.py drift \u2014 cross-repo drift detection\n  receipt=RCPT-5E0FE32500CF exit=0\n\n======================================================================\nCOUNCIL PIPELINE COMPLETE \u2014 693.26ms\n  All stages passed: True\n  Stages completed: 4\n  Stage 1 [PASS] nexus_sync: receipt=RCPT-EE955FD5EB80\n  Stage 2 [PASS] aegis_hunt: receipt=RCPT-1DD44685B51E\n  Stage 3 [PASS] tool_latent_compress_hunt: receipt=RCPT-24E1B79EA7AB\n  Stage 4 [PASS] repo_sync_drift: receipt=RCPT-5E0FE32500CF\n======================================================================"
   }
 ]

@@ -52,8 +52,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", ".")).resolve()
 KIT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(KIT_DIR.parent))).resolve()
 
 SCRIPT_MAP = {
     # Index / forensics

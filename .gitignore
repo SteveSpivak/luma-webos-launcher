@@ -16,5 +16,6 @@ target/
 .agent-kb/*receipts.json
 .agent-kb/latent_handles.sqlite
 .agent-kb/bench_synthetic.log
+COUNCIL_STARTER_KIT/.agent-kb/
 mutants/
 __pycache__/

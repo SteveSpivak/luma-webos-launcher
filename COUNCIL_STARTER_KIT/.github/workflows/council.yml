@@ -1,0 +1,72 @@
+name: Council Forensics & Bug Hunt
+
+on:
+  push:
+    branches: [main, "arena/*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  council-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install optional binutils
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y binutils bsdmainutils
+
+      - name: Copy Council Starter Kit into repo
+        run: |
+          cp -r .github/workflows/council_starter_kit/* . 2>/dev/null || true
+          chmod +x scripts/*.py 2>/dev/null || true
+
+      - name: Run Council full pipeline
+        id: council
+        run: |
+          python3 scripts/council_entry.py full --workers 4 \
+            --forensics-target "scripts/arena_guard.py:138-145" \
+            --verify-fix-file scripts/hyper_runner.py \
+            || echo "COUNCIL_PIPELINE_EXIT=$?" >> $GITHUB_OUTPUT
+
+      - name: Run bug hunt on changed files
+        id: hunt
+        run: |
+          python3 scripts/council_entry.py hunt --path . || true
+
+      - name: Report results
+        run: |
+          echo "Council pipeline completed."
+          cat docs/xray/_data/execution_receipts.json 2>/dev/null | tail -20 || true
+
+  # Optional: Rust cargo gates (requires Rust toolchain — self-hosted runner)
+  cargo-gates:
+    runs-on: self-hosted  # or ubuntu-latest with rust installed
+    needs: council-pipeline
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: cargo check
+        run: cargo check --features nuvio,nuvio_lab
+
+      - name: cargo test
+        run: cargo test --all-features
+
+      - name: cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: cargo fmt check
+        run: cargo fmt --all --check
