@@ -231,11 +231,26 @@ def run_full_pipeline(args) -> int:
         "all_passed": True,
     }
 
-    # Stage 0: Constraint validation (Nuvio user constraints)
+    # Stage 0: Constraint validation (Nuvio user constraints) — FAIL-FAST GATE
     s0 = stage_0_validate_constraints()
     pipeline_receipt["stages"].append(s0)
     if s0["exit_code"] != 0:
         pipeline_receipt["all_passed"] = False
+        elapsed = round((time.monotonic() - t0) * 1000, 2)
+        pipeline_receipt["total_duration_ms"] = elapsed
+        pipeline_receipt["stages_completed"] = len(pipeline_receipt["stages"])
+        pipeline_receipt["halted_at"] = "stage_0_constraint_validation"
+        save_pipeline_receipt(pipeline_receipt)
+        print("\n[PIPELINE HALTED] Stage 0 constraint validation failed — "
+              "not proceeding to subsequent stages.\n")
+        print(f"COUNCIL PIPELINE HALTED — {elapsed}ms")
+        print(f"  All stages passed: False")
+        print(f"  Stages completed: {pipeline_receipt['stages_completed']}")
+        for i, s in enumerate(pipeline_receipt["stages"], 1):
+            status = "PASS" if s["exit_code"] == 0 else "FAIL"
+            print(f"  Stage {i} [{status}] {s['label']}: receipt={s['receipt_id']}")
+        print("=" * 70)
+        return 1
 
     # Stage 1: Nexus sync
     s1 = stage_1_nexus_sync(workers=args.workers)

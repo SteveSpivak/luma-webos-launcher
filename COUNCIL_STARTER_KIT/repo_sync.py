@@ -104,7 +104,7 @@ def detect_drift_locally():
         source_files = []
         for ext in DRIFT_SOURCE_EXTENSIONS:
             source_files.extend(REPO_ROOT.rglob(f"*{ext}"))
-        for src_file in sorted(source_files)[:200]:
+        for src_file in sorted(source_files):
             if ".git" in str(src_file) or "node_modules" in str(src_file):
                 continue
             try:

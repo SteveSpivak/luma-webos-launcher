@@ -3569,7 +3569,7 @@ mod nuvio {
     #[test]
     fn nuvio_app_id_production_returns_webos() {
         assert_eq!(
-            crate::platform::nuvio_app_id(false),
+            crate::platform::nuvio_app_id(false).unwrap(),
             crate::platform::NUVIO_APP_ID
         );
     }
@@ -3579,8 +3579,21 @@ mod nuvio {
     #[test]
     fn nuvio_app_id_lab_returns_lab() {
         assert_eq!(
-            crate::platform::nuvio_app_id(true),
+            crate::platform::nuvio_app_id(true).unwrap(),
             crate::platform::NUVIO_LAB_APP_ID
+        );
+    }
+
+    /// `nuvio_app_id(true)` fails closed when `nuvio_lab` feature is NOT compiled in.
+    #[cfg(all(feature = "nuvio", not(feature = "nuvio_lab")))]
+    #[test]
+    fn nuvio_app_id_lab_without_feature_fails_closed() {
+        let result = crate::platform::nuvio_app_id(true);
+        assert!(result.is_err());
+        assert!(
+            result.unwrap_err().contains("nuvio_lab feature not enabled"),
+            "error message should mention missing nuvio_lab feature, got: {:?}",
+            result.unwrap_err()
         );
     }
 

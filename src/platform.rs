@@ -302,21 +302,25 @@ pub fn nuvio_launch_params(content_target: &str) -> Value {
 /// Returns the Nuvio application ID for the given target mode.
 /// Production (`lab = false`) always uses `space.nuvio.webos`.
 /// Lab (`lab = true`) uses `space.nuvio.lab` behind the `nuvio_lab` feature.
+/// Fails closed: lab mode without the `nuvio_lab` feature returns an error
+/// instead of silently falling back to the production app ID.
 /// Invalid app IDs are rejected by `valid_app_id()` before any TV call.
-pub fn nuvio_app_id(lab: bool) -> &'static str {
+pub fn nuvio_app_id(lab: bool) -> Result<&'static str, String> {
     if lab {
         #[cfg(feature = "nuvio_lab")]
         {
-            return NUVIO_LAB_APP_ID;
+            return Ok(NUVIO_LAB_APP_ID);
         }
         #[cfg(not(feature = "nuvio_lab"))]
         {
-            // Lab feature not compiled in: fall back to production to avoid
-            // silent runtime override of the production target.
-            return NUVIO_APP_ID;
+            return Err(
+                "nuvio_app_id: lab=True but nuvio_lab feature not enabled — \
+                 refusing to silently fall back to production app ID \
+                 (space.nuvio.webos)".to_owned(),
+            );
         }
     }
-    NUVIO_APP_ID
+    Ok(NUVIO_APP_ID)
 }
 
 /// Launch parameters for the isolated Nuvio lab application.
