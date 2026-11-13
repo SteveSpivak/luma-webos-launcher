@@ -52,7 +52,8 @@ IGNORE_DIRS = {
 # Source file extensions supported by the bug hunter.
 PY_EXTENSIONS = {".py"}
 TSJS_EXTENSIONS = {".ts", ".tsx", ".js", ".jsx"}
-ALL_SOURCE_EXTENSIONS = PY_EXTENSIONS | TSJS_EXTENSIONS
+RS_EXTENSIONS = {".rs"}
+ALL_SOURCE_EXTENSIONS = PY_EXTENSIONS | TSJS_EXTENSIONS | RS_EXTENSIONS
 
 
 # ---------------------------------------------------------------------------
@@ -132,6 +133,13 @@ TSJS_CALL_RE = re.compile(r"(\w[\w.]*)\s*\([^)]*\)")
 TSJS_TAUTOLOGY_RE = re.compile(r"===\s*(\w[\w.]*)\s*===\s*\1")
 TSJS_REDUNDANT_BOOL_RE = re.compile(r"(\w[\w.]*)\s*&&\s*\1|(\w[\w.]*)\s*\|\|\s*\1")
 TSJS_OPTIONAL_ACCESS_RE = re.compile(r"\.\w+(?:\.[\w]+)*")  # property access chains
+
+# Rust-specific patterns
+RS_TAUTOLOGY_RE = re.compile(r"==\s*(\w[\w.]*)\s*==\s*\1")
+RS_REDUNDANT_BOOL_RE = re.compile(r"(\w[\w.]*)\s*&&\s*\1|(\w[\w.]*)\s*\|\|\s*\1")
+# .unwrap() without a preceding is_some()/is_none() check on the same line
+RS_UNWRAP_WITHOUT_GUARD_RE = re.compile(r"\.unwrap\(\s*\)")
+RS_OPTION_CHECK_RE = re.compile(r"\bis_some\(\s*\)|\bis_none\(\s*\)")
 
 
 def scan_tsjs_file(rel_path: str, source: str) -> dict:
@@ -265,6 +273,93 @@ def scan_tsjs_file(rel_path: str, source: str) -> dict:
                 "is_awaited": "await" in stripped,
                 "in_try": in_try,
                 "return_used": return_used,
+            })
+
+    total_funcs = sum(len(v) for v in func_defs.values())
+    total_sites = sum(len(v) for v in call_sites.values())
+    return {
+        "rel": rel_path,
+        "functions_modeled": total_funcs,
+        "call_sites_cross_checked": total_sites,
+        "total_anomalies_found": len(anomalies),
+        "anomalies": rank_anomalies(anomalies),
+        "func_defs": dict(func_defs),
+        "call_sites": dict(call_sites),
+    }
+
+
+def scan_rs_file(rel_path: str, source: str) -> dict:
+    """Scan a Rust source file for bugs using regex + structural patterns.
+
+    Detects:
+      - Tautological comparison: x == x
+      - Redundant boolean: a && a or a || a
+      - .unwrap() without an is_some()/is_none() guard (analogous to
+        missing optional-chaining in TS/JS — may panic on None)
+    """
+    anomalies: list[dict] = []
+    func_defs: dict[str, list[dict]] = collections.defaultdict(list)
+    call_sites: dict[str, list[dict]] = collections.defaultdict(list)
+    lines = source.splitlines()
+
+    for idx, line in enumerate(lines, start=1):
+        stripped = line.strip()
+
+        # ---- Tautological comparison: x == x ----
+        for m in RS_TAUTOLOGY_RE.finditer(stripped):
+            anomalies.append({
+                "severity": "HIGH",
+                "category": "TAUTOLOGICAL_COMPARISON_COPY_PASTE",
+                "location": f"{rel_path}:L{idx}",
+                "detail": (
+                    "Expression compares identical subtrees on both sides "
+                    "(probable copy-paste slip)."
+                ),
+            })
+
+        # ---- Redundant boolean: a && a or a || a ----
+        for m in RS_REDUNDANT_BOOL_RE.finditer(stripped):
+            anomalies.append({
+                "severity": "HIGH",
+                "category": "REDUNDANT_BOOLEAN_SUBEXPRESSION",
+                "location": f"{rel_path}:L{idx}",
+                "detail": (
+                    "Boolean operator contains duplicate identical condition."
+                ),
+            })
+
+        # ---- .unwrap() without is_some()/is_none() guard ----
+        if RS_UNWRAP_WITHOUT_GUARD_RE.search(stripped):
+            if not RS_OPTION_CHECK_RE.search(stripped):
+                anomalies.append({
+                    "severity": "MEDIUM",
+                    "category": "RS_UNWRAP_WITHOUT_OPTION_GUARD",
+                    "location": f"{rel_path}:L{idx}",
+                    "detail": (
+                        ".unwrap() called without an is_some()/is_none() "
+                        "guard on the same line — may panic on None."
+                    ),
+                })
+
+        # ---- Rust function definitions: fn name(args) -> Type { ----
+        for m in re.finditer(r"(?:async\s+)?fn\s+(\w+)\s*\(([^)]*)\)", stripped):
+            name = m.group(1)
+            args_str = m.group(2) or ""
+            arg_names = [
+                a.strip().split(":")[0].strip()
+                for a in args_str.split(",")
+                if a.strip() and "_" not in a.split(":")[0]
+            ]
+            func_defs[name].append({
+                "file": rel_path,
+                "line": idx,
+                "is_async": "async" in stripped,
+                "min_args": len(arg_names),
+                "max_args": len(arg_names),
+                "has_kwarg": False,
+                "arg_names": arg_names,
+                "kwonly_names": [],
+                "mixed_nullable_return": False,
             })
 
     total_funcs = sum(len(v) for v in func_defs.values())
@@ -493,6 +588,8 @@ def scan_source_file(rel_path: str, source: str) -> dict:
         return ASTScanner(rel_path, source).run()
     elif ext in TSJS_EXTENSIONS:
         return scan_tsjs_file(rel_path, source)
+    elif ext in RS_EXTENSIONS:
+        return scan_rs_file(rel_path, source)
     else:
         return {
             "rel": rel_path,
@@ -634,7 +731,7 @@ def scan_repo_for_bugs(target_subpath: str = ".",
                             ),
                         })
                 if (
-                    d["is_async"]
+                    d.get("is_async", False)
                     and not s["is_awaited"]
                     and not s["return_used"]
                 ):
@@ -1322,6 +1419,37 @@ def extract_tsjs_signatures_map(tsjs_text: str) -> dict:
     return sigs
 
 
+def extract_rs_signatures_map(rs_text: str) -> dict:
+    """Extract per-function signature contract from Rust source.
+
+    Matches `fn name(args) -> Type {` and `pub fn name(args) -> Type {`.
+    """
+    sigs: dict[str, dict] = {}
+    lines = rs_text.splitlines()
+
+    for idx, line in enumerate(lines, start=1):
+        stripped = line.strip()
+
+        for m in re.finditer(r"(?:async\s+)?fn\s+(\w+)\s*\(([^)]*)\)", stripped):
+            name = m.group(1)
+            args_str = m.group(2) or ""
+            arg_names = [
+                a.strip().split(":")[0].strip()
+                for a in args_str.split(",")
+                if a.strip() and "_" not in a.split(":")[0]
+            ]
+            sigs[name] = {
+                "is_async": "async" in stripped,
+                "min_args": len(arg_names),
+                "max_args": len(arg_names),
+                "required_args": list(arg_names),
+                "all_arg_names": set(arg_names),
+                "has_kwarg": False,
+            }
+
+    return sigs
+
+
 def cmd_verify_fix(args) -> int:
     """Proves uncommitted changes to <file> violate 0 Liskov contracts across
     all repo callers, and introduce 0 new AST anomalies.
@@ -1346,6 +1474,9 @@ def cmd_verify_fix(args) -> int:
     elif ext in TSJS_EXTENSIONS:
         old_sigs = extract_tsjs_signatures_map(old_text) if old_text else {}
         new_sigs = extract_tsjs_signatures_map(new_text)
+    elif ext in RS_EXTENSIONS:
+        old_sigs = extract_rs_signatures_map(old_text) if old_text else {}
+        new_sigs = extract_rs_signatures_map(new_text)
 
     liskov_violations: list[dict] = []
 

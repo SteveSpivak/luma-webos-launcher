@@ -3588,12 +3588,11 @@ mod nuvio {
     #[cfg(all(feature = "nuvio", not(feature = "nuvio_lab")))]
     #[test]
     fn nuvio_app_id_lab_without_feature_fails_closed() {
-        let result = crate::platform::nuvio_app_id(true);
-        assert!(result.is_err());
+        let error = crate::platform::nuvio_app_id(true)
+            .expect_err("lab mode must fail when feature is disabled");
         assert!(
-            result.unwrap_err().contains("nuvio_lab feature not enabled"),
-            "error message should mention missing nuvio_lab feature, got: {:?}",
-            result.unwrap_err()
+            error.contains("nuvio_lab feature not enabled"),
+            "unexpected error: {error}"
         );
     }
 
