@@ -62,7 +62,7 @@ pub const HOME_ROW_MAX: usize = 20;
 
 /// Whether rows of this source end with the View Library card.
 pub fn has_library(source: &str) -> bool {
-    matches!(source, "moonlight" | "jellyfin" | "plex")
+    matches!(source, "moonlight" | "jellyfin" | "plex" | "nuvio")
 }
 
 /// Posters the n-th visible row shows on Home (the library card not counted).
@@ -106,10 +106,11 @@ fn visible_rows(state: &crate::state::State) -> impl Iterator<Item = (usize, &St
 }
 
 /// (id, name, available now).
-pub const SOURCES: [(&str, &str, bool); 3] = [
+pub const SOURCES: [(&str, &str, bool); 4] = [
     ("moonlight", "Moonlight", true),
     ("jellyfin", "Jellyfin", true),
     ("plex", "Plex", true),
+    ("nuvio", "Nuvio", true),
 ];
 /// Games stack categories (Moonlight); history is kept by Luma.
 pub const GAME_COLLECTIONS: [(&str, &str); 4] = [
@@ -172,6 +173,18 @@ pub fn collection_choices(state: &crate::state::State, stack: usize) -> Vec<(Str
             .chain(state.plex_views.iter().cloned())
             .collect();
     }
+    if state
+        .preferences
+        .stacks
+        .get(stack)
+        .is_some_and(|s| s.source == "nuvio")
+    {
+        return vec![
+            ("continue-watching".to_owned(), "Continue Watching".to_owned()),
+            ("watchlist".to_owned(), "Watchlist".to_owned()),
+            ("library".to_owned(), "Library".to_owned()),
+        ];
+    }
     vec![]
 }
 
@@ -218,6 +231,15 @@ pub fn collection_label(stack: &StackConfig) -> String {
             .find(|c| c.0 == stack.collection)
             .map_or_else(|| stack.list_title.clone(), |c| c.1.to_owned());
     }
+    if stack.source == "nuvio" {
+        return match stack.collection.as_str() {
+            "continue-watching" => "Continue Watching",
+            "watchlist" => "Watchlist",
+            "library" => "Library",
+            _ => stack.list_title.as_str(),
+        }
+        .to_owned();
+    }
     stack.list_title.clone()
 }
 
@@ -255,4 +277,17 @@ pub struct StackItem {
     pub poster: Option<String>,
     /// Media item id (0 for placeholders).
     pub id: i64,
+    /// Nivío deep-link target (e.g. "nuvio://tmdb/movie/603"). Empty for
+    /// non-Nivío sources; set by the Nivío consumer service so cards can
+    /// launch via Effect::NuvioLaunch (Phase 1).
+    pub content_target: String,
+    /// Watch progress in permille (0..1000; 645 = 64.5% watched). Forwarded
+    /// from the LCKV binary bridge via `nuvio::bridge_items()`.
+    pub progress_permille: u16,
+    /// Metahub CDN poster URL (2:3 vertical), derived from a "tt" (IMDb) id
+    /// in `nuvio::bridge_items()`. Empty when no artwork URL is available.
+    pub poster_url: Option<String>,
+    /// Metahub CDN still URL (16:9 landscape), derived from a "tt" (IMDb) id
+    /// in `nuvio::bridge_items()`. Used for Continue Watching card backgrounds.
+    pub still_url: Option<String>,
 }

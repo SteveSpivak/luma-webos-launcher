@@ -229,6 +229,11 @@ pub enum Target {
     PlayerNextEpisode,
     PlayerClose,
     PlayerPanelClose,
+    /// Launch a Nuvio title by content target (feature `nuvio`, default off).
+    /// Raised when clicking a Nuvio card; handled in `main.rs` →
+    /// `platform.send(Request::NuvioLaunch { .. })`.
+    #[cfg(feature = "nuvio")]
+    NuvioLaunch(String),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -371,6 +376,11 @@ pub enum Effect {
     MoonlightRefilter,
     /// Look the game up on Steam for its card (id, title).
     GameInfo(i64, String),
+    /// Launch a Nuvio title by content target (feature `nuvio`, default off).
+    /// Raised by `Target::StackCard` when clicking a Nuvio card; handled in
+    /// `main.rs` → `platform.send(Request::NuvioLaunch { .. })`.
+    #[cfg(feature = "nuvio")]
+    NuvioLaunch { content_target: String },
     /// Songs and cover of a Jellyfin album card.
     AlbumDetails(i64),
     /// Play an album from this song, in order or shuffled.
@@ -512,6 +522,10 @@ pub struct State {
     pub home_scroll_goal: f32,
     /// Horizontal offset of the focused stack row (row, current, goal).
     pub stack_scroll: (usize, f32, f32),
+    /// Persistent vertical navigation corridor: only updates on Left/Right,
+    /// stays locked during Up/Down to prevent horizontal focus drift across
+    /// asymmetric stack rows (Nivío 16:9 vs Jellyfin/Plex 2:3 vs Apps square).
+    pub focus_corridor_x: f32,
     /// A row the focus just left glides back to its first card: row, offset, start.
     pub stack_return: Option<(usize, f32, Instant)>,
     /// Rubber-band kick at a scroll edge: axis, signed size, start.
@@ -626,6 +640,60 @@ pub struct State {
     pub widget_return: Option<Target>,
 }
 
+/// Layout metric for one stack card in screen space, used by the vertical
+/// focus corridor to avoid horizontal drift across asymmetric rows.
+#[derive(Debug, Clone, Copy)]
+pub struct CardLayoutMetric {
+    pub index: usize,
+    pub local_x: f32,
+    pub width: f32,
+}
+
+/// Resolves the optimal target card index when transitioning vertically
+/// (Up/Down) between asymmetric rows (e.g., 16:9 Nivío cards <-> 2:3
+/// Jellyfin/Plex posters <-> square App icons).
+///
+/// Uses `corridor_screen_x` (preserved across vertical moves) to completely
+/// eliminate horizontal focus drift when pressing Up -> Down -> Up.
+pub fn resolve_vertical_stack_target(
+    corridor_screen_x: f32,
+    source_screen_left: f32,
+    source_screen_right: f32,
+    target_row_scroll_x: f32,
+    target_cards: &[CardLayoutMetric],
+) -> Option<usize> {
+    if target_cards.is_empty() {
+        return None;
+    }
+
+    let source_w = (source_screen_right - source_screen_left).max(1.0);
+    let mut best_idx = 0;
+    let mut best_cost = f32::MAX;
+
+    for card in target_cards {
+        let cand_left = card.local_x - target_row_scroll_x;
+        let cand_right = cand_left + card.width;
+        let cand_center = cand_left + card.width * 0.5;
+
+        let corridor_dist = (cand_center - corridor_screen_x).abs();
+
+        let overlap = (source_screen_right.min(cand_right)
+            - source_screen_left.max(cand_left))
+            .max(0.0);
+        let min_w = source_w.min(card.width.max(1.0));
+        let overlap_ratio = overlap / min_w;
+
+        let cost = corridor_dist - (overlap_ratio * 180.0);
+
+        if cost < best_cost {
+            best_cost = cost;
+            best_idx = card.index;
+        }
+    }
+
+    Some(best_idx)
+}
+
 impl State {
     pub fn new(mut preferences: Preferences) -> Self {
         preferences.accent.normalized();
@@ -708,6 +776,7 @@ impl State {
             scroll_goal: 0.,
             home_scroll_goal: 0.,
             stack_scroll: (0, 0., 0.),
+            focus_corridor_x: 960.,
             stack_return: None,
             bounce: None,
             scroll_last: Instant::now(),
@@ -2128,6 +2197,61 @@ impl State {
         self.dirty = true;
     }
 
+/// Record the current card's center as the vertical focus corridor so Up/Down
+/// moves land on the best overlapping card in the target row.
+///
+/// The corridor is stored in estimated screen-space pixels ([72..960+]) so
+/// that pressing Down from a deeply scrolled row lands on the visually
+/// aligned card in an unscrolled target row, regardless of scroll depth.
+fn update_corridor(&mut self, row: usize, index: usize) {
+    if let Some(stack_idx) = crate::stacks::row_stack(self, row) {
+        let shape = self.preferences.stacks[stack_idx].shape;
+        let (card_w, _) = shape.size();
+        let pitch = shape.pitch();
+        // Card center in unscrolled row-local coordinates.
+        let local_center = crate::state::HOME_STRIP_LEFT
+            + index as f32 * pitch
+            + card_w * 0.5;
+        // Estimate row camera scroll: camera keeps focus within viewport,
+        // centered at 960.0 (half of 1920p width).
+        let est_scroll_x = (local_center - 960.0).max(0.0);
+        self.focus_corridor_x = local_center - est_scroll_x;
+    }
+}
+
+/// Compute the best card index in `target_row` aligned to the vertical focus
+/// corridor. Falls back to card 0 when no corridor data is usable.
+fn vertical_stack_target(&self, target_row: usize) -> Option<usize> {
+    let stack_idx = crate::stacks::row_stack(self, target_row)?;
+    let shape = self.preferences.stacks[stack_idx].shape;
+    let (card_w, _) = shape.size();
+    let pitch = shape.pitch();
+    // Target rows start at scroll 0 (we don't track per-row scroll). The
+    // corridor holds absolute screen-space X from update_corridor(), so
+    // comparing against target-row cards at their natural screen position
+    // keeps vertical focus on the same visual column.
+    let target_scroll_x = 0.;
+    let shown = crate::stacks::row_shown(self, target_row);
+    let mut cards: Vec<CardLayoutMetric> = Vec::new();
+    for i in 0..shown {
+        cards.push(CardLayoutMetric {
+            index: i,
+            local_x: crate::state::HOME_STRIP_LEFT + i as f32 * pitch,
+            width: card_w,
+        });
+    }
+    if cards.is_empty() {
+        return None;
+    }
+    resolve_vertical_stack_target(
+        self.focus_corridor_x,
+        self.focus_corridor_x - card_w * 0.5,
+        self.focus_corridor_x + card_w * 0.5,
+        target_scroll_x,
+        &cards,
+    )
+}
+
     pub fn direction(&mut self, direction: Direction, controls: &[Control]) -> Vec<Effect> {
         if self.ambient_on() {
             // Left and Right flip the clip, as on the caption; the rest wakes.
@@ -2460,13 +2584,22 @@ impl State {
                 };
                 match direction {
                     Direction::Left if index > 0 => {
+                        self.update_corridor(row, index);
                         self.focus(Target::StackCard(row, index - 1), controls)
                     }
                     Direction::Right if index + 1 < in_row(row) => {
+                        self.update_corridor(row, index);
                         self.focus(Target::StackCard(row, index + 1), controls)
                     }
-                    // Changing rows always lands on the first card of the new row.
-                    Direction::Up if row > 0 => self.focus(Target::StackCard(row - 1, 0), controls),
+                    // Changing rows lands on the card best aligned to the
+                    // persistent vertical focus corridor.
+                    Direction::Up if row > 0 => {
+                        if let Some(idx) = self.vertical_stack_target(row - 1) {
+                            self.focus(Target::StackCard(row - 1, idx), controls)
+                        } else {
+                            self.focus(Target::StackCard(row - 1, 0), controls)
+                        }
+                    }
                     Direction::Up => {
                         let apps = self.apps();
                         if let Some(app) = apps.get(index.min(apps.len().saturating_sub(1))) {
@@ -2475,7 +2608,11 @@ impl State {
                         }
                     }
                     Direction::Down if in_row(row + 1) > 0 => {
-                        self.focus(Target::StackCard(row + 1, 0), controls)
+                        if let Some(idx) = self.vertical_stack_target(row + 1) {
+                            self.focus(Target::StackCard(row + 1, idx), controls)
+                        } else {
+                            self.focus(Target::StackCard(row + 1, 0), controls)
+                        }
                     }
                     _ => {}
                 }
@@ -3663,6 +3800,18 @@ impl State {
                     return self.open_library(row, index);
                 }
                 let items = self.stack_items.get(stack).map_or(&[][..], Vec::as_slice);
+                // Nivío stack cards carry a content_target; launch via Phase 1.
+                #[cfg(feature = "nuvio")]
+                if self.preferences.stacks[stack].source == "nuvio" {
+                    if let Some(item) = items.get(index) {
+                        if !item.content_target.is_empty() {
+                            return vec![Effect::NuvioLaunch {
+                                content_target: item.content_target.clone(),
+                            }];
+                        }
+                    }
+                    return vec![];
+                }
                 if self.preferences.stacks[stack].source == "moonlight" {
                     if let Some(item) = items.get(index).cloned() {
                         let hdr = self
@@ -4365,6 +4514,16 @@ impl State {
             Target::TvSettings => return vec![Effect::Launch("com.palm.app.settings".into())],
             Target::App(id) | Target::Input(id) if !self.launching => {
                 return vec![Effect::Launch(id)];
+            }
+            // Launch a Nuvio title directly into its detail page. Focus is
+            // left untouched, so Back out of Nuvio returns to Luma with the
+            // same focus, and a repeated launch while one is in flight is
+            // ignored by the `!self.launching` guard.
+            #[cfg(feature = "nuvio")]
+            Target::NuvioLaunch(ref content_target) if !self.launching => {
+                return vec![Effect::NuvioLaunch {
+                    content_target: content_target.clone(),
+                }];
             }
             Target::Filter(index) => {
                 // "All" (0) is a tab like the others: OK selects, never toggles off.

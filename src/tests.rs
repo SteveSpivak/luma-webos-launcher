@@ -4,8 +4,12 @@ use crate::{
     state::{Direction, Effect, Overlay, Page, State, Target},
     storage, view,
 };
+#[cfg(feature = "nuvio")]
+use crate::platform::{Platform, Request};
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf};
+#[cfg(feature = "nuvio")]
+use std::time::Duration;
 
 fn ready() -> State {
     let mut state = State::new(Preferences::default());
@@ -1419,7 +1423,9 @@ fn video_wallpaper_mode_keeps_its_setting() {
     let mut preferences = crate::model::Preferences {
         background: "video".into(),
         video_index: 7,
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     };
     preferences.sanitize();
     assert_eq!(preferences.background, "video");
@@ -3115,7 +3121,9 @@ fn heading_text_size_bounds_keep_new_upper_limits_after_prefs_roundtrip() {
     let mut prefs = Preferences {
         heading_size_pct: 255,
         text_size_pct: 255,
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     };
     prefs.sanitize();
     assert_eq!(prefs.heading_size_pct, 170);
@@ -3180,7 +3188,9 @@ fn stack_card_opens_title_card_and_back_returns_to_the_card() {
     let mut state = ready();
     state.preferences.stacks = vec![StackConfig {
         source: "jellyfin".into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }];
     state.stack_items = vec![
         (1..=3)
@@ -3188,6 +3198,9 @@ fn stack_card_opens_title_card_and_back_returns_to_the_card() {
                 title: format!("Film {id}"),
                 poster: None,
                 id,
+                progress_permille: 0,
+            poster_url: None,
+            still_url: None
             })
             .collect(),
     ];
@@ -3200,7 +3213,9 @@ fn stack_card_opens_title_card_and_back_returns_to_the_card() {
         title: "Film 2".into(),
         subtitles: vec![("English".into(), "http://x/en.srt".into())],
         qualities: vec!["1080p".into(), "720p".into()],
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     });
     // The card is drawn on top and takes every control.
     let targets: Vec<Target> = controls(&state).into_iter().map(|c| c.target).collect();
@@ -3240,12 +3255,17 @@ fn title_card_waits_for_details_then_comes_in_without_the_stand_in_title() {
     let mut state = ready();
     state.preferences.stacks = vec![StackConfig {
         source: "jellyfin".into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }];
     state.stack_items = vec![vec![StackItem {
         title: "Фильм / Film".into(),
         poster: None,
         id: 7,
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }]];
     state.focus = Target::StackCard(0, 0);
     state.activate();
@@ -3260,7 +3280,9 @@ fn title_card_waits_for_details_then_comes_in_without_the_stand_in_title() {
     state.movie_details(Detail {
         id: 7,
         title: "Фильм".into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     });
     // The details start the entrance; it ends with everything in place.
     let m = state.movie.as_mut().unwrap();
@@ -3310,7 +3332,9 @@ fn ha_entity(id: &str, name: &str, state: &str) -> crate::smart_home::Entity {
         name: name.into(),
         state: state.into(),
         domain: id.split_once('.').unwrap().0.into(),
-        ..Default::default()
+        progress_permille: 0,
+            poster_url: None,
+            still_url: None
     }
 }
 
@@ -3459,4 +3483,254 @@ fn unsupported_saved_media_source_is_ignored_without_losing_other_settings() {
     assert_eq!(prefs.stacks[0].source, "jellyfin");
     assert_eq!(prefs.stacks[0].collection, "recent");
     assert!(prefs.luma_player);
+}
+
+#[cfg(feature = "nuvio")]
+mod nuvio {
+    use super::*;
+    use crate::nuvio::{Command, Service};
+    use crate::nuvio::Response as NuvioResponse;
+    use crate::platform::Response;
+
+    #[test]
+    fn nuvio_target_validates_movie_and_series_identifiers() {
+        assert_eq!(
+            crate::platform::validate_nuvio_target("nuvio://tmdb/movie/603"),
+            Ok("nuvio://tmdb/movie/603".to_owned())
+        );
+        assert_eq!(
+            crate::platform::validate_nuvio_target("nuvio://tmdb/tv/129973"),
+            Ok("nuvio://tmdb/tv/129973".to_owned())
+        );
+        assert_eq!(
+            crate::platform::validate_nuvio_target("nuvio://tmdb/tv/1"),
+            Ok("nuvio://tmdb/tv/1".to_owned())
+        );
+    }
+
+    #[test]
+    fn nuvio_target_rejects_malformed_targets() {
+        for target in [
+            "",
+            "nuvio://tmdb/movie/",
+            "nuvio://tmdb/movie/abc",
+            "nuvio://tmdb/movie/603/",
+            "nuvio://tmdb/movie/603/extra",
+            "nuvio://tmdb/episode/603",
+            "nuvio://tmdb/movie/603?autoplay=1",
+            "nuvio://other/movie/603",
+            "NUVIO://TMDB/MOVIE/603",
+            "nuvio://tmdb/movie/603 ",
+            "tmdb/movie/603",
+            "https://nuvio.example/movie/603",
+        ] {
+            assert!(
+                crate::platform::validate_nuvio_target(target).is_err(),
+                "unexpectedly accepted {target}"
+            );
+        }
+    }
+
+    #[test]
+    fn nuvio_app_id_is_fixed_and_valid() {
+        assert_eq!(crate::platform::NUVIO_APP_ID, "space.nuvio.webos");
+        assert!(crate::model::valid_app_id(crate::platform::NUVIO_APP_ID));
+    }
+
+    #[test]
+    fn nuvio_launch_params_match_the_contract() {
+        let expected = serde_json::json!({
+            "id": "space.nuvio.webos",
+            "params": {"contentTarget": "nuvio://tmdb/movie/603"},
+        });
+        assert_eq!(
+            crate::platform::nuvio_launch_params("nuvio://tmdb/movie/603"),
+            expected,
+        );
+    }
+
+    /// Lab app ID is distinct from production and passes app-ID validation.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_lab_app_id_is_distinct_and_valid() {
+        assert_eq!(
+            crate::platform::NUVIO_LAB_APP_ID,
+            "space.nuvio.lab"
+        );
+        assert_ne!(
+            crate::platform::NUVIO_LAB_APP_ID,
+            crate::platform::NUVIO_APP_ID
+        );
+        assert!(crate::model::valid_app_id(crate::platform::NUVIO_LAB_APP_ID));
+    }
+
+    /// `nuvio_app_id(false)` always returns production ID.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_app_id_production_returns_webos() {
+        assert_eq!(
+            crate::platform::nuvio_app_id(false).unwrap(),
+            crate::platform::NUVIO_APP_ID
+        );
+    }
+
+    /// `nuvio_app_id(true)` returns lab ID when feature compiled in.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_app_id_lab_returns_lab() {
+        assert_eq!(
+            crate::platform::nuvio_app_id(true).unwrap(),
+            crate::platform::NUVIO_LAB_APP_ID
+        );
+    }
+
+    /// `nuvio_app_id(true)` fails closed when `nuvio_lab` feature is NOT compiled in.
+    #[cfg(all(feature = "nuvio", not(feature = "nuvio_lab")))]
+    #[test]
+    fn nuvio_app_id_lab_without_feature_fails_closed() {
+        let error = crate::platform::nuvio_app_id(true)
+            .expect_err("lab mode must fail when feature is disabled");
+        assert!(
+            error.contains("nuvio_lab feature not enabled"),
+            "unexpected error: {error}"
+        );
+    }
+
+    /// Lab launch params use the lab app ID.
+    #[cfg(all(feature = "nuvio", feature = "nuvio_lab"))]
+    #[test]
+    fn nuvio_lab_launch_params_match_contract() {
+        let expected = serde_json::json!({
+            "id": "space.nuvio.lab",
+            "params": {"contentTarget": "nuvio://tmdb/movie/603"},
+        });
+        assert_eq!(
+            crate::platform::nuvio_launch_params_lab("nuvio://tmdb/movie/603"),
+            expected,
+        );
+    }
+
+    #[test]
+    fn nuvio_launch_routes_through_the_platform_worker() {
+        let platform = Platform::new(true);
+        platform.send(Request::NuvioLaunch {
+            content_target: "nuvio://tmdb/movie/603".to_owned(),
+        });
+        match platform.receiver.recv_timeout(Duration::from_secs(5)) {
+            Ok(Response::Launched(Err(error))) => assert!(
+                error.contains("Native Luna services are only available in an ARM webOS build"),
+                "unexpected error: {error}"
+            ),
+            response => panic!("unexpected platform response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_invalid_target_is_rejected_before_reaching_tv_services() {
+        let platform = Platform::new(true);
+        platform.send(Request::NuvioLaunch {
+            content_target: "nuvio://tmdb/movie/not-an-id".to_owned(),
+        });
+        match platform.receiver.recv_timeout(Duration::from_secs(5)) {
+            Ok(Response::Launched(Err(error))) => {
+                assert_eq!(error, "Invalid Nuvio content target")
+            }
+            response => panic!("unexpected platform response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_duplicate_launch_is_blocked_while_launching() {
+        let mut state = ready();
+        state.launching = true;
+        state.focus = Target::NuvioLaunch("nuvio://tmdb/movie/603".to_owned());
+        assert!(state.activate().is_empty());
+    }
+
+    #[test]
+    fn nuvio_launch_keeps_focus_for_back_restoration() {
+        let mut state = ready();
+        state.focus = Target::NuvioLaunch("nuvio://tmdb/movie/603".to_owned());
+        let effects = state.activate();
+        assert_eq!(
+            effects,
+            vec![Effect::NuvioLaunch {
+                content_target: "nuvio://tmdb/movie/603".to_owned()
+            }]
+        );
+        // Activation requests the launch without moving focus: Back out of
+        // Nuvio returns to Luma with the same focus.
+        assert_eq!(
+            state.focus,
+            Target::NuvioLaunch("nuvio://tmdb/movie/603".to_owned())
+        );
+    }
+
+    /// --- Consumer-side tests for the Nivío stack service (Phase 2) ---
+
+    #[test]
+    fn nuvio_service_fetch_returns_continue_watching_items() {
+        let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(Command::Fetch(vec![
+            (0, "continue-watching".to_owned()),
+        ]));
+        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+            Ok(NuvioResponse::Items(index, items)) => {
+                assert_eq!(index, 0);
+                assert_eq!(items.len(), 1);
+                assert_eq!(items[0].title, "Example Movie");
+            }
+            response => panic!("unexpected response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_service_fetch_returns_empty_for_watchlist_and_library() {
+        let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(Command::Fetch(vec![
+            (0, "watchlist".to_owned()),
+            (1, "library".to_owned()),
+        ]));
+        match (
+            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+            service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)),
+        ) {
+            (
+                Ok(NuvioResponse::Items(0, items)),
+                Ok(NuvioResponse::Items(1, _)),
+            ) => {
+                assert!(items.is_empty());
+            }
+            (r1, r2) => panic!("unexpected responses {r1:?}, {r2:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_service_fetch_is_bounded_to_max_items() {
+        let service = Service::new(std::env::temp_dir().join("luma-test-posters"));
+        service.send(Command::Fetch(vec![
+            (0, "continue-watching".to_owned()),
+        ]));
+        match service.receiver.lock().unwrap().recv_timeout(Duration::from_secs(5)) {
+            Ok(NuvioResponse::Items(_, items)) => {
+                assert!(items.len() <= crate::stacks::HOME_ROW_MAX as usize);
+            }
+            response => panic!("unexpected response {response:?}"),
+        }
+    }
+
+    #[test]
+    fn nuvio_stack_item_has_content_target_field() {
+        let item = crate::stacks::StackItem {
+            title: "Test".into(),
+            poster: None,
+            id: 42,
+            content_target: "nuvio://tmdb/movie/603".into(),
+            progress_permille: 0,
+            poster_url: None,
+            still_url: None
+        };
+        assert_eq!(item.content_target, "nuvio://tmdb/movie/603");
+        assert_eq!(item.id, 42);
+    }
 }

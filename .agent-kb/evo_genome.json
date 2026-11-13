@@ -1,0 +1,72 @@
+{
+  "generation": 2,
+  "history": [
+    {
+      "gen": 1,
+      "timestamp": "2026-11-12T16:09:59.405272+00:00",
+      "files": 24,
+      "symbols": 148,
+      "hazards": 0,
+      "index_wall_sec": 0.1533
+    },
+    {
+      "gen": 2,
+      "timestamp": "2026-11-12T16:11:15.660403+00:00",
+      "files": 24,
+      "symbols": 148,
+      "hazards": 0,
+      "index_wall_sec": 0.1186
+    }
+  ],
+  "synthesized_guardrails": [],
+  "tuned_execution_policy": {
+    "platform": "Linux 6.1.158+ (x86_64)",
+    "safe_workers_w_star": 2,
+    "optimal_batch_size": 15,
+    "stall_ratio_observed": 0.0029,
+    "control_barrier_rationale": "Kleene Epistemic Guard: cgroup_memory is NULL or preemption > 0.30; amortizing boot tax via in-process batch=15"
+  },
+  "last_evolved_utc": "2026-11-12T16:11:15.660403+00:00",
+  "load_bearing_hub_symbols": [
+    {
+      "symbol": "append",
+      "caller_files": 16
+    },
+    {
+      "symbol": "len",
+      "caller_files": 16
+    },
+    {
+      "symbol": "Path",
+      "caller_files": 13
+    },
+    {
+      "symbol": "get",
+      "caller_files": 13
+    },
+    {
+      "symbol": "read_text",
+      "caller_files": 12
+    },
+    {
+      "symbol": "sorted",
+      "caller_files": 12
+    },
+    {
+      "symbol": "split",
+      "caller_files": 12
+    },
+    {
+      "symbol": "startswith",
+      "caller_files": 12
+    },
+    {
+      "symbol": "encode",
+      "caller_files": 11
+    },
+    {
+      "symbol": "exists",
+      "caller_files": 11
+    }
+  ]
+}

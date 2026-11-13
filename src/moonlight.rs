@@ -409,6 +409,7 @@ impl Service {
                                             id: g.id,
                                             title: g.title.clone(),
                                             poster: g.poster.clone(),
+                                            ..Default::default()
                                         })
                                         .collect();
                                     let _ = updates.send(Update::Items(items, games));
@@ -1449,6 +1450,7 @@ fn load_cached(root: &Path, uuid: &str) -> (Vec<StackItem>, Vec<Game>) {
             id: g.id,
             title: g.title.clone(),
             poster: g.poster.clone(),
+            ..Default::default()
         })
         .collect();
     (items, games)
@@ -1512,6 +1514,7 @@ fn fetch(link: &MoonlightLink, root: &Path) -> Result<(Vec<StackItem>, Vec<Game>
             id: g.id,
             title: g.title.clone(),
             poster: g.poster.clone(),
+            ..Default::default()
         })
         .collect();
     Ok((items, games))
@@ -1704,6 +1707,7 @@ mod tests {
                 id: g.id,
                 title: g.title.clone(),
                 poster: None,
+                ..Default::default()
             })
             .collect();
         let mut lib = GameLibrary::default();

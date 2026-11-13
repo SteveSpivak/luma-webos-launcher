@@ -6,3 +6,16 @@ dist/
 .env
 .env.*
 target/
+.agent-memory/*.db
+.agent-memory/*.db-shm
+.agent-memory/*.db-wal
+.agent-memory/__pycache__/
+.agent-kb/*.sqlite
+.agent-kb/shadow_checkpoints.json
+.agent-kb/*_cache.json
+.agent-kb/*receipts.json
+.agent-kb/latent_handles.sqlite
+.agent-kb/bench_synthetic.log
+COUNCIL_STARTER_KIT/.agent-kb/
+mutants/
+__pycache__/

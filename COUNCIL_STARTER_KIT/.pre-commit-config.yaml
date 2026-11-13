@@ -1,0 +1,41 @@
+# Pre-commit hooks for Council forensics & bug hunting.
+# Install: pip install pre-commit && pre-commit install
+
+repos:
+  - repo: local
+    hooks:
+      - id: council-hunt
+        name: Council Bug Hunt
+        entry: python3 scripts/council_entry.py hunt --path .
+        language: system
+        files: \.(py|ts|tsx|js|jsx)$
+        pass_filenames: false
+        always_run: true
+        verbose: true
+
+      - id: council-verify-fix
+        name: Council Frame Rule Verifier
+        entry: python3 scripts/council_entry.py verify-fix
+        language: system
+        files: \.(py|ts|tsx|js|jsx)$
+        pass_filenames: true
+        always_run: true
+        verbose: true
+
+      - id: council-review
+        name: Council Differential Review
+        entry: python3 scripts/council_entry.py review --base HEAD
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-ast
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace

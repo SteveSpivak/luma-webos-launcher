@@ -91,6 +91,26 @@ jobs:
             .build/*.png
             .build/*-render.json
 
+  docs:
+    name: Documentation validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate documentation links, source refs, and screenshots
+        run: python3 tools/validate_docs.py docs/
+      - name: Run documentation validator negative tests
+        run: python3 tools/test_validate_docs.py
+      - name: Verify documentation inventory is fresh
+        run: |
+          python3 tools/generate_doc_inventory.py
+          git diff --quiet tools/doc-inventory.json tools/doc-ownership.csv || {
+            echo "ERROR: Documentation inventory is stale. Re-run tools/generate_doc_inventory.py and commit the changes." >&2
+            exit 1
+          }
+      - name: Python syntax validation
+        run: python3 -m py_compile tools/validate_docs.py tools/test_validate_docs.py tools/generate_doc_inventory.py
+
   release:
     name: Publish release and Homebrew feed
     # Normal pushes and pull requests only run checks. Publish by a v* tag
